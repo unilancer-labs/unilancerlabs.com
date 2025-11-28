@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
+  ArrowRight,
   Sparkles,
   ChevronDown,
   Monitor,
@@ -19,6 +20,8 @@ import {
   Coins,
   Rocket,
   Zap,
+  Calendar,
+  X,
 } from "lucide-react";
 import { LogosCarousel } from "../components/ui/sections/logos-carousel";
 import { HowItWorks } from "../components/ui/sections/how-it-works";
@@ -404,7 +407,7 @@ const Home = () => {
                 <motion.div variants={heroItemVariants} className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 justify-center lg:justify-start">
                   <motion.a
                     href="/project-request"
-                    className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-base transition-all shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 group"
+                    className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-sm sm:text-base transition-all shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 group"
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -415,7 +418,7 @@ const Home = () => {
 
                   <motion.button
                     onClick={() => setIsCalendlyOpen(true)}
-                    className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3.5 bg-white/80 dark:bg-white/5 backdrop-blur-md text-slate-900 dark:text-white rounded-xl font-bold text-base hover:bg-white dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10 group shadow-sm"
+                    className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-white/80 dark:bg-white/5 backdrop-blur-md text-slate-900 dark:text-white rounded-xl font-bold text-sm sm:text-base hover:bg-white dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10 group shadow-sm"
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -436,9 +439,9 @@ const Home = () => {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="flex justify-center lg:justify-end mt-8 lg:mt-0"
+                className="flex justify-center lg:justify-end mt-6 lg:mt-0"
               >
-                <div className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl group cursor-pointer">
+                <div className="relative w-full max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl group cursor-pointer">
                   <motion.div
                     animate={{ opacity: [0.6, 1, 0.6] }}
                     transition={{
@@ -456,6 +459,27 @@ const Home = () => {
                   />
                 </div>
               </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* PARTNERLER - Moved and Redesigned */}
+        <section className="w-full py-8 relative z-20">
+          <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className="text-center md:text-left shrink-0">
+               <p className="text-sm md:text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                 İŞ BİRLİKLERİMİZ
+               </p>
+            </div>
+            
+            {/* Vertical Separator */}
+            <div className="hidden md:block w-px h-10 bg-gradient-to-b from-transparent via-slate-300 dark:via-white/20 to-transparent" />
+
+            <div className="flex-1 w-full overflow-hidden relative [mask-image:linear-gradient(to_right,transparent,black_10%,black_100%)]">
+               <LogosCarousel 
+                 className="py-0" 
+                 imageClassName="grayscale invert dark:invert-0 opacity-60 transition-all duration-300" 
+               />
             </div>
           </div>
         </section>
@@ -489,12 +513,12 @@ const Home = () => {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
-            <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8 mb-10 relative z-10">
+            <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8 mb-8 md:mb-10 relative z-10">
               <div className="text-center flex flex-col items-center">
                 <div className="mb-2">
-                   <GlitchyText text="digitAll" fontSize={48} />
+                   <GlitchyText text="digitAll" fontSize={36} />
                 </div>
-                <h2 className="text-[24px] md:text-[29px] font-bold tracking-tight text-slate-900 dark:text-white mb-4 max-w-4xl leading-tight mx-auto">
+                <h2 className="text-[20px] sm:text-[24px] md:text-[29px] font-bold tracking-tight text-slate-900 dark:text-white mb-4 max-w-4xl leading-tight mx-auto px-2">
                   işletmenizi dijital dünyada öne çıkaracak çözümler
                 </h2>
               </div>
@@ -591,17 +615,17 @@ const Home = () => {
         </section>
 
         {/* KIMIN ICIN */}
-        <section id="kimin-icin" className="py-12 md:py-16">
+        <section id="kimin-icin" className="py-10 md:py-16">
           <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto text-center">
+            <div className="max-w-3xl mx-auto text-center px-2">
                 <AnimatedText
                     as="h2"
-                    className="text-3xl md:text-[41.47px] font-bold tracking-tight text-slate-900 dark:text-white"
+                    className="text-[22px] sm:text-[28px] md:text-[41.47px] font-bold tracking-tight text-slate-900 dark:text-white leading-tight"
                     words={forWhomTitleWords}
                 />
             </div>
 
-            <div className="mt-14 grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 md:mt-14 grid gap-6 md:gap-x-8 md:gap-y-12 md:grid-cols-2 lg:grid-cols-3">
               {audience.map((item, index) => (
                 <AudienceCard
                   key={item.id}
@@ -619,24 +643,140 @@ const Home = () => {
         {/* NASIL CALISIR */}
         <HowItWorks />
         
-
-        {/* PARTNERLER */}
-        <section
-          id="partnerler"
-          className="py-8 md:py-10 bg-gradient-to-b from-transparent via-white/70 to-transparent dark:via-white/5"
-        >
-          <div className="max-w-[1340px] mx-auto px-3 sm:px-4 lg:px-6">
-            <div className="text-center mb-6">
-              <h2 className="text-[29px] md:text-[41.5px] font-bold text-slate-900 dark:text-white mb-4">
-                {t("home.partners.title")}
-              </h2>
-              <p className="text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300">
-                {t("home.partners.description")}
-              </p>
-            </div>
+        {/* ÜCRETSİZ DİJİTAL RAPOR - Premium CTA Section */}
+        <section id="rapor" className="py-20 md:py-32 relative overflow-hidden">
+          {/* Subtle background pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#5FC8DA08_1px,transparent_1px),linear-gradient(to_bottom,#5FC8DA08_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+          
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Main CTA Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="relative"
+            >
+              {/* Glow effect behind card */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-cyan-400/20 to-primary/20 rounded-[2.5rem] blur-2xl opacity-60 dark:opacity-40" />
+              
+              {/* Card */}
+              <div className="relative bg-white/80 dark:bg-dark-light/80 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-[2rem] p-8 md:p-12 lg:p-16 overflow-hidden">
+                {/* Decorative elements */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-500/10 to-transparent rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+                
+                <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+                  {/* Left side - Icon & Visual */}
+                  <div className="flex-shrink-0">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl scale-150" />
+                      <div className="relative w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-primary to-cyan-500 rounded-full flex items-center justify-center shadow-2xl shadow-primary/30">
+                        <Rocket className="w-14 h-14 md:w-16 md:h-16 text-white" />
+                      </div>
+                      {/* Floating dots */}
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                      <div className="absolute -bottom-1 -left-3 w-4 h-4 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      <div className="absolute top-1/2 -right-4 w-3 h-3 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                    </div>
+                  </div>
+                  
+                  {/* Right side - Content */}
+                  <div className="flex-1 text-center lg:text-left space-y-6">
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      <span className="text-sm font-medium text-primary">{t("home.report.exportBadge")}</span>
+                    </div>
+                    
+                    {/* Title */}
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
+                      {t("home.report.title")}
+                    </h2>
+                    
+                    {/* Description */}
+                    <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
+                      {t("home.report.description")}
+                    </p>
+                    
+                    {/* Features grid */}
+                    <div className="grid grid-cols-2 gap-4 pt-2">
+                      {[
+                        t("home.report.check1"),
+                        t("home.report.check2"),
+                        t("home.report.check3"),
+                        t("home.report.check4")
+                      ].map((item, index) => (
+                        <div key={index} className="flex items-center gap-3 group">
+                          <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
+                            <ShieldCheck className="w-3 h-3" />
+                          </div>
+                          <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* CTA Button */}
+                    <div className="pt-4 flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
+                      <motion.button
+                        onClick={() => setIsCalendlyOpen(true)}
+                        whileHover={{ scale: 1.03, boxShadow: "0 20px 40px -10px rgba(95, 200, 218, 0.4)" }}
+                        whileTap={{ scale: 0.98 }}
+                        className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-cyan-500 hover:from-primary hover:to-primary text-white font-bold text-lg rounded-2xl shadow-xl shadow-primary/30 transition-all duration-300"
+                      >
+                        <Calendar className="w-5 h-5" />
+                        <span>{t("home.report.meetingTitle")}</span>
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </motion.button>
+                      
+                      <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        {t("home.report.note")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <LogosCarousel />
         </section>
+
+        {/* Calendly Popup Modal */}
+        {isCalendlyOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setIsCalendlyOpen(false)}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-4xl h-[80vh] bg-white dark:bg-dark-light rounded-2xl shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setIsCalendlyOpen(false)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-600 dark:text-white" />
+              </button>
+              <div className="w-full h-full">
+                <CalendlyInline />
+              </div>
+            </motion.div>
+          </div>
+        )}
+        
+        {/* BEYİN GÖÇÜ MARQUEE */}
+        <section className="py-6 w-full">
+          <div className="max-w-[1400px] mx-auto px-3 sm:px-4 lg:px-6">
+            <MarqueeAnimation
+              direction="right"
+              baseVelocity={-2}
+              className="bg-gradient-to-r from-blue-50 via-cyan-50 to-blue-50 dark:from-blue-900/20 dark:via-cyan-800/30 dark:to-blue-900/20 text-blue-700 dark:text-cyan-300 py-4 text-lg sm:text-xl md:text-2xl font-medium rounded-xl border border-blue-200/50 dark:border-blue-700/30 shadow-sm"
+            >
+              BEYİN GÖÇÜ YERİNE HİZMET İHRACATI • BEYİN GÖÇÜ YERİNE HİZMET İHRACATI • BEYİN GÖÇÜ YERİNE HİZMET İHRACATI
+            </MarqueeAnimation>
+          </div>
+        </section>
+
 
         {/* NEDEN UNILANCER - BENTO GRID */}
         <section id="neden-unilancer" className="py-12 md:py-16 relative overflow-hidden">
@@ -646,55 +786,37 @@ const Home = () => {
            
            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="inline-flex items-center text-xs sm:text-sm text-primary font-medium bg-primary/10 border border-primary/20 rounded-full px-3 py-1 mb-6"
-              >
-                <Sparkles className="w-3.5 h-3.5 mr-2" />
-                {t("home.why.badge")}
-              </motion.div>
               <motion.h2 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="text-[29px] md:text-[41.5px] font-bold tracking-tight text-slate-900 dark:text-white mb-6"
+                className="text-[24px] sm:text-[29px] md:text-[41.5px] font-bold tracking-tight text-slate-900 dark:text-white mb-4 md:mb-6 px-2"
               >
                 {t("home.why.title")}
               </motion.h2>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300 leading-relaxed"
-              >
-                {t("home.why.description")}
-              </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 auto-rows-[minmax(280px,auto)]">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8 auto-rows-[minmax(240px,auto)] md:auto-rows-[minmax(280px,auto)]">
               {/* Card 1: Selected Teams - Large (2 cols) */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                className="md:col-span-2 group relative overflow-hidden rounded-[2rem] bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 p-8 md:p-10 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500"
+                className="md:col-span-2 group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 p-6 md:p-10 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500"
               >
                 <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
                 
                 <div className="relative z-10 h-full flex flex-col justify-between">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-primary/10">
-                    <Users className="w-7 h-7" />
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 md:mb-8 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-primary/10">
+                    <Users className="w-6 h-6 md:w-7 md:h-7" />
                   </div>
                   <div>
-                    <h3 className="text-[20px] md:text-[24px] font-bold text-slate-900 dark:text-white mb-4">
+                    <h3 className="text-[18px] md:text-[24px] font-bold text-slate-900 dark:text-white mb-3 md:mb-4">
                       {t("home.why.selectedTeams.title")}
                     </h3>
-                    <p className="text-slate-600 dark:text-gray-300 text-[16.5px] leading-relaxed max-w-lg">
+                    <p className="text-slate-600 dark:text-gray-300 text-[15px] md:text-[16.5px] leading-relaxed max-w-lg">
                       {t("home.why.selectedTeams.description")}
                     </p>
                   </div>
@@ -707,19 +829,19 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="md:col-span-1 group relative overflow-hidden rounded-[2rem] bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 p-8 md:p-10 hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500"
+                className="md:col-span-1 group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 p-6 md:p-10 hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500"
               >
                  <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
                  
                  <div className="relative z-10 h-full flex flex-col justify-between">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-8 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/10">
-                    <ShieldCheck className="w-7 h-7" />
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-6 md:mb-8 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/10">
+                    <ShieldCheck className="w-6 h-6 md:w-7 md:h-7" />
                   </div>
                   <div>
-                    <h3 className="text-[20px] md:text-[24px] font-bold text-slate-900 dark:text-white mb-3">
+                    <h3 className="text-[18px] md:text-[24px] font-bold text-slate-900 dark:text-white mb-2 md:mb-3">
                       {t("home.why.projectManagement.title")}
                     </h3>
-                    <p className="text-[16.5px] text-slate-600 dark:text-gray-300 leading-relaxed">
+                    <p className="text-[15px] md:text-[16.5px] text-slate-600 dark:text-gray-300 leading-relaxed">
                       {t("home.why.projectManagement.description")}
                     </p>
                   </div>
@@ -732,19 +854,19 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="md:col-span-1 group relative overflow-hidden rounded-[2rem] bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 p-8 md:p-10 hover:shadow-2xl hover:shadow-green-500/5 transition-all duration-500"
+                className="md:col-span-1 group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 p-6 md:p-10 hover:shadow-2xl hover:shadow-green-500/5 transition-all duration-500"
               >
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-400 to-emerald-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
                 
                 <div className="relative z-10 h-full flex flex-col justify-between">
-                  <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500 mb-8 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-green-500/10">
-                    <Coins className="w-7 h-7" />
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-green-500/10 flex items-center justify-center text-green-500 mb-6 md:mb-8 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-green-500/10">
+                    <Coins className="w-6 h-6 md:w-7 md:h-7" />
                   </div>
                   <div>
-                    <h3 className="text-[20px] md:text-[24px] font-bold text-slate-900 dark:text-white mb-3">
+                    <h3 className="text-[18px] md:text-[24px] font-bold text-slate-900 dark:text-white mb-2 md:mb-3">
                       {t("home.why.pricing.title")}
                     </h3>
-                    <p className="text-[16.5px] text-slate-600 dark:text-gray-300 leading-relaxed">
+                    <p className="text-[15px] md:text-[16.5px] text-slate-600 dark:text-gray-300 leading-relaxed">
                       {t("home.why.pricing.description")}
                     </p>
                   </div>
@@ -757,20 +879,20 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="md:col-span-2 group relative overflow-hidden rounded-[2rem] bg-slate-900 dark:bg-white/5 border border-slate-800 dark:border-white/10 p-8 md:p-10 text-white shadow-2xl hover:shadow-primary/20 transition-all duration-500"
+                className="md:col-span-2 group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-slate-900 dark:bg-white/5 border border-slate-800 dark:border-white/10 p-6 md:p-10 text-white shadow-2xl hover:shadow-primary/20 transition-all duration-500"
               >
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
                 <div className="absolute right-0 bottom-0 w-80 h-80 bg-gradient-to-tl from-primary/30 to-purple-600/30 rounded-full blur-[80px] -mr-20 -mb-20 group-hover:opacity-100 transition-opacity duration-500" />
 
-                <div className="relative z-10 h-full flex flex-col md:flex-row items-start md:items-center gap-8">
+                <div className="relative z-10 h-full flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8">
                   <div className="flex-1">
-                    <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white mb-8 group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm border border-white/10">
-                      <Rocket className="w-7 h-7" />
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-white/10 flex items-center justify-center text-white mb-6 md:mb-8 group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm border border-white/10">
+                      <Rocket className="w-6 h-6 md:w-7 md:h-7" />
                     </div>
-                    <h3 className="text-[20px] md:text-[24px] font-bold mb-4">
+                    <h3 className="text-[18px] md:text-[24px] font-bold mb-3 md:mb-4">
                       {t("home.why.digitalize.title")}
                     </h3>
-                    <p className="text-slate-300 text-[16.5px] leading-relaxed max-w-lg">
+                    <p className="text-slate-300 text-[15px] md:text-[16.5px] leading-relaxed max-w-lg">
                       {t("home.why.digitalize.description")}
                     </p>
                   </div>
@@ -781,91 +903,6 @@ const Home = () => {
                      </div>
                   </div>
                 </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* TÜRKİYE DİJİTALLEŞME VİZYONU */}
-        <section className="py-6 w-full">
-          <div className="max-w-[1400px] mx-auto px-3 sm:px-4 lg:px-6">
-            <div className="flex flex-col gap-4">
-              <MarqueeAnimation
-                direction="left"
-                baseVelocity={-2}
-                className="bg-gradient-to-r from-red-50 via-red-100 to-red-50 dark:from-red-900/20 dark:via-red-800/30 dark:to-red-900/20 text-red-700 dark:text-red-300 py-4 text-lg sm:text-xl md:text-2xl font-medium rounded-xl border border-red-200/50 dark:border-red-700/30 shadow-sm"
-              >
-                🇹🇷 TÜRKİYE'Yİ DİJİTALLEŞTİRİYORUZ • TÜRKİYE'Yİ DİJİTALLEŞTİRİYORUZ
-                • TÜRKİYE'Yİ DİJİTALLEŞTİRİYORUZ
-              </MarqueeAnimation>
-              <MarqueeAnimation
-                direction="right"
-                baseVelocity={-2}
-                className="bg-gradient-to-r from-blue-50 via-cyan-50 to-blue-50 dark:from-blue-900/20 dark:via-cyan-800/30 dark:to-blue-900/20 text-blue-700 dark:text-cyan-300 py-4 text-lg sm:text-xl md:text-2xl font-medium rounded-xl border border-blue-200/50 dark:border-blue-700/30 shadow-sm"
-              >
-                ✈️ BEYİN GÖÇÜ YERİNE HİZMET İHRACATI • BEYİN GÖÇÜ YERİNE HİZMET
-                İHRACATI • BEYİN GÖÇÜ YERİNE HİZMET İHRACATI
-              </MarqueeAnimation>
-            </div>
-          </div>
-        </section>
-
-        {/* ÜCRETSİZ DİJİTAL RAPOR + CALENDLY */}
-        <section id="rapor" className="py-10 md:py-12">
-          <div className="max-w-[1400px] mx-auto px-3 sm:px-4 lg:px-6">
-            <div className="grid gap-6 lg:grid-cols-2 items-start">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="space-y-4"
-              >
-                <h2 className="text-[29px] md:text-[41.5px] font-bold text-slate-900 dark:text-white">
-                  {t("home.report.title")}
-                </h2>
-                <p className="text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300 max-w-xl">
-                  {t("home.report.description")}
-                </p>
-
-                <ul className="space-y-2 text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300">
-                  <li>• {t("home.report.check1")}</li>
-                  <li>• {t("home.report.check2")}</li>
-                  <li>• {t("home.report.check3")}</li>
-                  <li>• {t("home.report.check4")}</li>
-                </ul>
-
-                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/90 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 text-xs sm:text-sm text-slate-700 dark:text-gray-200">
-                  <span className="mr-2 text-primary">
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </span>
-                  {t("home.report.exportBadge")}
-                </div>
-
-                <p className="pt-2 text-xs sm:text-sm text-slate-500 dark:text-gray-400">
-                  {t("home.report.note")}
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="rounded-3xl bg-white/95 dark:bg-dark-light/95 border border-slate-200/70 dark:border-white/10 shadow-xl p-3 md:p-4 lg:p-5 flex flex-col overflow-hidden"
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white">
-                      {t("home.report.meetingTitle")}
-                    </h3>
-                    <p className="text-xs md:text-sm text-slate-500 dark:text-gray-300">
-                      {t("home.report.meetingDescription")}
-                    </p>
-                  </div>
-                </div>
-
-                <CalendlyInline />
               </motion.div>
             </div>
           </div>
@@ -894,10 +931,10 @@ const Home = () => {
                   Sık Sorulan Sorular
                 </span>
               </div>
-              <h2 className="text-[29px] md:text-[41.5px] font-bold text-slate-900 dark:text-white mb-4">
+              <h2 className="text-[24px] sm:text-[29px] md:text-[41.5px] font-bold text-slate-900 dark:text-white mb-4">
                 {t("home.faq.title")}
               </h2>
-              <p className="text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300 max-w-2xl mx-auto">
+              <p className="text-[15px] sm:text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300 max-w-2xl mx-auto px-2">
                 {t("home.faq.description")}
               </p>
             </motion.div>
@@ -953,11 +990,11 @@ const Home = () => {
         {/* Calendly */}
         <section className="py-10 md:py-12 bg-slate-50/50 dark:bg-dark-light/30">
           <div className="max-w-[1200px] mx-auto px-3 sm:px-4 lg:px-6">
-            <div className="text-center mb-8">
-              <h2 className="text-[29px] md:text-[41.5px] font-bold text-slate-900 dark:text-white mb-3">
+            <div className="text-center mb-6 md:mb-8 px-2">
+              <h2 className="text-[24px] sm:text-[29px] md:text-[41.5px] font-bold text-slate-900 dark:text-white mb-3">
                 {t("home.meeting.title")}
               </h2>
-              <p className="text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300 max-w-2xl mx-auto">
+              <p className="text-[15px] sm:text-[16.5px] md:text-[20px] text-slate-600 dark:text-gray-300 max-w-2xl mx-auto">
                 {t("home.meeting.description")}
               </p>
             </div>

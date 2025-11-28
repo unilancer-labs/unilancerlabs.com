@@ -242,8 +242,11 @@ const Navbar = () => {
                 </button>
               </div>
 
-              <NavLink to={getRouteForLanguage('/portfolio', language)} active={location.pathname.includes('/portfolio') || location.pathname.includes('/portfolyo')} onClick={scrollToTop}>
-                {t('nav.portfolio')}
+              <NavLink to={getRouteForLanguage('/universities', language)} active={location.pathname.includes('/universities') || location.pathname.includes('/universiteliler')} onClick={scrollToTop}>
+                {language === 'tr' ? 'Üniversiteliler' : 'Universities'}
+              </NavLink>
+              <NavLink to={getRouteForLanguage('/digibot', language)} active={location.pathname.includes('/digibot')} onClick={scrollToTop}>
+                Digibot
               </NavLink>
 
               {/* Corporate Dropdown */}
@@ -617,9 +620,9 @@ const Navbar = () => {
                         )}
                       </div>
 
-                      {/* Portfolio Link */}
+                      {/* Universities Link */}
                       <Link
-                        to={getRouteForLanguage('/portfolio', language)}
+                        to={getRouteForLanguage('/universities', language)}
                         className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-dark-light/30 text-lg font-medium text-slate-800 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white rounded-xl transition-all duration-200 group border border-slate-200 dark:border-transparent shadow-sm hover:shadow-md"
                         onClick={() => {
                           setIsOpen(false);
@@ -628,9 +631,27 @@ const Navbar = () => {
                       >
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-primary/10 dark:bg-primary/10 rounded-xl flex items-center justify-center">
-                            <Image className="w-5 h-5 text-primary" />
+                            <Users className="w-5 h-5 text-primary" />
                           </div>
-                          <span className="font-semibold">{t('nav.portfolio')}</span>
+                          <span className="font-semibold">{language === 'tr' ? 'Üniversiteliler' : 'Universities'}</span>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
+                      </Link>
+
+                      {/* Digibot Link */}
+                      <Link
+                        to={getRouteForLanguage('/digibot', language)}
+                        className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-dark-light/30 text-lg font-medium text-slate-800 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white rounded-xl transition-all duration-200 group border border-slate-200 dark:border-transparent shadow-sm hover:shadow-md"
+                        onClick={() => {
+                          setIsOpen(false);
+                          scrollToTop();
+                        }}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-primary/10 dark:bg-primary/10 rounded-xl flex items-center justify-center">
+                            <BrainCircuit className="w-5 h-5 text-primary" />
+                          </div>
+                          <span className="font-semibold">Digibot</span>
                         </div>
                         <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
                       </Link>

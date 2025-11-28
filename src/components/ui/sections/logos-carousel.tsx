@@ -13,56 +13,58 @@ interface Logo {
 interface LogosCarouselProps {
   logos?: Logo[];
   className?: string;
+  imageClassName?: string;
 }
 
 const defaultLogos: Logo[] = [
   {
     id: "teknopark",
     description: "Teknopark İstanbul",
-    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page//teknoparklogo.webp",
+    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/teknoparklogo.webp",
     className: "h-16 md:h-20 w-auto object-contain",
   },
   {
     id: "tanhukuk",
     description: "Tan Hukuk",
-    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page//tanhukuklogo.webp",
+    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/tanhukuklogo.webp",
     className: "h-16 md:h-20 w-auto object-contain",
   },
   {
     id: "monster",
     description: "Monster Notebook",
-    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page//monsterlogo.webp",
+    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/monsterlogo.webp",
     className: "h-16 md:h-20 w-auto object-contain",
   },
   {
     id: "marmara",
     description: "Marmara Üniversitesi",
-    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page//marmaraunilogo.webp",
+    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/marmaraunilogo.webp",
     className: "h-16 md:h-20 w-auto object-contain",
   },
   {
     id: "lenovo",
     description: "Lenovo",
-    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page//lenovologo.webp",
+    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/lenovologo.webp",
     className: "h-16 md:h-20 w-auto object-contain",
   },
   {
     id: "kiralarsin",
     description: "Kiralarsin.com",
-    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page//kiralarsin.com_.png.webp",
+    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/kiralarsin.com_.png.webp",
     className: "h-16 md:h-20 w-auto object-contain",
   },
   {
     id: "ikas",
     description: "İkas",
-    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page//ikaslogo.webp",
+    image: "https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/ikaslogo.webp",
     className: "h-16 md:h-20 w-auto object-contain",
   }
 ];
 
 const LogosCarousel = ({
   logos = defaultLogos,
-  className
+  className,
+  imageClassName
 }: LogosCarouselProps) => {
   return (
     <div className={cn("relative overflow-hidden py-2 md:py-4", className)}>
@@ -79,12 +81,12 @@ const LogosCarousel = ({
               playOnInit: true,
               speed: 1,
               stopOnInteraction: false,
-              stopOnMouseEnter: true,
+              stopOnMouseEnter: false,
               rootNode: (emblaRoot) => emblaRoot.parentElement as HTMLElement,
               direction: "rtl"
             })
           ]}
-          className="w-full cursor-grab active:cursor-grabbing"
+          className="w-full"
         >
           <CarouselContent className="-ml-4 md:-ml-8">
             {[...logos, ...logos].map((logo, index) => (
@@ -98,8 +100,9 @@ const LogosCarousel = ({
                     src={logo.image}
                     alt={logo.description}
                     className={cn(
-                      "relative opacity-60 transition-all duration-500 transform group-hover:scale-110 group-hover:opacity-100 filter contrast-125 brightness-125",
-                      logo.className
+                      "relative opacity-60 transition-all duration-500 filter contrast-125 brightness-125",
+                      logo.className,
+                      imageClassName
                     )}
                     loading="lazy"
                   />

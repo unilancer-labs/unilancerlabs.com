@@ -71,7 +71,7 @@ export const AnimatedTestimonials = ({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-4 md:mb-6"
           >
             Başarı Hikayelerimiz
           </motion.h2>
@@ -80,7 +80,7 @@ export const AnimatedTestimonials = ({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-slate-600 dark:text-gray-300 leading-relaxed"
+            className="text-base md:text-xl text-slate-600 dark:text-gray-300 leading-relaxed px-2"
           >
             Unilancer ile çalışan markaların ve girişimlerin deneyimleri
           </motion.p>
@@ -88,7 +88,7 @@ export const AnimatedTestimonials = ({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Image Section */}
-          <div className="relative h-[350px] md:h-[450px] w-full max-w-[500px] mx-auto lg:mx-0">
+          <div className="relative h-[280px] sm:h-[350px] md:h-[450px] w-full max-w-[400px] sm:max-w-[500px] mx-auto lg:mx-0">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-purple-500/20 rounded-[2rem] blur-3xl -z-10 transform rotate-6 scale-110" />
             <AnimatePresence>
               {testimonials.map((testimonial, index) => (
@@ -156,9 +156,9 @@ export const AnimatedTestimonials = ({
                 ease: "easeInOut",
               }}
             >
-              <div className="mb-8">
-                <Quote className="w-12 h-12 text-primary/20 mb-6" />
-                <motion.p className="text-xl md:text-2xl lg:text-3xl font-medium text-slate-900 dark:text-white leading-relaxed">
+              <div className="mb-6 md:mb-8">
+                <Quote className="w-10 h-10 md:w-12 md:h-12 text-primary/20 mb-4 md:mb-6" />
+                <motion.p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium text-slate-900 dark:text-white leading-relaxed">
                   {testimonials[active].quote.split(" ").map((word, index) => (
                     <motion.span
                       key={index}
@@ -190,10 +190,10 @@ export const AnimatedTestimonials = ({
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-1 md:mb-2">
                   {testimonials[active].name}
                 </h3>
-                <p className="text-lg text-primary font-medium">
+                <p className="text-base md:text-lg text-primary font-medium">
                   {testimonials[active].designation}
                 </p>
               </div>

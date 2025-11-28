@@ -21,6 +21,8 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Team = lazy(() => import('./pages/Team'));
 const ThreeDARVirtualTour = lazy(() => import('./pages/ThreeDARVirtualTour'));
 const Demo = lazy(() => import('./pages/Demo'));
+const Universities = lazy(() => import('./pages/Universities'));
+const Digibot = lazy(() => import('./pages/Digibot'));
 
 // Admin routes
 const AdminRoutes = lazy(() => import('./features/admin/routes'));
@@ -68,6 +70,8 @@ function App() {
                       <Route path="/tr/blog/:slug" element={<BlogDetail />} />
                       <Route path="/tr/iletisim" element={<Contact />} />
                       <Route path="/tr/ekibimiz" element={<Team />} />
+                      <Route path="/tr/universiteliler" element={<Universities />} />
+                      <Route path="/tr/digibot" element={<Digibot />} />
 
                       {/* English routes */}
                       <Route path="/en" element={<Home />} />
@@ -79,6 +83,8 @@ function App() {
                       <Route path="/en/blog/:slug" element={<BlogDetail />} />
                       <Route path="/en/contact" element={<Contact />} />
                       <Route path="/en/team" element={<Team />} />
+                      <Route path="/en/universities" element={<Universities />} />
+                      <Route path="/en/digibot" element={<Digibot />} />
                     </Route>
 
                     {/* Form routes without navbar/footer */}

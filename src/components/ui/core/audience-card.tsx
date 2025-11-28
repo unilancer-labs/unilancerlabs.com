@@ -24,7 +24,7 @@ const AudienceCard: React.FC<AudienceCardProps> = ({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
-      className="group relative flex flex-col w-full max-w-sm mx-auto h-[480px] rounded-3xl overflow-hidden border border-white/10 shadow-xl shadow-slate-300/40 dark:shadow-black/50"
+      className="group relative flex flex-col w-full max-w-sm mx-auto h-[400px] md:h-[480px] rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 shadow-xl shadow-slate-300/40 dark:shadow-black/50"
     >
       {/* Background Image */}
       <img
@@ -36,10 +36,10 @@ const AudienceCard: React.FC<AudienceCardProps> = ({
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/90"></div>
 
       {/* Content */}
-      <div className="relative flex flex-col h-full p-6 md:p-8 z-10 justify-between">
+      <div className="relative flex flex-col h-full p-5 md:p-8 z-10 justify-between">
         {/* Top Section for Title */}
         <div>
-          <h3 className="text-[20px] md:text-[24px] font-bold text-white tracking-wide leading-tight">
+          <h3 className="text-[18px] md:text-[24px] font-bold text-white tracking-wide leading-tight">
             {title}
           </h3>
         </div>
@@ -51,7 +51,7 @@ const AudienceCard: React.FC<AudienceCardProps> = ({
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: index * 0.15 + 0.4 }}
         >
-          <p className="text-[16.5px] text-slate-100 leading-relaxed [text-shadow:_0_1px_4px_rgb(0_0_0_/_0.8)]">
+          <p className="text-[15px] md:text-[16.5px] text-slate-100 leading-relaxed [text-shadow:_0_1px_4px_rgb(0_0_0_/_0.8)]">
             {description}
           </p>
         </motion.div>

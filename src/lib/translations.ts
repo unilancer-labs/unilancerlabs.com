@@ -302,16 +302,16 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
 
   // Why Unilancer Section
   'home.why.title': {
-    tr: 'Neden Unilancer?',
-    en: 'Why Unilancer?'
+    tr: 'neden unilancer?',
+    en: 'why unilancer?'
   },
   'home.why.description': {
-    tr: 'Freelancer esnekliğini kurumsal proje yönetimiyle buluşturuyoruz.',
-    en: 'We combine freelancer flexibility with corporate project management.'
+    tr: '',
+    en: ''
   },
   'home.why.badge': {
-    tr: 'Türkiyeyi Dijitalleştiriyoruz',
-    en: 'Digitalizing Turkey'
+    tr: '',
+    en: ''
   },
   'home.why.selectedTeams.title': {
     tr: 'Seçilmiş Üniversiteli Ekipler',

@@ -61,7 +61,6 @@ const BlogDetail = () => {
         setLoading(false);
       }
     };
-    };
 
     loadPost();
   }, [slug, navigate, language]);
