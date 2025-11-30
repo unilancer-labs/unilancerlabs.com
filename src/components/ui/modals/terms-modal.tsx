@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, FileText } from 'lucide-react';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 interface TermsModalProps {
   isOpen: boolean;
@@ -8,6 +9,8 @@ interface TermsModalProps {
 }
 
 export const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
+  const { t } = useTranslation();
+  
   if (!isOpen) return null;
 
   return (
@@ -35,7 +38,7 @@ export const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                 <FileText className="w-5 h-5 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-white">Kullanım Koşulları</h2>
+              <h2 className="text-xl font-bold text-white">{t('terms.title', 'Kullanım Koşulları')}</h2>
             </div>
             <button
               onClick={onClose}
@@ -48,81 +51,65 @@ export const TermsModal = ({ isOpen, onClose }: TermsModalProps) => {
           {/* Content */}
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-76px)] space-y-6">
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">1. Hizmet Şartları</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section1.title', '1. Hizmet Şartları')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Unilancer platformunu kullanarak, bu kullanım koşullarını kabul etmiş olursunuz. 
-                Platformumuz üzerinden sunulan hizmetler, belirtilen şartlar ve koşullar 
-                çerçevesinde sağlanmaktadır.
+                {t('terms.section1.content', 'Unilancer platformunu kullanarak, bu kullanım koşullarını kabul etmiş olursunuz. Platformumuz üzerinden sunulan hizmetler, belirtilen şartlar ve koşullar çerçevesinde sağlanmaktadır.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">2. Hizmet Kullanımı</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section2.title', '2. Hizmet Kullanımı')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Platformumuz üzerinden talep ettiğiniz hizmetler, profesyonel standartlara uygun 
-                olarak sunulmaktadır. Hizmetlerimizi kullanırken, tüm yasal düzenlemelere ve 
-                platform kurallarına uymayı kabul etmiş olursunuz.
+                {t('terms.section2.content', 'Platformumuz üzerinden talep ettiğiniz hizmetler, profesyonel standartlara uygun olarak sunulmaktadır. Hizmetlerimizi kullanırken, tüm yasal düzenlemelere ve platform kurallarına uymayı kabul etmiş olursunuz.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">3. Fikri Mülkiyet Hakları</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section3.title', '3. Fikri Mülkiyet Hakları')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Proje sürecinde üretilen tüm içerikler, tasarımlar ve kodlar, aksi belirtilmedikçe 
-                müşteriye aittir. Unilancer, projelerde kullanılan açık kaynak yazılımların lisans 
-                haklarına saygı gösterir.
+                {t('terms.section3.content', 'Proje sürecinde üretilen tüm içerikler, tasarımlar ve kodlar, aksi belirtilmedikçe müşteriye aittir. Unilancer, projelerde kullanılan açık kaynak yazılımların lisans haklarına saygı gösterir.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">4. Ödeme ve İade Koşulları</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section4.title', '4. Ödeme ve İade Koşulları')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Proje ödemeleri, belirlenen iş planı ve aşamalara göre yapılır. İptal ve iade 
-                koşulları, her projenin özel şartlarına göre sözleşmede belirtilir. Ödemeler, 
-                güvenli ödeme sistemleri üzerinden gerçekleştirilir.
+                {t('terms.section4.content', 'Proje ödemeleri, belirlenen iş planı ve aşamalara göre yapılır. İptal ve iade koşulları, her projenin özel şartlarına göre sözleşmede belirtilir. Ödemeler, güvenli ödeme sistemleri üzerinden gerçekleştirilir.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">5. Gizlilik ve Güvenlik</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section5.title', '5. Gizlilik ve Güvenlik')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Proje sürecinde paylaşılan tüm bilgiler gizlilik ilkelerimiz kapsamında korunur. 
-                Müşteri bilgileri ve proje detayları, yasal zorunluluklar dışında üçüncü taraflarla 
-                paylaşılmaz.
+                {t('terms.section5.content', 'Proje sürecinde paylaşılan tüm bilgiler gizlilik ilkelerimiz kapsamında korunur. Müşteri bilgileri ve proje detayları, yasal zorunluluklar dışında üçüncü taraflarla paylaşılmaz.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">6. Sorumluluk Sınırları</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section6.title', '6. Sorumluluk Sınırları')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Unilancer, sunduğu hizmetlerin kalitesini garanti eder ancak müşteri tarafından 
-                sağlanan içerik, bilgi ve materyallerin doğruluğundan sorumlu tutulamaz. Mücbir 
-                sebeplerden kaynaklanan gecikmeler için sorumluluk kabul edilmez.
+                {t('terms.section6.content', 'Unilancer, sunduğu hizmetlerin kalitesini garanti eder ancak müşteri tarafından sağlanan içerik, bilgi ve materyallerin doğruluğundan sorumlu tutulamaz. Mücbir sebeplerden kaynaklanan gecikmeler için sorumluluk kabul edilmez.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">7. Sözleşme Feshi</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section7.title', '7. Sözleşme Feshi')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Taraflar, belirtilen şartlara uymadığı takdirde sözleşmeyi feshetme hakkına sahiptir. 
-                Fesih durumunda, o ana kadar tamamlanan işler için ödeme yapılır ve tüm materyaller 
-                teslim edilir.
+                {t('terms.section7.content', 'Taraflar, belirtilen şartlara uymadığı takdirde sözleşmeyi feshetme hakkına sahiptir. Fesih durumunda, o ana kadar tamamlanan işler için ödeme yapılır ve tüm materyaller teslim edilir.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">8. Güncellemeler</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section8.title', '8. Güncellemeler')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Unilancer, bu kullanım koşullarını önceden haber vermeksizin güncelleme hakkını 
-                saklı tutar. Güncellemeler, web sitemizde yayınlandığı tarihten itibaren geçerli 
-                olur.
+                {t('terms.section8.content', 'Unilancer, bu kullanım koşullarını önceden haber vermeksizin güncelleme hakkını saklı tutar. Güncellemeler, web sitemizde yayınlandığı tarihten itibaren geçerli olur.')}
               </p>
             </section>
 
             <section>
-              <h3 className="text-lg font-semibold mb-3 text-white">9. İletişim</h3>
+              <h3 className="text-lg font-semibold mb-3 text-white">{t('terms.section9.title', '9. İletişim')}</h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Kullanım koşullarımız hakkında sorularınız için bize ulaşın: 
+                {t('terms.section9.content', 'Kullanım koşullarımız hakkında sorularınız için bize ulaşın:')}
                 <a href="mailto:info@unilancerlabs.com" className="text-primary hover:text-primary-light ml-1">
                   info@unilancerlabs.com
                 </a>

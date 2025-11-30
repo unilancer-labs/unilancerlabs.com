@@ -1,10 +1,9 @@
 import * as React from "react";
-import { motion, useInView } from "framer-motion";
+import { memo } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import useEmblaCarousel, {
   type EmblaCarouselType,
-  type EmblaOptionsType,
 } from "embla-carousel-react";
 import { Button } from "./button";
 
@@ -232,26 +231,37 @@ const CarouselNext = React.forwardRef<
 });
 CarouselNext.displayName = "CarouselNext";
 
+import { Link } from 'react-router-dom';
+import { useTranslation } from '../../../hooks/useTranslation';
+import { getRouteForLanguage } from '../../../contexts/LanguageContext';
+
+// ... existing imports
+
 export interface Service {
   number: string;
   title: string;
   description: string;
   icon: React.ElementType;
   gradient: string;
+  slug?: string;
 }
 
-const ServiceCard = ({ service, index }: { service: Service; index: number }) => {
+// Memoized ServiceCard for better performance
+const ServiceCard = memo(function ServiceCard({ service }: { service: Service }) {
+  const { language } = useTranslation();
+  const lang = language;
+  
+  // Construct the lookup path (assuming slugs match Turkish routes)
+  // This allows getRouteForLanguage to find the correct route for any language
+  const lookupPath = `/hizmetler/${service.slug}`;
+  const linkPath = service.slug ? getRouteForLanguage(lookupPath, lang) : '#';
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      viewport={{ once: true }}
-      className="group relative h-[280px] md:h-[340px] w-full overflow-hidden rounded-2xl md:rounded-3xl bg-white dark:bg-dark-light border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
-    >
+    <Link to={linkPath} className="block h-full">
+    <div className="group relative h-[280px] md:h-[340px] w-full overflow-hidden rounded-2xl md:rounded-3xl bg-white dark:bg-dark-light border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer">
       {/* Background Gradient - Very Subtle */}
       <div className={cn(
-        "absolute inset-0 opacity-[0.08] group-hover:opacity-15 transition-opacity duration-500 bg-gradient-to-br",
+        "absolute inset-0 opacity-[0.08] group-hover:opacity-15 transition-opacity duration-300 bg-gradient-to-br",
         service.gradient
       )} />
       
@@ -270,55 +280,46 @@ const ServiceCard = ({ service, index }: { service: Service; index: number }) =>
                 
                 <service.icon 
                   strokeWidth={1.5}
-                  className="w-20 h-20 md:w-24 md:h-24 text-slate-800 dark:text-slate-200 relative z-10 drop-shadow-2xl transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500" 
+                  className="w-20 h-20 md:w-24 md:h-24 text-slate-800 dark:text-slate-200 relative z-10 drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-300" 
                 />
              </div>
         </div>
 
         {/* Details Button/Indicator */}
         <div className="absolute bottom-4 right-4 md:bottom-5 md:right-5 z-20">
-            <div className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-slate-100 dark:border-white/5 shadow-sm group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-300">
+            <div className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-slate-100 dark:border-white/5 shadow-sm group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-colors duration-300">
                 <span className="text-[11px] md:text-xs font-medium text-slate-600 dark:text-slate-300 group-hover:text-white">İncele</span>
                 <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 text-slate-600 dark:text-slate-300 group-hover:text-white" />
             </div>
         </div>
       </div>
-    </motion.div>
+    </div>
+    </Link>
   );
-};
+});
 
-export const ServiceCarousel = ({ services }: { services: Service[] }) => {
-  const ref = React.useRef<HTMLDivElement | null>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
-
+export const ServiceCarousel = memo(function ServiceCarousel({ services }: { services: Service[] }) {
   return (
     <div className="w-full max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8">
       <Carousel
-        ref={ref}
         opts={{
           align: "start",
           loop: true,
         }}
         className="relative"
       >
-        <motion.div
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          transition={{ staggerChildren: 0.1 }}
-        >
-          <CarouselContent className="-ml-4 md:-ml-6">
-            {services.map((service, index) => (
-              <CarouselItem
-                key={index}
-                className="pl-4 md:pl-6 md:basis-1/2 lg:basis-1/4 xl:basis-1/5"
-              >
-                <div className="h-full p-1">
-                  <ServiceCard service={service} index={index} />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </motion.div>
+        <CarouselContent className="-ml-4 md:-ml-6">
+          {services.map((service, index) => (
+            <CarouselItem
+              key={index}
+              className="pl-4 md:pl-6 md:basis-1/2 lg:basis-1/4 xl:basis-1/5"
+            >
+              <div className="h-full p-1">
+                <ServiceCard service={service} />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
 
         {/* Navigation Buttons */}
         <div className="mt-8 flex justify-center gap-4 md:hidden">
@@ -328,10 +329,10 @@ export const ServiceCarousel = ({ services }: { services: Service[] }) => {
 
         {/* Desktop Navigation Buttons */}
         <div className="hidden md:block">
-            <CarouselPrevious className="absolute -left-4 lg:-left-12 top-1/2 -translate-y-1/2 h-12 w-12 border-slate-200 dark:border-white/10 bg-white/80 dark:bg-dark-light/80 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-lg" />
-            <CarouselNext className="absolute -right-4 lg:-right-12 top-1/2 -translate-y-1/2 h-12 w-12 border-slate-200 dark:border-white/10 bg-white/80 dark:bg-dark-light/80 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 shadow-lg" />
+            <CarouselPrevious className="absolute -left-4 lg:-left-12 top-1/2 -translate-y-1/2 h-12 w-12 border-slate-200 dark:border-white/10 bg-white/80 dark:bg-dark-light/80 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary transition-colors duration-300 shadow-lg" />
+            <CarouselNext className="absolute -right-4 lg:-right-12 top-1/2 -translate-y-1/2 h-12 w-12 border-slate-200 dark:border-white/10 bg-white/80 dark:bg-dark-light/80 backdrop-blur-sm hover:bg-primary hover:text-white hover:border-primary transition-colors duration-300 shadow-lg" />
         </div>
       </Carousel>
     </div>
   );
-};
+});

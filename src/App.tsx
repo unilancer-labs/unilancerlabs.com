@@ -19,10 +19,19 @@ const JoinUs = lazy(() => import('./pages/JoinUs'));
 const ProjectRequest = lazy(() => import('./pages/ProjectRequest'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Team = lazy(() => import('./pages/Team'));
-const ThreeDARVirtualTour = lazy(() => import('./pages/ThreeDARVirtualTour'));
 const Demo = lazy(() => import('./pages/Demo'));
 const Universities = lazy(() => import('./pages/Universities'));
-const Digibot = lazy(() => import('./pages/Digibot'));
+const DigibotPage = lazy(() => import('./pages/Digibot'));
+
+// Service Pages
+const WebDesign = lazy(() => import('./pages/services/WebDesign'));
+const ThreeDAR = lazy(() => import('./pages/services/ThreeDAR'));
+const Ecommerce = lazy(() => import('./pages/services/Ecommerce'));
+const Marketing = lazy(() => import('./pages/services/Marketing'));
+const DigibotService = lazy(() => import('./pages/services/Digibot'));
+const SoftwareDevelopment = lazy(() => import('./pages/services/SoftwareDevelopment'));
+const Branding = lazy(() => import('./pages/services/Branding'));
+const GraphicDesign = lazy(() => import('./pages/services/GraphicDesign'));
 
 // Admin routes
 const AdminRoutes = lazy(() => import('./features/admin/routes'));
@@ -64,27 +73,47 @@ function App() {
                       <Route path="/tr" element={<Home />} />
                       <Route path="/tr/portfolyo" element={<Portfolio />} />
                       <Route path="/tr/hizmetler" element={<Services />} />
-                      <Route path="/tr/digitall/3d-ar-sanal-tur" element={<ThreeDARVirtualTour />} />
+                      
+                      {/* Service Detail Routes */}
+                      <Route path="/tr/hizmetler/web-tasarim" element={<WebDesign />} />
+                      <Route path="/tr/hizmetler/3d-ar" element={<ThreeDAR />} />
+                      <Route path="/tr/hizmetler/e-ticaret-cozumleri" element={<Ecommerce />} />
+                      <Route path="/tr/hizmetler/pazarlama-reklam" element={<Marketing />} />
+                      <Route path="/tr/hizmetler/yapay-zeka-digibot" element={<DigibotService />} />
+                      <Route path="/tr/hizmetler/yazilim-gelistirme" element={<SoftwareDevelopment />} />
+                      <Route path="/tr/hizmetler/kurumsal-kimlik-marka" element={<Branding />} />
+                      <Route path="/tr/hizmetler/grafik-tasarim" element={<GraphicDesign />} />
+
                       <Route path="/tr/hakkimizda" element={<About />} />
                       <Route path="/tr/blog" element={<Blog />} />
                       <Route path="/tr/blog/:slug" element={<BlogDetail />} />
                       <Route path="/tr/iletisim" element={<Contact />} />
                       <Route path="/tr/ekibimiz" element={<Team />} />
                       <Route path="/tr/universiteliler" element={<Universities />} />
-                      <Route path="/tr/digibot" element={<Digibot />} />
+                      <Route path="/tr/digibot" element={<DigibotPage />} />
 
                       {/* English routes */}
                       <Route path="/en" element={<Home />} />
                       <Route path="/en/portfolio" element={<Portfolio />} />
                       <Route path="/en/services" element={<Services />} />
-                      <Route path="/en/digitall/3d-ar-virtual-tour" element={<ThreeDARVirtualTour />} />
+                      
+                      {/* Service Detail Routes (EN) - Currently mapping to same components */}
+                      <Route path="/en/services/web-design" element={<WebDesign />} />
+                      <Route path="/en/services/3d-ar" element={<ThreeDAR />} />
+                      <Route path="/en/services/ecommerce" element={<Ecommerce />} />
+                      <Route path="/en/services/marketing" element={<Marketing />} />
+                      <Route path="/en/services/ai-digibot" element={<DigibotService />} />
+                      <Route path="/en/services/software-development" element={<SoftwareDevelopment />} />
+                      <Route path="/en/services/branding" element={<Branding />} />
+                      <Route path="/en/services/graphic-design" element={<GraphicDesign />} />
+
                       <Route path="/en/about" element={<About />} />
                       <Route path="/en/blog" element={<Blog />} />
                       <Route path="/en/blog/:slug" element={<BlogDetail />} />
                       <Route path="/en/contact" element={<Contact />} />
                       <Route path="/en/team" element={<Team />} />
                       <Route path="/en/universities" element={<Universities />} />
-                      <Route path="/en/digibot" element={<Digibot />} />
+                      <Route path="/en/digibot" element={<DigibotPage />} />
                     </Route>
 
                     {/* Form routes without navbar/footer */}
@@ -108,7 +137,7 @@ function App() {
                     {/* Legacy routes - redirect to Turkish */}
                     <Route path="/portfolio" element={<Navigate to="/tr/portfolyo" replace />} />
                     <Route path="/services" element={<Navigate to="/tr/hizmetler" replace />} />
-                    <Route path="/digitall/3d-ar-sanal-tur" element={<Navigate to="/tr/digitall/3d-ar-sanal-tur" replace />} />
+                    <Route path="/digitall/3d-ar-sanal-tur" element={<Navigate to="/tr/hizmetler/3d-ar" replace />} />
                     <Route path="/about" element={<Navigate to="/tr/hakkimizda" replace />} />
                     <Route path="/blog" element={<Navigate to="/tr/blog" replace />} />
                     <Route path="/blog/:slug" element={<Navigate to="/tr/blog/:slug" replace />} />

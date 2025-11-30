@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { detectUserLocation, markGeolocationDetected } from '../lib/services/geolocation';
-import { getStaticTranslation } from '../lib/translations';
+import { staticTranslations } from '../lib/translations';
 
 export type Language = 'tr' | 'en';
 
@@ -10,6 +10,7 @@ interface LanguageContextType {
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
   t: (key: string, fallback?: string) => string;
+  isLoading: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -26,7 +27,16 @@ const routeTranslations: Record<string, Record<Language, string>> = {
   '/team': { tr: '/ekibimiz', en: '/team' },
   '/join': { tr: '/basvuru', en: '/join' },
   '/project-request': { tr: '/proje-talebi', en: '/project-request' },
-  '/digitall/3d-ar-sanal-tur': { tr: '/digitall/3d-ar-sanal-tur', en: '/digitall/3d-ar-virtual-tour' }
+  '/universities': { tr: '/universiteliler', en: '/universities' },
+  '/digibot': { tr: '/digibot', en: '/digibot' },
+  '/services/web-design': { tr: '/hizmetler/web-tasarim', en: '/services/web-design' },
+  '/services/3d-ar': { tr: '/hizmetler/3d-ar', en: '/services/3d-ar' },
+  '/services/ecommerce': { tr: '/hizmetler/e-ticaret-cozumleri', en: '/services/ecommerce' },
+  '/services/marketing': { tr: '/hizmetler/pazarlama-reklam', en: '/services/marketing' },
+  '/services/ai-digibot': { tr: '/hizmetler/yapay-zeka-digibot', en: '/services/ai-digibot' },
+  '/services/software-development': { tr: '/hizmetler/yazilim-gelistirme', en: '/services/software-development' },
+  '/services/branding': { tr: '/hizmetler/kurumsal-kimlik-marka', en: '/services/branding' },
+  '/services/graphic-design': { tr: '/hizmetler/grafik-tasarim', en: '/services/graphic-design' }
 };
 
 const reverseRouteTranslations: Record<string, string> = {};
@@ -40,8 +50,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   const getInitialLanguage = async (): Promise<Language> => {
-    const pathLang = location.pathname.startsWith('/en/') ? 'en' :
-                     location.pathname.startsWith('/tr/') ? 'tr' : null;
+    const pathLang = location.pathname.startsWith('/en/') || location.pathname === '/en' ? 'en' :
+                     location.pathname.startsWith('/tr/') || location.pathname === '/tr' ? 'tr' : null;
 
     if (pathLang) return pathLang;
 
@@ -61,21 +71,48 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const [language, setLanguageState] = useState<Language>('tr');
-  const [translations, setTranslations] = useState<Record<string, string>>({});
+  const [dbTranslations, setDbTranslations] = useState<Record<string, string>>({});
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Translation function - uses staticTranslations first, then DB overrides
+  const t = useCallback((key: string, fallback?: string): string => {
+    // For Turkish, always use static translations or fallback
+    if (language === 'tr') {
+      return staticTranslations[key]?.tr || fallback || key;
+    }
+    
+    // For English: check DB first (for dynamic/updated translations), then static
+    if (dbTranslations[key]) {
+      return dbTranslations[key];
+    }
+    
+    if (staticTranslations[key]?.en) {
+      return staticTranslations[key].en;
+    }
+    
+    // Return Turkish as last resort, then fallback, then key
+    return staticTranslations[key]?.tr || fallback || key;
+  }, [language, dbTranslations]);
 
   useEffect(() => {
     const initLanguage = async () => {
       // Skip language redirect for admin and login routes
       if (location.pathname.startsWith('/admin') || location.pathname === '/login') {
         setIsInitialized(true);
+        setIsLoading(false);
         return;
       }
 
       const initialLang = await getInitialLanguage();
       setLanguageState(initialLang);
-      await loadTranslations(initialLang);
+      
+      if (initialLang === 'en') {
+        await loadDbTranslations();
+      }
+      
       setIsInitialized(true);
+      setIsLoading(false);
 
       if (!location.pathname.startsWith(`/${initialLang}`)) {
         const currentPathWithoutLang = location.pathname.replace(/^\/(tr|en)/, '') || '/';
@@ -94,36 +131,34 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (isInitialized) {
-      loadTranslations(language);
-    }
-  }, [language, isInitialized]);
-
-  const loadTranslations = async (lang: Language) => {
-    if (lang === 'tr') {
-      setTranslations({});
-      return;
-    }
-
+  // Load DB translations when language changes to English
+  const loadDbTranslations = async () => {
     try {
       const { supabase } = await import('../lib/config/supabase');
       const { data } = await supabase
         .from('translations')
         .select('content_key, translated_text')
-        .eq('language', lang);
+        .eq('language', 'en');
 
       if (data) {
         const translationMap: Record<string, string> = {};
         data.forEach((item) => {
           translationMap[item.content_key] = item.translated_text;
         });
-        setTranslations(translationMap);
+        setDbTranslations(translationMap);
       }
     } catch (error) {
-      console.error('Error loading translations:', error);
+      console.error('Error loading translations from DB:', error);
     }
   };
+
+  useEffect(() => {
+    if (isInitialized && language === 'en') {
+      loadDbTranslations();
+    } else if (language === 'tr') {
+      setDbTranslations({});
+    }
+  }, [language, isInitialized]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -150,18 +185,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguage(language === 'tr' ? 'en' : 'tr');
   };
 
-  const t = (key: string, fallback?: string): string => {
-    const staticFallback = getStaticTranslation(key, language);
-
-    if (language === 'tr') {
-      return fallback || staticFallback || key;
-    }
-
-    return translations[key] || staticFallback || fallback || key;
-  };
-
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t, isLoading }}>
       {children}
     </LanguageContext.Provider>
   );

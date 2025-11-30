@@ -76,45 +76,67 @@ const Services = () => {
   const featuredServices: Service[] = [
     {
       number: "001",
-      title: t('services.featured.web.title', 'Web Development'),
+      title: t('services.featured.web.title', 'Web Tasarım'),
       description: t('services.featured.web.desc', 'Modern ve responsive web siteleri, e-ticaret platformları ve web uygulamaları geliştiriyoruz.'),
       icon: Code2,
       gradient: "from-blue-100 to-cyan-200 dark:from-blue-900/50 dark:to-cyan-800/50",
+      slug: "web-tasarim"
     },
     {
       number: "002",
-      title: t('services.featured.design.title', 'UI/UX Design'),
-      description: t('services.featured.design.desc', 'Kullanıcı deneyimini ön planda tutan, estetik ve işlevsel arayüz tasarımları yaratıyoruz.'),
-      icon: Palette,
-      gradient: "from-purple-100 to-pink-200 dark:from-purple-900/50 dark:to-pink-800/50",
+      title: t('services.featured.3d.title', '3D & AR'),
+      description: t('services.featured.3d.desc', 'Ürünlerinizi ve projelerinizi 3D modelleme ve Artırılmış Gerçeklik ile etkileyici bir deneyime dönüştürün.'),
+      icon: Box,
+      gradient: "from-indigo-100 to-purple-200 dark:from-indigo-900/50 dark:to-purple-800/50",
+      slug: "3d-ar"
     },
     {
       number: "003",
-      title: t('services.featured.mobile.title', 'Mobile Apps'),
-      description: t('services.featured.mobile.desc', 'iOS ve Android platformları için native ve cross-platform mobil uygulamalar geliştiriyoruz.'),
-      icon: Smartphone,
+      title: t('services.featured.ecommerce.title', 'E-Ticaret'),
+      description: t('services.featured.ecommerce.desc', 'Satışlarınızı artıran, güvenli ve yönetimi kolay e-ticaret altyapıları kuruyoruz.'),
+      icon: Globe,
       gradient: "from-green-100 to-emerald-200 dark:from-green-900/50 dark:to-emerald-800/50",
+      slug: "e-ticaret-cozumleri"
     },
     {
       number: "004",
-      title: t('services.featured.seo.title', 'SEO & Marketing'),
-      description: t('services.featured.seo.desc', 'Arama motorlarında üst sıralarda yer almanız için kapsamlı SEO ve dijital pazarlama stratejileri.'),
+      title: t('services.featured.marketing.title', 'Pazarlama & Reklam'),
+      description: t('services.featured.marketing.desc', 'Veri odaklı dijital pazarlama stratejileri ile markanızın bilinirliğini ve satışlarını artırın.'),
       icon: Search,
       gradient: "from-orange-100 to-red-200 dark:from-orange-900/50 dark:to-red-800/50",
+      slug: "pazarlama-reklam"
     },
     {
       number: "005",
-      title: t('services.featured.branding.title', 'Branding'),
-      description: t('services.featured.branding.desc', 'Markanızı öne çıkaracak logo, kurumsal kimlik ve marka stratejisi çalışmaları yapıyoruz.'),
-      icon: Figma,
-      gradient: "from-pink-100 to-rose-200 dark:from-pink-900/50 dark:to-rose-800/50",
+      title: t('services.featured.ai.title', 'Yapay Zeka - Digibot'),
+      description: t('services.featured.ai.desc', 'İş süreçlerinizi yapay zeka ve akıllı chatbot çözümleri ile otomatize edin.'),
+      icon: BrainCircuit,
+      gradient: "from-violet-100 to-fuchsia-200 dark:from-violet-900/50 dark:to-fuchsia-800/50",
+      slug: "yapay-zeka-digibot"
     },
     {
       number: "006",
-      title: t('services.featured.ai.title', 'AI Solutions'),
-      description: t('services.featured.ai.desc', 'Yapay zeka ve makine öğrenmesi teknolojileri ile işletmenizi geleceğe taşıyoruz.'),
-      icon: BrainCircuit,
-      gradient: "from-indigo-100 to-violet-200 dark:from-indigo-900/50 dark:to-violet-800/50",
+      title: t('services.featured.software.title', 'Yazılım Geliştirme'),
+      description: t('services.featured.software.desc', 'İhtiyacınıza özel, güvenli ve ölçeklenebilir web ve mobil yazılım çözümleri.'),
+      icon: Smartphone,
+      gradient: "from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-800/50",
+      slug: "yazilim-gelistirme"
+    },
+    {
+      number: "007",
+      title: t('services.featured.branding.title', 'Kurumsal Kimlik'),
+      description: t('services.featured.branding.desc', 'Markanızın değerlerini yansıtan, akılda kalıcı ve profesyonel bir kurumsal kimlik oluşturuyoruz.'),
+      icon: Figma,
+      gradient: "from-pink-100 to-rose-200 dark:from-pink-900/50 dark:to-rose-800/50",
+      slug: "kurumsal-kimlik-marka"
+    },
+    {
+      number: "008",
+      title: t('services.featured.graphic.title', 'Grafik Tasarım'),
+      description: t('services.featured.graphic.desc', 'Sosyal medya ve basılı materyaller için yaratıcı grafik tasarım hizmetleri.'),
+      icon: Palette,
+      gradient: "from-yellow-100 to-orange-200 dark:from-yellow-900/50 dark:to-orange-800/50",
+      slug: "grafik-tasarim"
     },
   ];
 

@@ -1,73 +1,46 @@
-import { useRef } from "react";
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  useMotionValue,
-  useVelocity,
-  useAnimationFrame,
-} from "framer-motion";
-import { wrap } from "@motionone/utils";
+import { memo } from "react";
 import { cn } from "../../../lib/utils";
 
 type MarqueeAnimationProps = {
   children: string;
   className?: string;
   direction?: "left" | "right";
-  baseVelocity: number;
+  baseVelocity?: number;
 };
 
-function MarqueeAnimation({
+// CSS-based marquee for better performance - no JS animation frame
+const MarqueeAnimation = memo(function MarqueeAnimation({
   children,
   className,
   direction = "left",
-  baseVelocity = 10,
 }: MarqueeAnimationProps) {
-  const baseX = useMotionValue(0);
-  const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  const smoothVelocity = useSpring(scrollVelocity, {
-    damping: 50,
-    stiffness: 400,
-  });
-  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 0], {
-    clamp: false,
-  });
-
-  const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
-
-  const directionFactor = useRef<number>(1);
-  useAnimationFrame((t, delta) => {
-    let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
-
-    if (direction == "left") {
-      directionFactor.current = 1;
-    } else if (direction == "right") {
-      directionFactor.current = -1;
-    }
-
-    moveBy += directionFactor.current * moveBy * velocityFactor.get();
-
-    baseX.set(baseX.get() + moveBy);
-  });
-
   return (
-    <div className="overflow-hidden max-w-[100vw] text-nowrap flex-nowrap flex relative">
-      <motion.div
-        className={cn(
-          "font-bold uppercase text-5xl flex flex-nowrap text-nowrap *:block *:me-10",
-          className
-        )}
-        style={{ x }}
+    <div className={cn("overflow-hidden", className)}>
+      <div 
+        className="flex whitespace-nowrap"
+        style={{
+          animation: `scroll-${direction} 25s linear infinite`,
+        }}
       >
-        <span>{children}</span>
-        <span>{children}</span>
-        <span>{children}</span>
-        <span>{children}</span>
-      </motion.div>
+        {/* Repeat content multiple times for seamless loop */}
+        {[...Array(6)].map((_, i) => (
+          <span key={i} className="flex-shrink-0 px-8 font-bold uppercase text-xl sm:text-2xl md:text-3xl">
+            {children}
+          </span>
+        ))}
+      </div>
+      <style>{`
+        @keyframes scroll-left {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes scroll-right {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
-}
+});
 
 export { MarqueeAnimation };

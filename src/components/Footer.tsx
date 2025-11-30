@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, ArrowUpRight, Linkedin, Twitter, Instagram, Github } from 'lucide-react';
 import { usePrivacyTerms } from './ui/modals/privacy-terms-provider';
+import { useTranslation } from '../hooks/useTranslation';
 
 const Footer = () => {
   const { openPrivacyPolicy, openTerms } = usePrivacyTerms();
+  const { t } = useTranslation();
 
   return (
     <footer className="relative bg-gradient-to-b from-slate-50 to-slate-100 dark:from-dark dark:to-dark-light border-t border-slate-200 dark:border-white/10">
@@ -33,7 +35,7 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-              Modern teknolojiler ve yaratıcı çözümlerle işletmenizi dijital dünyada öne çıkarıyoruz.
+              {t('footer.description', 'Modern teknolojiler ve yaratıcı çözümlerle işletmenizi dijital dünyada öne çıkarıyoruz.')}
             </p>
             <div className="flex items-center space-x-4">
               {[
@@ -58,13 +60,13 @@ const Footer = () => {
           
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">Hızlı Bağlantılar</h3>
+            <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">{t('footer.quickLinks', 'Hızlı Bağlantılar')}</h3>
             <ul className="space-y-4">
               {[
-                { to: '/portfolio', label: 'Portfolyo' },
-                { to: '/services', label: 'Hizmetler' },
-                { to: '/about', label: 'Hakkımızda' },
-                { to: '/blog', label: 'Blog' }
+                { to: '/portfolio', label: t('footer.portfolio', 'Portfolyo') },
+                { to: '/services', label: t('footer.services', 'Hizmetler') },
+                { to: '/about', label: t('footer.about', 'Hakkımızda') },
+                { to: '/blog', label: t('footer.blog', 'Blog') }
               ].map((link, index) => (
                 <li key={index}>
                   <Link 
@@ -84,7 +86,7 @@ const Footer = () => {
           
           {/* Contact Info */}
           <div>
-            <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">İletişim</h3>
+            <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">{t('footer.contact', 'İletişim')}</h3>
             <div className="space-y-4">
               <a 
                 href="mailto:contact@unilancerlabs.com" 
@@ -124,16 +126,16 @@ const Footer = () => {
           <div className="relative">
             <div className="absolute -inset-4 bg-gradient-to-br from-primary/5 to-transparent dark:from-primary/10 dark:to-transparent rounded-xl blur-lg opacity-50" />
             <div className="relative">
-              <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">Bülten</h3>
+              <h3 className="font-semibold mb-6 text-lg text-slate-900 dark:text-white">{t('footer.newsletter', 'Bülten')}</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                Güncel teknoloji haberlerini ve blog yazılarımızı takip edin.
+                {t('footer.newsletterDesc', 'Güncel teknoloji haberlerini ve blog yazılarımızı takip edin.')}
               </p>
               <form className="space-y-3">
                 <div className="relative group">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/50 to-primary-light/50 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500" />
                   <input
                     type="email"
-                    placeholder="E-posta adresiniz"
+                    placeholder={t('footer.emailPlaceholder', 'E-posta adresiniz')}
                     className="relative w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors text-sm text-slate-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-500"
                   />
                 </div>
@@ -142,7 +144,7 @@ const Footer = () => {
                   className="w-full bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium relative group overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary-light to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="relative">Abone Ol</span>
+                  <span className="relative">{t('footer.subscribe', 'Abone Ol')}</span>
                 </button>
               </form>
             </div>
@@ -153,20 +155,20 @@ const Footer = () => {
         <div className="relative border-t border-slate-200 dark:border-white/10 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} Unilancer Labs. Tüm hakları saklıdır.
+              &copy; {new Date().getFullYear()} Unilancer Labs. {t('footer.rights', 'Tüm hakları saklıdır.')}
             </p>
             <div className="flex items-center space-x-6">
               <button
                 onClick={openPrivacyPolicy}
                 className="text-gray-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm"
               >
-                Gizlilik Politikası
+                {t('footer.privacyPolicy', 'Gizlilik Politikası')}
               </button>
               <button
                 onClick={openTerms}
                 className="text-gray-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors text-sm"
               >
-                Kullanım Koşulları
+                {t('footer.termsOfService', 'Kullanım Koşulları')}
               </button>
             </div>
           </div>

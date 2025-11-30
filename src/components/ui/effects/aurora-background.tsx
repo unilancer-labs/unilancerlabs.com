@@ -1,42 +1,28 @@
 // src/components/ui/effects/aurora-background.tsx
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { memo } from 'react';
 
-const AuroraBackground = () => {
+// CSS-based aurora background - no JS animations for better performance
+const AuroraBackground = memo(function AuroraBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.3, 0] }}
-        transition={{ duration: 20, repeat: Infinity, repeatType: 'reverse' }}
+      {/* Static gradient orbs with CSS animation */}
+      <div
+        className="absolute -top-[20%] -left-[20%] w-[1200px] h-[800px] rounded-full opacity-20 animate-aurora-slow"
         style={{
-            width: '1200px',
-            height: '800px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, hsla(var(--primary-light)/0.1), transparent 60%)',
-            filter: 'blur(100px)',
-            position: 'absolute',
-            top: '-20%',
-            left: '-20%',
+          background: 'radial-gradient(circle, hsl(var(--primary) / 0.15), transparent 60%)',
+          filter: 'blur(100px)',
         }}
       />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.2, 0] }}
-        transition={{ duration: 25, repeat: Infinity, repeatType: 'reverse', delay: 5 }}
+      <div
+        className="absolute -bottom-[30%] -right-[30%] w-[1000px] h-[700px] rounded-full opacity-15 animate-aurora-slow-reverse"
         style={{
-            width: '1000px',
-            height: '700px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, hsla(var(--brand)/0.1), transparent 60%)',
-            filter: 'blur(100px)',
-            position: 'absolute',
-            bottom: '-30%',
-            right: '-30%',
+          background: 'radial-gradient(circle, hsl(var(--primary) / 0.1), transparent 60%)',
+          filter: 'blur(100px)',
+          animationDelay: '-10s',
         }}
       />
     </div>
   );
-};
+});
 
 export default AuroraBackground;

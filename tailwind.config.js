@@ -55,6 +55,10 @@ export default {
       maxWidth: {
         container: "80rem",
       },
+      boxShadow: {
+        glow: "0 0 80px 20px rgba(95, 200, 218, 0.3), 0 0 160px 60px rgba(95, 200, 218, 0.15)",
+        "glow-lg": "0 0 120px 40px rgba(95, 200, 218, 0.4), 0 0 200px 80px rgba(95, 200, 218, 0.2)",
+      },
       keyframes: {
         appear: {
           "0%": { opacity: "0", transform: "translateY(10px)" },
@@ -88,6 +92,52 @@ export default {
           "80%": { clipPath: "inset(50% 0 30% 0)", transform: "translate(1px, 2px)" },
           "100%": { clipPath: "inset(70% 0 10% 0)", transform: "translate(-2px, -1px)" },
         },
+        "marquee": {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        "marquee-reverse": {
+          "0%": { transform: "translateX(-50%)" },
+          "100%": { transform: "translateX(0%)" },
+        },
+        "aurora-slow": {
+          "0%, 100%": { opacity: "0.15" },
+          "50%": { opacity: "0.25" },
+        },
+        "aurora-slow-reverse": {
+          "0%, 100%": { opacity: "0.1" },
+          "50%": { opacity: "0.2" },
+        },
+        "fade-in-up": {
+          "0%": { 
+            opacity: "0",
+            transform: "translateY(20px)"
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)"
+          }
+        },
+        "scale-in": {
+          "0%": {
+            opacity: "0",
+            transform: "scale(0.9)"
+          },
+          "100%": {
+            opacity: "1",
+            transform: "scale(1)"
+          }
+        },
+        "pulse-glow": {
+          "0%, 100%": { 
+            opacity: "0.6",
+            transform: "scale(1)"
+          },
+          "50%": { 
+            opacity: "1",
+            transform: "scale(1.05)"
+          }
+        },
       },
       animation: {
         appear: "appear 0.5s ease-out forwards",
@@ -96,6 +146,13 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "glitch-1": "glitch-1 2.5s infinite linear alternate-reverse",
         "glitch-2": "glitch-2 3s infinite linear alternate-reverse",
+        "marquee": "marquee 30s linear infinite",
+        "marquee-reverse": "marquee-reverse 30s linear infinite",
+        "aurora-slow": "aurora-slow 20s ease-in-out infinite",
+        "aurora-slow-reverse": "aurora-slow-reverse 25s ease-in-out infinite",
+        "fade-in-up": "fade-in-up 0.6s ease-out forwards",
+        "scale-in": "scale-in 0.6s ease-out forwards",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
       }
     },
   },

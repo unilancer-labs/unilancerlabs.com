@@ -13,14 +13,14 @@ import { getRouteForLanguage } from '../contexts/LanguageContext';
 import { CalendlyModal } from './modals/CalendlyModal';
 
 const getDigitAllServices = (t: (key: string) => string, lang: string) => [
-  { icon: Monitor, label: t('service.webDesign'), path: getRouteForLanguage('/services', lang as 'tr' | 'en') },
-  { icon: Box, label: t('service.3dAr'), path: getRouteForLanguage('/digitall/3d-ar-sanal-tur', lang as 'tr' | 'en') },
-  { icon: ShoppingCart, label: t('service.ecommerce'), path: getRouteForLanguage('/services', lang as 'tr' | 'en') },
-  { icon: Target, label: t('service.marketing'), path: getRouteForLanguage('/services', lang as 'tr' | 'en') },
-  { icon: BrainCircuit, label: t('service.ai'), path: getRouteForLanguage('/services', lang as 'tr' | 'en') },
-  { icon: Code2, label: t('service.development'), path: getRouteForLanguage('/services', lang as 'tr' | 'en') },
-  { icon: PaintBucket, label: t('service.branding'), path: getRouteForLanguage('/services', lang as 'tr' | 'en') },
-  { icon: Palette, label: t('service.graphics'), path: getRouteForLanguage('/services', lang as 'tr' | 'en') }
+  { icon: Monitor, label: t('service.webDesign'), path: getRouteForLanguage('/hizmetler/web-tasarim', lang as 'tr' | 'en') },
+  { icon: Box, label: t('service.3dAr'), path: getRouteForLanguage('/hizmetler/3d-ar', lang as 'tr' | 'en') },
+  { icon: ShoppingCart, label: t('service.ecommerce'), path: getRouteForLanguage('/hizmetler/e-ticaret-cozumleri', lang as 'tr' | 'en') },
+  { icon: Target, label: t('service.marketing'), path: getRouteForLanguage('/hizmetler/pazarlama-reklam', lang as 'tr' | 'en') },
+  { icon: BrainCircuit, label: t('service.ai'), path: getRouteForLanguage('/hizmetler/yapay-zeka-digibot', lang as 'tr' | 'en') },
+  { icon: Code2, label: t('service.development'), path: getRouteForLanguage('/hizmetler/yazilim-gelistirme', lang as 'tr' | 'en') },
+  { icon: PaintBucket, label: t('service.branding'), path: getRouteForLanguage('/hizmetler/kurumsal-kimlik-marka', lang as 'tr' | 'en') },
+  { icon: Palette, label: t('service.graphics'), path: getRouteForLanguage('/hizmetler/grafik-tasarim', lang as 'tr' | 'en') }
 ];
 
 const NavLink = ({ to, active, children, onClick }: {
@@ -243,7 +243,7 @@ const Navbar = () => {
               </div>
 
               <NavLink to={getRouteForLanguage('/universities', language)} active={location.pathname.includes('/universities') || location.pathname.includes('/universiteliler')} onClick={scrollToTop}>
-                {language === 'tr' ? 'Üniversiteliler' : 'Universities'}
+                {t('nav.universities', 'Üniversiteliler')}
               </NavLink>
               <NavLink to={getRouteForLanguage('/digibot', language)} active={location.pathname.includes('/digibot')} onClick={scrollToTop}>
                 Digibot
@@ -265,7 +265,7 @@ const Navbar = () => {
                     hover:bg-slate-100/70 dark:hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-base
                   `}
                 >
-                  <span>{language === 'tr' ? 'Kurumsal' : 'Corporate'}</span>
+                  <span>{t('nav.corporate', 'Kurumsal')}</span>
                   <motion.div
                     animate={{ rotate: isCorporateOpen ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
@@ -297,7 +297,7 @@ const Navbar = () => {
                           className="block px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
                           onClick={() => { setIsCorporateOpen(false); scrollToTop(); }}
                         >
-                          {language === 'tr' ? 'Ekibimiz' : 'Our Team'}
+                          {t('nav.team', 'Ekibimiz')}
                         </Link>
                         <Link
                           to={getRouteForLanguage('/contact', language)}
@@ -350,10 +350,10 @@ const Navbar = () => {
                               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20">
                                 <Sparkles className="h-4 w-4 text-primary" />
                               </span>
-                              <span>digit<span className="text-primary">All</span> Çözümler</span>
+                              <span>digit<span className="text-primary">All</span> {t('nav.solutions', 'Çözümler')}</span>
                             </h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 ml-10">
-                              İşletmenizi geleceğe taşıyacak profesyonel hizmetler
+                              {t('nav.solutionsDesc', 'İşletmenizi geleceğe taşıyacak profesyonel hizmetler')}
                             </p>
                           </div>
                           <Link 
@@ -361,7 +361,7 @@ const Navbar = () => {
                             className="text-sm font-medium text-primary hover:text-primary-dark flex items-center gap-1 group transition-colors"
                             onClick={() => setIsServicesOpen(false)}
                           >
-                            Tümünü Gör
+                            {t('nav.viewAll', 'Tümünü Gör')}
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                           </Link>
                         </div>
@@ -385,7 +385,7 @@ const Navbar = () => {
                                   {service.label}
                                 </h4>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
-                                  Detaylı bilgi için tıklayın
+                                  {t('nav.clickForDetails', 'Detaylı bilgi için tıklayın')}
                                 </p>
                               </div>
                             </Link>
@@ -407,7 +407,7 @@ const Navbar = () => {
                             <div className="absolute top-4 right-4 z-20">
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/90 dark:bg-black/80 text-primary backdrop-blur-sm shadow-sm border border-white/20">
                                   <Sparkles className="w-3 h-3 mr-1" />
-                                  Ücretsiz
+                                  {t('nav.free', 'Ücretsiz')}
                                 </span>
                             </div>
                         </div>
@@ -415,17 +415,17 @@ const Navbar = () => {
                         <div className="p-8 flex-1 flex flex-col relative z-20 -mt-6">
                           <div className="mb-6">
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 leading-tight">
-                              Dijital Karnenizi<br/>Merak Ediyor Musunuz?
+                              {t('nav.digitalReport.title', 'Dijital Karnenizi Merak Ediyor Musunuz?')}
                             </h3>
                             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                              Web sitenizi ve dijital varlıklarınızı yapay zeka destekli araçlarımızla analiz edelim, eksikleri birlikte belirleyelim.
+                              {t('nav.digitalReport.desc', 'Web sitenizi ve dijital varlıklarınızı yapay zeka destekli araçlarımızla analiz edelim, eksikleri birlikte belirleyelim.')}
                             </p>
                           </div>
 
                           <div className="mt-auto space-y-4">
                             <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-zinc-900/50 p-3 rounded-xl border border-slate-100 dark:border-zinc-800">
                                 <ShieldCheck className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                <span>%100 Ücretsiz & Kapsamlı Rapor</span>
+                                <span>{t('nav.freeReport', '%100 Ücretsiz & Kapsamlı Rapor')}</span>
                             </div>
 
                             <button
@@ -436,7 +436,7 @@ const Navbar = () => {
                               className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-xl transition-all font-bold text-sm shadow-lg shadow-slate-900/10"
                             >
                               <Calendar className="w-4 h-4" />
-                              <span>Hemen Randevu Oluştur</span>
+                              <span>{t('nav.scheduleNow', 'Hemen Randevu Oluştur')}</span>
                             </button>
                           </div>
                         </div>
@@ -560,7 +560,7 @@ const Navbar = () => {
                           {t('nav.getFreeReport')}
                         </h3>
                         <p className="text-sm text-slate-700 dark:text-slate-300 text-center">
-                          Ücretsiz danışmanlık kazanın
+                          {t('nav.freeConsultation', 'Ücretsiz danışmanlık kazanın')}
                         </p>
                         <button
                           onClick={() => {
@@ -633,7 +633,7 @@ const Navbar = () => {
                           <div className="w-10 h-10 bg-primary/10 dark:bg-primary/10 rounded-xl flex items-center justify-center">
                             <Users className="w-5 h-5 text-primary" />
                           </div>
-                          <span className="font-semibold">{language === 'tr' ? 'Üniversiteliler' : 'Universities'}</span>
+                          <span className="font-semibold">{t('nav.universities', 'Üniversiteliler')}</span>
                         </div>
                         <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
                       </Link>
@@ -667,7 +667,7 @@ const Navbar = () => {
                               <Users className="w-5 h-5 text-primary" />
                             </div>
                             <span className="font-semibold">
-                              {language === 'tr' ? 'Kurumsal' : 'Corporate'}
+                              {t('nav.corporate', 'Kurumsal')}
                             </span>
                           </div>
                           <ChevronDown className={`w-5 h-5 text-primary transition-transform ${mobileCorporateOpen ? 'rotate-180' : ''}`} />
@@ -678,7 +678,7 @@ const Navbar = () => {
                             <div className="p-3 space-y-2 bg-white dark:bg-slate-900/50">
                               {[
                                 { to: '/about', label: t('nav.about'), icon: Users },
-                                { to: '/team', label: language === 'tr' ? 'Ekibimiz' : 'Our Team', icon: Users },
+                                { to: '/team', label: t('nav.team', 'Ekibimiz'), icon: Users },
                                 { to: '/contact', label: t('nav.contact'), icon: MessageSquare }
                               ].map((item, index) => (
                                 <Link

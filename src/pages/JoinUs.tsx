@@ -28,6 +28,7 @@ import { cities } from '../data/location/cities';
 import { countries } from '../data/location/countries';
 import { usePrivacyTerms } from '../components/ui/modals/privacy-terms-provider';
 import { useTranslation } from '../hooks/useTranslation';
+import Navbar from '../components/Navbar';
 
 /* -------------------------------
    ADIM TİPLERİ VE FORM DATA YAPISI
@@ -146,8 +147,8 @@ const initialFormData: FormData = {
    ADIM GÖSTERGESİ (PROGRESS BAR)
 -------------------------------- */
 const FormSteps = ({ currentStep, t }: { currentStep: FormStep, t: (key: string, defaultVal?: string) => string }) => (
-  <div className="mb-8 lg:mb-12">
-    <div className="flex items-center justify-between relative">
+  <div className="mb-4 sm:mb-6 lg:mb-8">
+    <div className="flex items-center justify-between relative px-2 sm:px-0">
       {/* Ana çizgi */}
       <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-slate-200 dark:bg-white/10 -translate-y-1/2" />
       {/* Dolu çizgi */}
@@ -159,7 +160,7 @@ const FormSteps = ({ currentStep, t }: { currentStep: FormStep, t: (key: string,
         <div key={step} className="relative z-10">
           <div
             className={`
-              w-8 h-8 sm:w-10 sm:h-10
+              w-7 h-7 sm:w-9 sm:h-9 lg:w-10 lg:h-10
               rounded-full flex items-center justify-center
               text-xs sm:text-sm font-medium
               transition-all duration-300
@@ -172,23 +173,23 @@ const FormSteps = ({ currentStep, t }: { currentStep: FormStep, t: (key: string,
               }
             `}
           >
-            {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
+            {currentStep > step ? <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" /> : step}
           </div>
           <div
             className={`
-              absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap
-              text-[0.6rem] sm:text-sm font-medium
-              transition-all duration-300
+              absolute -bottom-5 sm:-bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap
+              text-[8px] sm:text-xs lg:text-sm font-medium
+              transition-all duration-300 hidden sm:block
               ${currentStep === step ? 'text-primary' : 'text-slate-400 dark:text-gray-400'}
             `}
           >
             {step === 1
-              ? t('joinus.steps.personal', 'Kişisel Bilgiler')
+              ? t('joinus.steps.personal', 'Kişisel')
               : step === 2
-              ? t('joinus.steps.expertise', 'Uzmanlık & Araçlar')
+              ? t('joinus.steps.expertise', 'Uzmanlık')
               : step === 3
-              ? t('joinus.steps.portfolio', 'Eğitim & Portfolyo')
-              : t('joinus.steps.summary', 'Başvuru Özeti')}
+              ? t('joinus.steps.portfolio', 'Portfolyo')
+              : t('joinus.steps.summary', 'Özet')}
           </div>
         </div>
       ))}
@@ -200,32 +201,35 @@ const FormSteps = ({ currentStep, t }: { currentStep: FormStep, t: (key: string,
    BAŞARI MESAJI BİLEŞENİ
 -------------------------------- */
 const SuccessMessage = ({ onClose, t }: { onClose: () => void, t: (key: string, defaultVal?: string) => string }) => (
-  <div className="min-h-screen bg-white dark:bg-dark flex items-center justify-center px-4">
-    <div className="bg-white dark:bg-dark-light/80 backdrop-blur-sm p-8 rounded-2xl border border-slate-200 dark:border-white/10 max-w-md w-full mx-auto text-center relative overflow-hidden shadow-2xl">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)]" />
-      <div className="absolute -left-20 -top-20 w-60 h-60 bg-primary/20 rounded-full blur-3xl opacity-20 pointer-events-none" />
-      <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-primary/20 rounded-full blur-3xl opacity-20 pointer-events-none" />
-      <div className="relative">
-        <motion.div
-          initial={{ rotate: -180, scale: 0 }}
-          animate={{ rotate: 0, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-          className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6"
-        >
-          <PartyPopper className="w-8 h-8 text-primary" />
-        </motion.div>
-        <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">{t('joinus.success.title', 'Başvurunuz Alındı!')}</h2>
-        <p className="text-slate-600 dark:text-gray-400 mb-8">
-          {t('joinus.success.message', 'Başvurunuz başarıyla alındı. En kısa sürede sizinle iletişime geçeceğiz.')}
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onClose}
-          className="px-8 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"
-        >
-          {t('joinus.success.button', 'Ana Sayfaya Dön')}
-        </motion.button>
+  <div className="min-h-screen bg-white dark:bg-dark">
+    <Navbar />
+    <div className="flex items-center justify-center px-4 pt-32 pb-12">
+      <div className="bg-white dark:bg-dark-light/80 backdrop-blur-sm p-8 rounded-2xl border border-slate-200 dark:border-white/10 max-w-md w-full mx-auto text-center relative overflow-hidden shadow-2xl">
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)]" />
+        <div className="absolute -left-20 -top-20 w-60 h-60 bg-primary/20 rounded-full blur-3xl opacity-20 pointer-events-none" />
+        <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-primary/20 rounded-full blur-3xl opacity-20 pointer-events-none" />
+        <div className="relative">
+          <motion.div
+            initial={{ rotate: -180, scale: 0 }}
+            animate={{ rotate: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6"
+          >
+            <PartyPopper className="w-8 h-8 text-primary" />
+          </motion.div>
+          <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">{t('joinus.success.title', 'Başvurunuz Alındı!')}</h2>
+          <p className="text-slate-600 dark:text-gray-400 mb-8">
+            {t('joinus.success.message', 'Başvurunuz başarıyla alındı. En kısa sürede sizinle iletişime geçeceğiz.')}
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onClose}
+            className="px-8 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"
+          >
+            {t('joinus.success.button', 'Ana Sayfaya Dön')}
+          </motion.button>
+        </div>
       </div>
     </div>
   </div>
@@ -282,7 +286,7 @@ const JoinUs = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep()) {
-      setError('Lütfen tüm zorunlu alanları doldurun ve kullanım şartlarını kabul edin.');
+      setError(t('joinUs.error.requiredFields', 'L\u00fctfen t\u00fcm zorunlu alanlar\u0131 doldurun ve kullan\u0131m \u015fartlar\u0131n\u0131 kabul edin.'));
       return;
     }
     setLoading(true);
@@ -308,7 +312,7 @@ const JoinUs = () => {
       triggerConfetti();
     } catch (err: any) {
       console.error('Form submission error:', err);
-      setError(err.message || 'Başvuru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.');
+      setError(err.message || t('joinUs.error.submission', 'Ba\u015fvuru g\u00f6nderilirken bir hata olu\u015ftu. L\u00fctfen tekrar deneyin.'));
     } finally {
       setLoading(false);
     }
@@ -411,24 +415,28 @@ const JoinUs = () => {
   ------------------------------ */
   return (
     <div className="min-h-screen bg-white dark:bg-dark relative overflow-hidden">
+      <Navbar />
+      
       {/* Arka Plan Desenleri */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)]" />
       </div>
 
-      <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          
-          {/* Sol Taraf: Hero & Bilgi */}
-          <div className="lg:col-span-5 lg:sticky lg:top-24">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center space-x-2 text-slate-500 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors mb-8"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>{t('joinus.back_home', 'Ana Sayfaya Dön')}</span>
-            </button>
+      <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32 pb-8 sm:pb-12">
+        {/* Mobil Header */}
+        <div className="lg:hidden mb-6">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {t('joinus.hero.title_prefix', 'Bize')} <span className="text-primary">{t('joinus.hero.title_suffix', 'Katılın')}</span>
+          </h2>
+          <p className="text-sm text-slate-600 dark:text-gray-400 mt-2">
+            {t('joinus.mobile.subtitle', 'Yeteneklerinizi bizimle paylaşın, birlikte büyüyelim.')}
+          </p>
+        </div>
 
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-start">
+          
+          {/* Sol Taraf: Hero & Bilgi - Sadece Desktop */}
+          <div className="hidden lg:block lg:col-span-5 lg:sticky lg:top-32">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -469,11 +477,14 @@ const JoinUs = () => {
 
           {/* Sağ Taraf: Form */}
           <div className="lg:col-span-7">
-            <FormSteps currentStep={currentStep} t={t} />
+            {/* Form Stepper - Mobilde küçük */}
+            <div className="mb-4 sm:mb-6">
+              <FormSteps currentStep={currentStep} t={t} />
+            </div>
             
             {error && (
-              <div className="mb-8 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400 flex items-center space-x-2">
-                <Info className="w-5 h-5 flex-shrink-0" />
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400 flex items-center space-x-2 text-sm">
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -481,31 +492,31 @@ const JoinUs = () => {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white dark:bg-dark-light/50 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl"
+              transition={{ duration: 0.4 }}
+              className="bg-white dark:bg-dark-light/50 border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg"
             >
-              <form onSubmit={handleSubmit} className="space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 lg:space-y-8">
                 {/* Step 1: Kişisel Bilgiler */}
                 {currentStep === 1 && (
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
-                    <h2 className="text-xl sm:text-2xl font-bold mb-4 text-slate-900 dark:text-white">{t('joinus.form.personal.title', 'Kişisel Bilgiler')}</h2>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 dark:text-white">{t('joinus.form.personal.title', 'Kişisel Bilgiler')}</h2>
                     {/* İsim Soyisim */}
                     <div>
-                      <label className="block text-sm font-medium mb-2 text-slate-700 dark:text-gray-300">{t('joinus.form.personal.fullname', 'İsim Soyisim')}</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2 text-slate-700 dark:text-gray-300">{t('joinus.form.personal.fullname', 'İsim Soyisim')}</label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-gray-400" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 dark:text-gray-400" />
                         <input
                           type="text"
                           value={formData.fullName}
                           onChange={(e) =>
                             setFormData((prev) => ({ ...prev, fullName: e.target.value }))
                           }
-                          className="w-full bg-slate-50 dark:bg-dark border border-slate-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500"
+                          className="w-full bg-slate-50 dark:bg-dark border border-slate-200 dark:border-white/10 rounded-xl pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:border-primary text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500"
                           placeholder={t('joinus.form.personal.fullname_placeholder', 'Adınız ve soyadınız')}
                           required
                         />
