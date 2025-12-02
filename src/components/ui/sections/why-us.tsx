@@ -39,7 +39,7 @@ export function WhyUsSection() {
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(280px,auto)]">
           
-          {/* 1. 360° Çözümler (Tall Vertical - Left Column) */}
+          {/* 1. Kurumsal Kalite, Freelance Esnekliği (Tall Vertical - Left Column) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -50,24 +50,19 @@ export function WhyUsSection() {
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-500" />
             
             <div className="relative z-20 mb-8">
-              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">360° Kreatif Stüdyo</h3>
+              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">Kurumsal Kalite, Freelance Esnekliği</h3>
               <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                Web, mobil, branding ve pazarlama. Hepsi tek bir çatı altında, birbirini besleyen bir ekosistemde.
+                Kurumsal disiplini freelance esnekliği ile birleştiriyoruz böylece yüksek standartlı iş üretimini, daha çevik ve erişilebilir bir modelle sunuyoruz.
               </p>
             </div>
             
-            {/* Creative Image Composition */}
-            <div className="flex-1 relative w-full min-h-[300px]">
-               <div className="absolute inset-0 bg-gradient-to-t from-indigo-500/10 to-transparent z-10 mix-blend-overlay rounded-[32px]" />
+            {/* Image at bottom */}
+            <div className="flex-1 relative w-full">
                <img 
-                 src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" 
-                 className="object-cover w-full h-full rounded-[32px] shadow-lg rotate-2 group-hover:rotate-0 transition-all duration-700" 
-                 alt="Abstract 3D Art"
+                 src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images/kurumsalfreelancer.webp" 
+                 className="absolute -bottom-8 left-0 w-full object-contain bg-transparent" 
+                 alt="Kurumsal Freelancer"
                />
-               {/* Floating Elements */}
-               <div className="absolute top-4 right-4 w-16 h-16 bg-white dark:bg-zinc-800 rounded-2xl shadow-xl flex items-center justify-center animate-bounce delay-100 z-20">
-                  <span className="text-2xl">🚀</span>
-               </div>
             </div>
           </motion.div>
 
@@ -98,7 +93,7 @@ export function WhyUsSection() {
             </div>
           </motion.div>
 
-          {/* 3. Akıllı Bütçe (Standard - Middle Right Left) */}
+          {/* 3. Proje Yönetimi (Standard - Middle Right Left) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -110,40 +105,40 @@ export function WhyUsSection() {
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-500" />
 
             <div className="relative z-20">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Akıllı Bütçe</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Maksimum etki, optimize maliyet.</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Proje Yönetimi</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Proje yöneticiniz, doğru freelance ekibi kurar ve süreci uçtan uca organize eder.</p>
             </div>
-            <div className="absolute -bottom-2 -right-2 w-40 h-40">
-               <div className="absolute inset-0 bg-green-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+            <div className="absolute -bottom-40 left-1/2 -translate-x-1/2 w-72 h-72 rotate-6 group-hover:rotate-0 group-hover:-bottom-24 transition-all duration-500">
+               <div className="absolute inset-0 bg-green-400/10 rounded-lg blur-xl group-hover:scale-125 transition-transform duration-700" />
                <img 
-                 src="https://images.unsplash.com/photo-1620714223084-87bd6c26944c?q=80&w=800&auto=format&fit=crop" 
-                 className="relative object-cover w-full h-full rounded-tl-[40px] shadow-xl group-hover:rotate-6 group-hover:scale-110 transition-transform duration-500" 
-                 alt="3D Coins"
+                 src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images/projebildirimi.webp" 
+                 className="relative object-contain w-full h-full rounded-lg shadow-xl transition-all duration-500 bg-transparent" 
+                 alt="Project Management"
                />
             </div>
           </motion.div>
 
-          {/* 4. Tek Kontak (Standard - Middle Right Right) */}
+          {/* 4. Tek Muhatap (Standard - Middle Right Right) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="md:col-span-1 rounded-[48px] bg-[#FFFBEB] dark:bg-zinc-900 p-8 relative overflow-hidden group hover:shadow-2xl hover:shadow-yellow-500/20 transition-all duration-500 border border-yellow-100 dark:border-white/5"
+            className="md:col-span-1 rounded-[48px] bg-[#EBF8FF] dark:bg-zinc-900 p-8 relative overflow-hidden group hover:shadow-2xl hover:shadow-sky-500/20 transition-all duration-500 border border-sky-100 dark:border-white/5"
           >
             {/* Dark Mode Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-500" />
 
             <div className="relative z-20">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Tek Kontak</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Bin tane mail yok, tek bir muhatap var.</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Tek Muhatap</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Tüm süreçte tek muhatabınız var; sözleşme, fatura ve sorumluluk bizde toplanır.</p>
             </div>
-            <div className="absolute -bottom-6 -right-6 w-40 h-40">
-               <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+            <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-48 h-48 group-hover:w-56 group-hover:h-56 group-hover:-bottom-12 transition-all duration-500">
+               <div className="absolute inset-0 bg-sky-400/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700" />
                <img 
-                 src="https://images.unsplash.com/photo-1523966211575-eb4a01e7dd51?q=80&w=800&auto=format&fit=crop" 
-                 className="relative object-cover w-full h-full rounded-tl-[40px] shadow-xl group-hover:-rotate-12 group-hover:scale-110 transition-transform duration-500 mix-blend-multiply dark:mix-blend-normal" 
-                 alt="Retro Phone"
+                 src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images/unilancerteklogo.webp" 
+                 className="relative object-contain w-full h-full opacity-30 group-hover:opacity-100 transition-all duration-500" 
+                 alt="Unilancer Logo"
                />
             </div>
           </motion.div>
@@ -185,28 +180,34 @@ export function WhyUsSection() {
             </div>
           </motion.div>
 
-          {/* 6. Rota Belli (Standard - Bottom Right) */}
+          {/* 6. İstatistiklerimiz (Standard - Bottom Right) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
-            className="md:col-span-1 rounded-[48px] bg-[#EBF8FF] dark:bg-zinc-900 p-8 relative overflow-hidden group hover:shadow-2xl hover:shadow-sky-500/20 transition-all duration-500 border border-sky-100 dark:border-white/5"
+            className="md:col-span-1 rounded-[48px] bg-[#F0F0FF] dark:bg-zinc-900 p-8 relative overflow-hidden group hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 border border-purple-100 dark:border-white/5"
           >
             {/* Dark Mode Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 dark:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative z-20">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Rota Belli</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Size özel stratejik planlama.</p>
-            </div>
-            <div className="absolute -bottom-4 -right-4 w-40 h-40">
-               <div className="absolute inset-0 bg-sky-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-               <img 
-                 src="https://images.unsplash.com/photo-1586165368502-1bad197a6461?q=80&w=800&auto=format&fit=crop" 
-                 className="relative object-cover w-full h-full rounded-tl-[40px] shadow-xl group-hover:rotate-3 group-hover:scale-105 transition-transform duration-500" 
-                 alt="Strategy Chess"
-               />
+            <div className="relative z-20 h-full flex flex-col justify-center">
+              <div className="space-y-5">
+                <div className="text-center">
+                  <span className="text-4xl font-black bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">120+</span>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mt-1">başarıyla tamamlanan proje</p>
+                </div>
+                
+                <div className="text-center">
+                  <span className="text-4xl font-black bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">200+</span>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mt-1">yetenekli freelancer ağı</p>
+                </div>
+                
+                <div className="text-center">
+                  <span className="text-4xl font-black bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">30+</span>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mt-1">farklı dijital hizmet</p>
+                </div>
+              </div>
             </div>
           </motion.div>
 
