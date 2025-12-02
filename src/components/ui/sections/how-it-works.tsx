@@ -131,7 +131,7 @@ export const HowItWorks = memo(function HowItWorks() {
     <section id="nasil-calisir" className="py-8 md:py-16 relative overflow-hidden">
       <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
-        <div className="text-center max-w-4xl mx-auto mb-6 md:mb-12 px-2">
+        <div className="text-center max-w-4xl mx-auto mb-0 md:mb-12 px-2">
           <h2 className="text-[24px] sm:text-[29px] md:text-[41px] font-bold tracking-tight text-slate-900 dark:text-white leading-tight mb-4 md:mb-6">
             <span className="text-primary">unilancer</span> {t('howItWorks.title.with', 'ile dijitalleşmek')} <span className="relative inline-block">
               {t('howItWorks.title.easy', 'çok kolay')}
@@ -143,9 +143,18 @@ export const HowItWorks = memo(function HowItWorks() {
         </div>
 
         {/* Grid Layout */}
-        <div className="relative mt-20 md:mt-60 isolate">
-          {/* Process Image - Behind and Shifted Up */}
-          <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none -translate-y-32 md:-translate-y-96">
+        <div className="relative mt-0 md:mt-60 isolate">
+          {/* Mobile: Image above grid - overlapping with first card */}
+          <div className="md:hidden flex justify-center -mb-6 relative z-0">
+            <img 
+              src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/ekiptopluseffaf.webp" 
+              alt="" 
+              className="w-[95%] max-w-[360px] object-contain"
+            />
+          </div>
+
+          {/* Desktop: Process Image - Behind and Shifted Up */}
+          <div className="absolute inset-0 -z-10 hidden md:flex items-center justify-center pointer-events-none -translate-y-96">
             <img 
               src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/ekiptopluseffaf.webp" 
               alt="" 
