@@ -35,7 +35,7 @@ async function sendNotification(record: any, type: 'freelancer_applications' | '
 export async function createFreelancerApplication(data: Omit<FreelancerApplication, 'id' | 'created_at' | 'updated_at' | 'status'>) {
   return withRetry(async () => {
     // Validate required fields
-    const requiredFields = ['full_name', 'email', 'location_type', 'location', 'work_preference', 'main_expertise', 'education_status', 'work_status', 'about_text'];
+    const requiredFields = ['full_name', 'email', 'phone', 'location_type', 'location', 'work_preference', 'main_expertise', 'education_status', 'university', 'work_status', 'about_text'];
     for (const field of requiredFields) {
       if (!data[field as keyof typeof data]) {
         throw new Error(`${field} alanı zorunludur`);

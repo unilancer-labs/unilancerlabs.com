@@ -53,6 +53,7 @@ interface FormData {
   subExpertise: string[];
   toolsAndTechnologies: string[];
   educationStatus: string;
+  university: string;
   workStatus: string;
   aboutText: string;
   portfolioLinks: PortfolioLink[];
@@ -138,6 +139,7 @@ const initialFormData: FormData = {
   subExpertise: [],
   toolsAndTechnologies: [],
   educationStatus: '',
+  university: '',
   workStatus: '',
   aboutText: '',
   portfolioLinks: [],
@@ -227,12 +229,13 @@ const JoinUs = () => {
         return (
           formData.fullName &&
           formData.email &&
+          formData.phone &&
           (formData.locationType === 'turkey' ? formData.city : formData.country)
         );
       case 2:
         return formData.categories.length > 0 && formData.mainExpertise.length > 0;
       case 3:
-        return formData.educationStatus && formData.workStatus && formData.aboutText;
+        return formData.educationStatus && formData.university && formData.workStatus && formData.aboutText;
       case 4:
         return acceptedTerms;
       default:
@@ -244,7 +247,7 @@ const JoinUs = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep()) {
-      setError(t('joinUs.error.requiredFields', 'L\u00fctfen t\u00fcm zorunlu alanlar\u0131 doldurun ve kullan\u0131m \u015fartlar\u0131n\u0131 kabul edin.'));
+      setError(t('joinUs.error.requiredFields', 'Lütfen tüm zorunlu alanları doldurun ve kullanım şartlarını kabul edin.'));
       return;
     }
     setLoading(true);
@@ -261,6 +264,7 @@ const JoinUs = () => {
         sub_expertise: formData.subExpertise,
         tools_and_technologies: formData.toolsAndTechnologies,
         education_status: formData.educationStatus,
+        university: formData.university,
         work_status: formData.workStatus,
         about_text: formData.aboutText,
         portfolio_links: formData.portfolioLinks,
@@ -270,7 +274,7 @@ const JoinUs = () => {
       triggerConfetti();
     } catch (err: any) {
       console.error('Form submission error:', err);
-      setError(err.message || t('joinUs.error.submission', 'Ba\u015fvuru g\u00f6nderilirken bir hata olu\u015ftu. L\u00fctfen tekrar deneyin.'));
+      setError(err.message || t('joinUs.error.submission', 'Başvuru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'));
     } finally {
       setLoading(false);
     }
@@ -553,7 +557,7 @@ const JoinUs = () => {
                             required
                           />
                         </div>
-                        {/* Telefon (Opsiyonel) */}
+                        {/* Telefon */}
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                           <input
@@ -564,6 +568,7 @@ const JoinUs = () => {
                             }
                             className="w-full bg-white dark:bg-[#252525] border-2 border-gray-200 dark:border-gray-600 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                             placeholder="+90 555 555 5555"
+                            required
                           />
                         </div>
                         {/* Konum (Türkiye / Yurt Dışı) */}
@@ -585,7 +590,7 @@ const JoinUs = () => {
                             <button
                               type="button"
                               onClick={() =>
-                                setFormData((prev) => ({ ...prev, locationType: 'international' }))
+                                setFormData((prev) => ({ ...prev, locationType: 'international', workPreference: 'remote' }))
                               }
                               className={`px-4 py-3 rounded-xl border-2 transition-all ${
                                 formData.locationType === 'international'
@@ -647,16 +652,24 @@ const JoinUs = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() =>
-                              setFormData((prev) => ({ ...prev, workPreference: 'hybrid' }))
-                            }
+                            onClick={() => {
+                              if (formData.locationType !== 'international') {
+                                setFormData((prev) => ({ ...prev, workPreference: 'hybrid' }));
+                              }
+                            }}
+                            disabled={formData.locationType === 'international'}
                             className={`px-4 py-3 rounded-xl border-2 transition-all ${
-                              formData.workPreference === 'hybrid'
+                              formData.locationType === 'international'
+                                ? 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                : formData.workPreference === 'hybrid'
                                 ? 'bg-primary/10 dark:bg-primary/20 border-primary text-primary'
                                 : 'bg-white dark:bg-[#252525] border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-primary/50'
                             }`}
                           >
                             {t('joinus.form.personal.hybrid', 'Hibrit')}
+                            {formData.locationType === 'international' && (
+                              <span className="block text-xs mt-0.5 opacity-70">(Yurt dışında kullanılamaz)</span>
+                            )}
                           </button>
                         </div>
                       </motion.div>
@@ -719,6 +732,9 @@ const JoinUs = () => {
                         )}
                         {/* Araç ve Teknolojiler */}
                         <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {t('joinus.form.expertise.tools_label', 'Kullandığınız Araçlar ve Teknolojiler')}
+                          </label>
                           <div className="flex gap-2">
                             <input
                               type="text"
@@ -795,6 +811,20 @@ const JoinUs = () => {
                           <option value="master">{t('joinus.form.portfolio.master', 'Yüksek Lisans')}</option>
                           <option value="phd">{t('joinus.form.portfolio.phd', 'Doktora')}</option>
                         </select>
+                        {/* Üniversite */}
+                        <div className="relative">
+                          <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={formData.university}
+                            onChange={(e) =>
+                              setFormData((prev) => ({ ...prev, university: e.target.value }))
+                            }
+                            className="w-full bg-white dark:bg-[#252525] border-2 border-gray-200 dark:border-gray-600 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                            placeholder={t('joinus.form.portfolio.university_placeholder', 'Okuduğunuz/Mezun olduğunuz Üniversite')}
+                            required
+                          />
+                        </div>
                         {/* Çalışma Durumu */}
                         <select
                           value={formData.workStatus}
@@ -924,28 +954,111 @@ const JoinUs = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="space-y-4"
+                        className="space-y-5"
                       >
-                        <div className="bg-gray-50 dark:bg-[#252525] border border-gray-200 dark:border-gray-600 rounded-xl p-4 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                          <p><strong>İsim Soyisim:</strong> {formData.fullName}</p>
-                          <p><strong>E-posta:</strong> {formData.email}</p>
-                          {formData.phone && <p><strong>Telefon:</strong> {formData.phone}</p>}
-                          <p><strong>Konum:</strong> {formData.locationType === 'turkey' ? formData.city : formData.country}</p>
-                          <p><strong>Çalışma Tercihi:</strong> {formData.workPreference === 'remote' ? 'Uzaktan' : 'Hibrit'}</p>
-                          <p><strong>Kategoriler:</strong> {formData.categories.join(', ')}</p>
-                          <p><strong>Ana Uzmanlık:</strong> {formData.mainExpertise.join(', ')}</p>
-                          {formData.toolsAndTechnologies.length > 0 && (
-                            <p><strong>Araçlar:</strong> {formData.toolsAndTechnologies.join(', ')}</p>
-                          )}
-                          <p><strong>Eğitim:</strong> {formData.educationStatus}</p>
-                          <p><strong>Çalışma Durumu:</strong> {formData.workStatus}</p>
+                        {/* Kişisel Bilgiler */}
+                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#252525] dark:to-[#1f1f1f] border border-gray-200 dark:border-gray-700 rounded-2xl p-5 space-y-4">
+                          <div className="flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+                            <User className="w-5 h-5 text-primary" />
+                            <h3 className="font-semibold text-gray-800 dark:text-white">Kişisel Bilgiler</h3>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">İsim Soyisim</span>
+                              <p className="text-gray-800 dark:text-white font-medium">{formData.fullName}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">E-posta</span>
+                              <p className="text-gray-800 dark:text-white font-medium">{formData.email}</p>
+                            </div>
+                            {formData.phone && (
+                              <div className="space-y-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Telefon</span>
+                                <p className="text-gray-800 dark:text-white font-medium">{formData.phone}</p>
+                              </div>
+                            )}
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Konum</span>
+                              <p className="text-gray-800 dark:text-white font-medium">{formData.locationType === 'turkey' ? formData.city : formData.country}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Çalışma Tercihi</span>
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                                formData.workPreference === 'remote' 
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' 
+                                  : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                              }`}>
+                                {formData.workPreference === 'remote' ? 'Uzaktan' : 'Hibrit'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <label className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 cursor-pointer pt-2">
+
+                        {/* Uzmanlık Bilgileri */}
+                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#252525] dark:to-[#1f1f1f] border border-gray-200 dark:border-gray-700 rounded-2xl p-5 space-y-4">
+                          <div className="flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+                            <Code2 className="w-5 h-5 text-primary" />
+                            <h3 className="font-semibold text-gray-800 dark:text-white">Uzmanlık Alanları</h3>
+                          </div>
+                          <div className="space-y-3">
+                            <div>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Kategoriler</span>
+                              <div className="flex flex-wrap gap-2 mt-1.5">
+                                {formData.categories.map((cat) => (
+                                  <span key={cat} className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">{cat}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Ana Uzmanlıklar</span>
+                              <div className="flex flex-wrap gap-2 mt-1.5">
+                                {formData.mainExpertise.map((exp) => (
+                                  <span key={exp} className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm">{exp}</span>
+                                ))}
+                              </div>
+                            </div>
+                            {formData.toolsAndTechnologies.length > 0 && (
+                              <div>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Araçlar & Teknolojiler</span>
+                                <div className="flex flex-wrap gap-2 mt-1.5">
+                                  {formData.toolsAndTechnologies.map((tool) => (
+                                    <span key={tool} className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm">{tool}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Eğitim & Deneyim */}
+                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#252525] dark:to-[#1f1f1f] border border-gray-200 dark:border-gray-700 rounded-2xl p-5 space-y-4">
+                          <div className="flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+                            <Building2 className="w-5 h-5 text-primary" />
+                            <h3 className="font-semibold text-gray-800 dark:text-white">Eğitim & Deneyim</h3>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Eğitim Durumu</span>
+                              <p className="text-gray-800 dark:text-white font-medium">{formData.educationStatus}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Üniversite</span>
+                              <p className="text-gray-800 dark:text-white font-medium">{formData.university || '-'}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Çalışma Durumu</span>
+                              <p className="text-gray-800 dark:text-white font-medium">{formData.workStatus}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Gizlilik Onayı */}
+                        <label className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400 cursor-pointer p-4 bg-gray-50 dark:bg-[#1f1f1f] rounded-xl border border-gray-200 dark:border-gray-700">
                           <input
                             type="checkbox"
                             checked={acceptedTerms}
                             onChange={(e) => setAcceptedTerms(e.target.checked)}
-                            className="mt-0.5 w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-600 text-primary focus:ring-primary"
+                            className="mt-0.5 w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600 text-primary focus:ring-primary accent-primary"
                           />
                           <span className="leading-relaxed">
                             <button type="button" onClick={openPrivacyPolicy} className="text-primary hover:underline font-medium">
@@ -977,8 +1090,20 @@ const JoinUs = () => {
                     {currentStep < 4 ? (
                       <button
                         type="button"
-                        onClick={() => setCurrentStep((prev) => (prev + 1) as FormStep)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all font-medium text-sm"
+                        onClick={() => {
+                          if (validateStep()) {
+                            setCurrentStep((prev) => (prev + 1) as FormStep);
+                            setError(null);
+                          } else {
+                            setError(t('joinUs.error.requiredFields', 'Lütfen tüm zorunlu alanları doldurun.'));
+                          }
+                        }}
+                        disabled={!validateStep()}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg transition-all font-medium text-sm ${
+                          validateStep()
+                            ? 'bg-primary text-white hover:bg-primary-dark'
+                            : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                        }`}
                       >
                         <span>Devam Et</span>
                         <ArrowRight className="w-4 h-4" />

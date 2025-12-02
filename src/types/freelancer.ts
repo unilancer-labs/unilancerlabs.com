@@ -10,6 +10,7 @@ export interface Freelancer {
   sub_expertise: string[];
   tools_and_technologies: string[];
   education_status: string;
+  university: string;
   work_status: string;
   about_text: string;
   cv_url?: string;
@@ -26,3 +27,6 @@ export interface Freelancer {
   created_at: string;
   updated_at: string;
 }
+
+// Alias for backwards compatibility
+export type FreelancerApplication = Freelancer;

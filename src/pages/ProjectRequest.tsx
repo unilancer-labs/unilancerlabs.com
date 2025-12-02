@@ -581,7 +581,7 @@ const ProjectRequest = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-dark">
         <Navbar />
-        <main className="pt-24 pb-12">
+        <main className="pt-32 pb-12">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Başlık */}
             <div className="text-center mb-10">
@@ -621,7 +621,7 @@ const ProjectRequest = () => {
                   <Video className="w-7 h-7 text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Ücretsiz Görüşme
+                  Görüşme
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                   30 dakikalık video görüşme ile projenizi detaylı konuşalım ve size özel çözümler sunalım.
@@ -788,7 +788,7 @@ const ProjectRequest = () => {
                       </div>
                       <div>
                         <p className="font-medium text-gray-800 dark:text-white text-sm">Görüşme tercih eder misiniz?</p>
-                        <p className="text-xs text-gray-500">30 dk ücretsiz</p>
+                        <p className="text-xs text-gray-500">30 dk</p>
                       </div>
                     </div>
                     <button
