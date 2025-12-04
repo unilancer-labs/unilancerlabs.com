@@ -3,7 +3,7 @@ import ServiceDetailLayout from '../../components/layout/ServiceDetailLayout';
 
 const Digibot = () => {
   const data = {
-    title: "Digibot & Yapay Zeka",
+    title: "digiBot & Yapay Zeka",
     heroTitle: "7/24 Çalışan Dijital Asistanınız",
     heroDescription: "Müşteri hizmetlerinizi yapay zeka destekli chatbotlar ile otomatikleştirin. Müşterilerinizin sorularını anında yanıtlayın, satışları artırın ve operasyonel yükünüzü hafifletin.",
     heroImage: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=2006&auto=format&fit=crop",

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, Users, LogOut, X, ChevronLeft, Briefcase,
-  Image, Globe, Cookie
+  Image, Globe, Cookie, LayoutDashboard
 } from 'lucide-react';
 import { signOut } from '../../../../lib/auth';
 
@@ -14,14 +14,9 @@ interface AdminSidebarProps {
 
 const sidebarLinks = [
   {
-    icon: FileText,
-    label: 'Blog Yönetimi',
-    href: '/admin/blog'
-  },
-  {
-    icon: Image,
-    label: 'Portfolyo',
-    href: '/admin/portfolio'
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    href: '/admin/dashboard'
   },
   {
     icon: Users,
@@ -32,6 +27,16 @@ const sidebarLinks = [
     icon: Briefcase,
     label: 'Proje Talepleri',
     href: '/admin/project-requests'
+  },
+  {
+    icon: FileText,
+    label: 'Blog Yönetimi',
+    href: '/admin/blog'
+  },
+  {
+    icon: Image,
+    label: 'Portfolyo',
+    href: '/admin/portfolio'
   },
   {
     icon: Globe,

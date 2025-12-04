@@ -15,7 +15,7 @@ interface EmailPayload {
 }
 
 // Email içeriği oluştur
-function createEmailContent(type: string, record: Record<string, any>): { subject: string; html: string } {
+function createEmailContent(type: string, record: Record<string, any>): { subject: string; html: string; toEmail?: string } {
   const timestamp = new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' })
   
   switch (type) {
@@ -151,6 +151,103 @@ function createEmailContent(type: string, record: Record<string, any>): { subjec
         `
       }
 
+    // Freelancer durum değişikliği bildirimi (başvurana gönderilir)
+    case 'freelancer_status_update':
+      const freelancerStatusMap: Record<string, { text: string; color: string; emoji: string }> = {
+        'reviewing': { text: 'İnceleniyor', color: '#3B82F6', emoji: '🔍' },
+        'interview': { text: 'Mülakat Aşamasına Geçti', color: '#8B5CF6', emoji: '📅' },
+        'accepted': { text: 'Kabul Edildi', color: '#22C55E', emoji: '✅' },
+        'approved': { text: 'Onaylandı', color: '#22C55E', emoji: '✅' },
+        'rejected': { text: 'Reddedildi', color: '#EF4444', emoji: '❌' },
+      }
+      const fStatus = freelancerStatusMap[record.status] || { text: record.status, color: '#6B7280', emoji: '📋' }
+      
+      return {
+        subject: `${fStatus.emoji} Başvuru Durumunuz Güncellendi - Unilancer`,
+        toEmail: record.email,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #5FC8DA 0%, #4BA8B8 100%); padding: 20px; border-radius: 10px 10px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">${fStatus.emoji} Başvuru Durumu Güncellendi</h1>
+            </div>
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
+              <p style="font-size: 16px;">Merhaba <strong>${record.name}</strong>,</p>
+              <p style="font-size: 14px; color: #666;">Freelancer başvurunuzun durumu güncellenmiştir.</p>
+              
+              <div style="background: ${fStatus.color}15; border-left: 4px solid ${fStatus.color}; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: ${fStatus.color};">
+                  ${fStatus.emoji} ${fStatus.text}
+                </p>
+              </div>
+              
+              ${record.status === 'accepted' || record.status === 'approved' ? `
+                <p style="font-size: 14px; color: #666;">Tebrikler! Başvurunuz kabul edildi. En kısa sürede sizinle iletişime geçeceğiz.</p>
+              ` : record.status === 'interview' ? `
+                <p style="font-size: 14px; color: #666;">Başvurunuz değerlendirildi ve mülakat aşamasına geçtiniz. Yakında sizinle iletişime geçeceğiz.</p>
+              ` : record.status === 'rejected' ? `
+                <p style="font-size: 14px; color: #666;">Başvurunuz için teşekkür ederiz. Maalesef şu an için ekibimize uygun bir pozisyon bulamadık. Gelecekte yeni fırsatlar için sizi tekrar değerlendirmekten mutluluk duyarız.</p>
+              ` : `
+                <p style="font-size: 14px; color: #666;">Başvurunuz inceleniyor. Gelişmeler hakkında sizi bilgilendireceğiz.</p>
+              `}
+              
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+              <p style="color: #888; font-size: 12px;">
+                Bu email Unilancer tarafından otomatik olarak gönderilmiştir.<br>
+                <a href="https://unilancerlabs.com" style="color: #5FC8DA;">unilancerlabs.com</a>
+              </p>
+            </div>
+          </div>
+        `
+      }
+
+    // Proje durum değişikliği bildirimi (müşteriye gönderilir)
+    case 'project_status_update':
+      const projectStatusMap: Record<string, { text: string; color: string; emoji: string }> = {
+        'reviewing': { text: 'İnceleniyor', color: '#3B82F6', emoji: '🔍' },
+        'in-progress': { text: 'Başladı', color: '#8B5CF6', emoji: '🚀' },
+        'completed': { text: 'Tamamlandı', color: '#22C55E', emoji: '✅' },
+        'cancelled': { text: 'İptal Edildi', color: '#EF4444', emoji: '❌' },
+      }
+      const pStatus = projectStatusMap[record.status] || { text: record.status, color: '#6B7280', emoji: '📋' }
+      
+      return {
+        subject: `${pStatus.emoji} Proje Talebiniz Güncellendi - Unilancer`,
+        toEmail: record.email,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #5FC8DA 0%, #4BA8B8 100%); padding: 20px; border-radius: 10px 10px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">${pStatus.emoji} Proje Durumu Güncellendi</h1>
+            </div>
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
+              <p style="font-size: 16px;">Merhaba <strong>${record.name}</strong>,</p>
+              <p style="font-size: 14px; color: #666;">Proje talebinizin durumu güncellenmiştir.</p>
+              
+              <div style="background: ${pStatus.color}15; border-left: 4px solid ${pStatus.color}; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: ${pStatus.color};">
+                  ${pStatus.emoji} ${pStatus.text}
+                </p>
+              </div>
+              
+              ${record.status === 'in-progress' ? `
+                <p style="font-size: 14px; color: #666;">Harika haber! Projeniz başladı. Ekibimiz şu anda projeniz üzerinde çalışıyor.</p>
+              ` : record.status === 'completed' ? `
+                <p style="font-size: 14px; color: #666;">Tebrikler! Projeniz başarıyla tamamlandı. Birlikte çalıştığımız için teşekkür ederiz.</p>
+              ` : record.status === 'cancelled' ? `
+                <p style="font-size: 14px; color: #666;">Proje talebiniz iptal edilmiştir. Sorularınız için bizimle iletişime geçebilirsiniz.</p>
+              ` : `
+                <p style="font-size: 14px; color: #666;">Proje talebiniz inceleniyor. Gelişmeler hakkında sizi bilgilendireceğiz.</p>
+              `}
+              
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+              <p style="color: #888; font-size: 12px;">
+                Bu email Unilancer tarafından otomatik olarak gönderilmiştir.<br>
+                <a href="https://unilancerlabs.com" style="color: #5FC8DA;">unilancerlabs.com</a>
+              </p>
+            </div>
+          </div>
+        `
+      }
+
     default:
       return {
         subject: `🔔 Yeni Bildirim - ${type}`,
@@ -197,7 +294,10 @@ serve(async (req) => {
       )
     }
 
-    const { subject, html } = createEmailContent(type, record)
+    const { subject, html, toEmail } = createEmailContent(type, record)
+    
+    // Determine recipient: use toEmail for status updates, otherwise use admin notification email
+    const recipient = toEmail || NOTIFICATION_EMAIL
 
     // Resend API ile email gönder
     const emailResponse = await fetch('https://api.resend.com/emails', {
@@ -207,8 +307,8 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Unilancer <onboarding@resend.dev>',
-        to: [NOTIFICATION_EMAIL],
+        from: 'Unilancer <noreply@unilancerlabs.com>',
+        to: [recipient],
         subject: subject,
         html: html,
       }),

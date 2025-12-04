@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { PlusCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { PlusCircle, RefreshCw, Download, FileText, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BlogStats from '../components/BlogStats';
 import BlogFilters from '../components/BlogFilters';
 import BlogList from '../components/BlogList';
 import { getBlogPosts, deleteBlogPost } from '../../../../lib/config/supabase';
+import { exportToCSV, exportToExcel, exportToPDF } from '../../../../lib/utils/export';
 import type { BlogPost } from '../types';
 
 interface BlogStats {
@@ -21,12 +22,25 @@ const BlogAdminPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState<BlogStats>({
     totalPosts: 0,
     publishedPosts: 0,
     draftPosts: 0,
     categories: new Set()
   });
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     loadBlogData();
@@ -79,6 +93,32 @@ const BlogAdminPage = () => {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
+  // Export column configuration
+  const exportColumns = [
+    { key: 'title', header: 'Başlık' },
+    { key: 'category', header: 'Kategori' },
+    { key: 'author', header: 'Yazar', format: (val: any) => val?.name || '-' },
+    { key: 'published', header: 'Durum', format: (val: boolean) => val ? 'Yayında' : 'Taslak' },
+    { key: 'read_time', header: 'Okuma Süresi' },
+    { key: 'created_at', header: 'Oluşturma Tarihi', format: (val: string) => new Date(val).toLocaleDateString('tr-TR') },
+    { key: 'tags', header: 'Etiketler', format: (val: string[]) => val?.join(', ') || '-' }
+  ];
+
+  const handleExportCSV = () => {
+    exportToCSV(filteredPosts, exportColumns, 'blog-yazilari');
+    setShowExportMenu(false);
+  };
+
+  const handleExportExcel = () => {
+    exportToExcel(filteredPosts, exportColumns, 'blog-yazilari', 'Unilancer Blog Yazıları');
+    setShowExportMenu(false);
+  };
+
+  const handleExportPDF = () => {
+    exportToPDF(filteredPosts, exportColumns, 'blog-yazilari', 'Unilancer Blog Yazıları');
+    setShowExportMenu(false);
+  };
+
   return (
     <>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -87,13 +127,63 @@ const BlogAdminPage = () => {
           <p className="text-slate-500 dark:text-gray-400 mt-1">Blog yazılarını yönetin</p>
         </div>
 
-        <Link
-          to="/admin/blog/new"
-          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/25 min-h-[48px]"
-        >
-          <PlusCircle className="w-5 h-5" />
-          <span>Yeni Blog Yazısı</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          {/* Refresh Button */}
+          <button
+            onClick={loadBlogData}
+            disabled={loading}
+            className="p-3 bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+            title="Yenile"
+          >
+            <RefreshCw className={`w-5 h-5 text-slate-600 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+
+          {/* Export Dropdown */}
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+            >
+              <Download className="w-5 h-5 text-slate-600 dark:text-gray-400" />
+              <span className="text-slate-700 dark:text-gray-300 hidden sm:inline">Dışa Aktar</span>
+              <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl shadow-lg z-50 overflow-hidden">
+                <button
+                  onClick={handleExportCSV}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-green-500" />
+                  <span className="text-slate-700 dark:text-gray-300">CSV İndir</span>
+                </button>
+                <button
+                  onClick={handleExportExcel}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                  <span className="text-slate-700 dark:text-gray-300">Excel İndir</span>
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-red-500" />
+                  <span className="text-slate-700 dark:text-gray-300">PDF İndir</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <Link
+            to="/admin/blog/new"
+            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-primary rounded-xl hover:bg-primary-dark transition-colors shadow-lg shadow-primary/25 min-h-[48px]"
+          >
+            <PlusCircle className="w-5 h-5" />
+            <span>Yeni Blog Yazısı</span>
+          </Link>
+        </div>
       </div>
 
       <BlogStats stats={stats} />

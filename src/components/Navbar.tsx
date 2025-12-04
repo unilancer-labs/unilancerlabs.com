@@ -23,20 +23,23 @@ const getDigitAllServices = (t: (key: string) => string, lang: string) => [
   { icon: Palette, label: t('service.graphics'), path: getRouteForLanguage('/hizmetler/grafik-tasarim', lang as 'tr' | 'en') }
 ];
 
-const NavLink = ({ to, active, children, onClick }: {
+const NavLink = ({ to, active, children, onClick, isDarkHero }: {
   to: string;
   active: boolean;
   children: React.ReactNode;
   onClick?: () => void;
+  isDarkHero?: boolean;
 }) => (
   <Link
     to={to}
     className={`
       px-4 py-2 rounded-lg transition-all duration-300 relative group text-base font-medium
       ${active
-        ? 'text-primary dark:text-primary'
+        ? 'text-primary'
+        : isDarkHero
+        ? 'text-gray-300 hover:text-white'
         : 'text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}
-      hover:bg-slate-100/70 dark:hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
+      ${isDarkHero ? 'hover:bg-white/5' : 'hover:bg-slate-100/70 dark:hover:bg-white/5'} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
     `}
     onClick={onClick}
   >
@@ -160,6 +163,9 @@ const Navbar = () => {
   const isUniversitiesPage = location.pathname.includes('/universities') || location.pathname.includes('/universiteliler');
   // Blog detay sayfasında navbar her zaman solid olsun
   const isBlogDetailPage = /\/blog\/[^/]+$/.test(location.pathname);
+  // Dark hero page kontrolü - Hakkımızda sayfası için
+  const isAboutPage = location.pathname.includes('/hakkimizda') || location.pathname.includes('/about');
+  const isDarkHero = isAboutPage && !isScrolled;
   // Menü açıkken de solid olsun
   const shouldBeSolid = isScrolled || isUniversitiesPage || isBlogDetailPage || isOpen;
 
@@ -170,6 +176,8 @@ const Navbar = () => {
         fixed w-full z-50 transition-all duration-300
         ${shouldBeSolid
           ? 'bg-white/95 dark:bg-dark/95 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 py-2'
+          : isDarkHero
+          ? 'bg-transparent py-4 dark-nav'
           : 'bg-transparent py-4'}
       `}
       style={{
@@ -232,12 +240,14 @@ const Navbar = () => {
                     px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 font-medium
                     ${location.pathname.startsWith('/services') || location.pathname.startsWith('/digitall')
                       ? 'text-primary dark:text-primary'
+                      : isDarkHero
+                      ? 'text-gray-300 hover:text-white'
                       : 'text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}
-                    hover:bg-slate-100/70 dark:hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-base
+                    ${isDarkHero ? 'hover:bg-white/5' : 'hover:bg-slate-100/70 dark:hover:bg-white/5'} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-base
                   `}
                 >
                   <span className="font-semibold" style={{ fontFamily: '"Space Grotesk", "Inter", sans-serif' }}>
-                    <span className="text-slate-900 dark:text-white">digit</span>
+                    <span className={isDarkHero ? 'text-white' : 'text-slate-900 dark:text-white'}>digit</span>
                     <span className="text-primary dark:text-primary">All</span>
                   </span>
                   <motion.div
@@ -249,11 +259,11 @@ const Navbar = () => {
                 </button>
               </div>
 
-              <NavLink to={getRouteForLanguage('/universities', language)} active={location.pathname.includes('/universities') || location.pathname.includes('/universiteliler')} onClick={scrollToTop}>
+              <NavLink to={getRouteForLanguage('/universities', language)} active={location.pathname.includes('/universities') || location.pathname.includes('/universiteliler')} onClick={scrollToTop} isDarkHero={isDarkHero}>
                 {t('nav.universities', 'Üniversiteliler')}
               </NavLink>
-              <NavLink to={getRouteForLanguage('/digibot', language)} active={location.pathname.includes('/digibot')} onClick={scrollToTop}>
-                Digibot
+              <NavLink to={getRouteForLanguage('/digibot', language)} active={location.pathname.includes('/digibot')} onClick={scrollToTop} isDarkHero={isDarkHero}>
+                digiBot
               </NavLink>
 
               {/* Corporate Dropdown */}
@@ -268,8 +278,10 @@ const Navbar = () => {
                     px-4 py-2 rounded-lg transition-all duration-300 flex items-center space-x-2 font-medium
                     ${location.pathname.includes('/about') || location.pathname.includes('/contact') || location.pathname.includes('/team') || location.pathname.includes('/hakkimizda') || location.pathname.includes('/iletisim') || location.pathname.includes('/ekibimiz')
                       ? 'text-primary dark:text-primary'
+                      : isDarkHero
+                      ? 'text-gray-300 hover:text-white'
                       : 'text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}
-                    hover:bg-slate-100/70 dark:hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-base
+                    ${isDarkHero ? 'hover:bg-white/5' : 'hover:bg-slate-100/70 dark:hover:bg-white/5'} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-base
                   `}
                 >
                   <span>{t('nav.corporate', 'Kurumsal')}</span>
@@ -320,7 +332,7 @@ const Navbar = () => {
               </div>
 
               {language !== 'en' && (
-                <NavLink to={getRouteForLanguage('/blog', language)} active={location.pathname.includes('/blog')} onClick={scrollToTop}>
+                <NavLink to={getRouteForLanguage('/blog', language)} active={location.pathname.includes('/blog')} onClick={scrollToTop} isDarkHero={isDarkHero}>
                   {t('nav.blog')}
                 </NavLink>
               )}
@@ -460,7 +472,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             <motion.button
               onClick={toggleLanguage}
-              className="relative flex items-center space-x-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm hover:shadow-md group overflow-hidden"
+              className={`relative flex items-center space-x-2 px-3 py-2 rounded-lg transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm hover:shadow-md group overflow-hidden ${isDarkHero ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Toggle language"
@@ -469,18 +481,18 @@ const Navbar = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
               <Globe className="w-4 h-4 text-primary relative z-10" />
               <div className="flex items-center space-x-1 relative z-10">
-                <span className="text-sm font-semibold text-slate-700 dark:text-gray-300">
+                <span className={`text-sm font-semibold ${isDarkHero ? 'text-gray-300' : 'text-slate-700 dark:text-gray-300'}`}>
                   {language === 'tr' ? 'TR' : 'EN'}
                 </span>
-                <span className="text-xs text-slate-500 dark:text-gray-400">|</span>
-                <span className="text-xs text-slate-500 dark:text-gray-400">
+                <span className={`text-xs ${isDarkHero ? 'text-gray-400' : 'text-slate-500 dark:text-gray-400'}`}>|</span>
+                <span className={`text-xs ${isDarkHero ? 'text-gray-400' : 'text-slate-500 dark:text-gray-400'}`}>
                   {language === 'tr' ? 'EN' : 'TR'}
                 </span>
               </div>
             </motion.button>
             <motion.button
               onClick={toggleTheme}
-              className="p-2.5 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm hover:shadow-md"
+              className={`p-2.5 rounded-lg transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm hover:shadow-md ${isDarkHero ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10'}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Toggle theme"
@@ -504,7 +516,7 @@ const Navbar = () => {
                     exit={{ rotate: -90, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Moon className="w-5 h-5 text-slate-700" />
+                    <Moon className={`w-5 h-5 ${isDarkHero ? 'text-gray-300' : 'text-slate-700'}`} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -520,7 +532,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <motion.button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden relative w-12 h-12 rounded-lg bg-slate-100 dark:bg-transparent hover:bg-slate-200 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center justify-center"
+            className={`md:hidden relative w-12 h-12 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center justify-center ${isDarkHero ? 'bg-transparent hover:bg-white/10' : 'bg-slate-100 dark:bg-transparent hover:bg-slate-200 dark:hover:bg-white/5'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -532,7 +544,7 @@ const Navbar = () => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <X className="w-6 h-6 text-slate-900 dark:text-white" />
+                  <X className={`w-6 h-6 ${isDarkHero ? 'text-white' : 'text-slate-900 dark:text-white'}`} />
                 </motion.div>
               ) : (
                 <motion.div
@@ -541,7 +553,7 @@ const Navbar = () => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <Menu className="w-6 h-6 text-slate-900 dark:text-white" />
+                  <Menu className={`w-6 h-6 ${isDarkHero ? 'text-white' : 'text-slate-900 dark:text-white'}`} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -642,7 +654,7 @@ const Navbar = () => {
                 <ArrowRight className="w-5 h-5 text-slate-400" />
               </Link>
 
-              {/* Digibot Link */}
+              {/* digiBot Link */}
               <Link
                 to={getRouteForLanguage('/digibot', language)}
                 className="flex items-center justify-between px-4 py-4 min-h-[56px] rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5"
@@ -652,7 +664,7 @@ const Navbar = () => {
                   <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
                     <BrainCircuit className="w-5 h-5 text-orange-500" />
                   </div>
-                  <span className="font-semibold text-slate-900 dark:text-white">Digibot</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">digiBot</span>
                 </div>
                 <ArrowRight className="w-5 h-5 text-slate-400" />
               </Link>

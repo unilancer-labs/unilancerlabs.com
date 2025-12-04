@@ -133,15 +133,15 @@ export default function CookieStatsPage() {
 
         <div className="flex items-center gap-3">
           {/* Time Range Filter */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 rounded-lg p-1">
             {(['7d', '30d', 'all'] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                   timeRange === range
-                    ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-white dark:bg-dark-light text-primary shadow-sm'
+                    : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {range === '7d' ? '7 Gün' : range === '30d' ? '30 Gün' : 'Tümü'}
@@ -153,9 +153,9 @@ export default function CookieStatsPage() {
           <button
             onClick={fetchData}
             disabled={loading}
-            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="p-2 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
           >
-            <RefreshCw className={`w-5 h-5 text-slate-600 dark:text-slate-400 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-5 h-5 text-slate-600 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -166,11 +166,11 @@ export default function CookieStatsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700"
+          className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
         >
           <div className="flex items-center gap-2 mb-2">
-            <Users className="w-4 h-4 text-slate-500" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">Toplam</span>
+            <Users className="w-4 h-4 text-slate-500 dark:text-gray-400" />
+            <span className="text-xs text-slate-500 dark:text-gray-400">Toplam</span>
           </div>
           <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
         </motion.div>
@@ -180,14 +180,14 @@ export default function CookieStatsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700"
+          className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
         >
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle className="w-4 h-4 text-green-500" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">Tümünü Kabul</span>
+            <span className="text-xs text-slate-500 dark:text-gray-400">Tümünü Kabul</span>
           </div>
           <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.acceptAll}</p>
-          <p className="text-xs text-slate-500">%{getPercentage(stats.acceptAll)}</p>
+          <p className="text-xs text-slate-500 dark:text-gray-400">%{getPercentage(stats.acceptAll)}</p>
         </motion.div>
 
         {/* Essential Only */}
@@ -195,14 +195,14 @@ export default function CookieStatsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700"
+          className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
         >
           <div className="flex items-center gap-2 mb-2">
-            <XCircle className="w-4 h-4 text-slate-500" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">Sadece Zorunlu</span>
+            <XCircle className="w-4 h-4 text-slate-500 dark:text-gray-400" />
+            <span className="text-xs text-slate-500 dark:text-gray-400">Sadece Zorunlu</span>
           </div>
-          <p className="text-2xl font-bold text-slate-600 dark:text-slate-300">{stats.essential}</p>
-          <p className="text-xs text-slate-500">%{getPercentage(stats.essential)}</p>
+          <p className="text-2xl font-bold text-slate-600 dark:text-gray-300">{stats.essential}</p>
+          <p className="text-xs text-slate-500 dark:text-gray-400">%{getPercentage(stats.essential)}</p>
         </motion.div>
 
         {/* Custom */}
@@ -210,14 +210,14 @@ export default function CookieStatsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700"
+          className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
         >
           <div className="flex items-center gap-2 mb-2">
             <Settings className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">Özelleştirilmiş</span>
+            <span className="text-xs text-slate-500 dark:text-gray-400">Özelleştirilmiş</span>
           </div>
           <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.custom}</p>
-          <p className="text-xs text-slate-500">%{getPercentage(stats.custom)}</p>
+          <p className="text-xs text-slate-500 dark:text-gray-400">%{getPercentage(stats.custom)}</p>
         </motion.div>
 
         {/* Analytics Accepted */}
@@ -225,14 +225,14 @@ export default function CookieStatsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700"
+          className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
         >
           <div className="flex items-center gap-2 mb-2">
             <BarChart3 className="w-4 h-4 text-primary" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">Analitik Kabul</span>
+            <span className="text-xs text-slate-500 dark:text-gray-400">Analitik Kabul</span>
           </div>
           <p className="text-2xl font-bold text-primary">{stats.analyticsAccepted}</p>
-          <p className="text-xs text-slate-500">%{getPercentage(stats.analyticsAccepted)}</p>
+          <p className="text-xs text-slate-500 dark:text-gray-400">%{getPercentage(stats.analyticsAccepted)}</p>
         </motion.div>
 
         {/* Marketing Accepted */}
@@ -240,21 +240,21 @@ export default function CookieStatsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700"
+          className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
         >
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-4 h-4 text-purple-500" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">Pazarlama Kabul</span>
+            <span className="text-xs text-slate-500 dark:text-gray-400">Pazarlama Kabul</span>
           </div>
           <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.marketingAccepted}</p>
-          <p className="text-xs text-slate-500">%{getPercentage(stats.marketingAccepted)}</p>
+          <p className="text-xs text-slate-500 dark:text-gray-400">%{getPercentage(stats.marketingAccepted)}</p>
         </motion.div>
       </div>
 
       {/* Consent Rate Bar */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 mb-8">
+      <div className="bg-white dark:bg-dark-light rounded-xl p-6 border border-slate-200 dark:border-white/10 mb-8">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Kabul Oranları</h3>
-        <div className="h-8 rounded-full overflow-hidden flex bg-slate-200 dark:bg-slate-700">
+        <div className="h-8 rounded-full overflow-hidden flex bg-slate-200 dark:bg-white/10">
           {stats.total > 0 && (
             <>
               <div 
@@ -270,7 +270,7 @@ export default function CookieStatsPage() {
                 {getPercentage(stats.custom) > 10 && `${getPercentage(stats.custom)}%`}
               </div>
               <div 
-                className="bg-slate-400 flex items-center justify-center text-xs text-white font-medium"
+                className="bg-slate-400 dark:bg-gray-500 flex items-center justify-center text-xs text-white font-medium"
                 style={{ width: `${getPercentage(stats.essential)}%` }}
               >
                 {getPercentage(stats.essential) > 10 && `${getPercentage(stats.essential)}%`}
@@ -281,22 +281,22 @@ export default function CookieStatsPage() {
         <div className="flex items-center gap-6 mt-3 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="text-slate-600 dark:text-slate-400">Tümünü Kabul</span>
+            <span className="text-slate-600 dark:text-gray-400">Tümünü Kabul</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <span className="text-slate-600 dark:text-slate-400">Özelleştirilmiş</span>
+            <span className="text-slate-600 dark:text-gray-400">Özelleştirilmiş</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-slate-400" />
-            <span className="text-slate-600 dark:text-slate-400">Sadece Zorunlu</span>
+            <div className="w-3 h-3 rounded-full bg-slate-400 dark:bg-gray-500" />
+            <span className="text-slate-600 dark:text-gray-400">Sadece Zorunlu</span>
           </div>
         </div>
       </div>
 
       {/* Recent Records Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+      <div className="bg-white dark:bg-dark-light rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden">
+        <div className="p-4 border-b border-slate-200 dark:border-white/10">
           <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Son Kayıtlar
@@ -306,41 +306,41 @@ export default function CookieStatsPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-900/50">
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 px-4 py-3">Tarih</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 px-4 py-3">Tercih</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 px-4 py-3">Analitik</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 px-4 py-3">Pazarlama</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 px-4 py-3">Dil</th>
+              <tr className="bg-slate-50 dark:bg-white/5">
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-gray-400 px-4 py-3">Tarih</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-gray-400 px-4 py-3">Tercih</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-gray-400 px-4 py-3">Analitik</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-gray-400 px-4 py-3">Pazarlama</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-gray-400 px-4 py-3">Dil</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+            <tbody className="divide-y divide-slate-200 dark:divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500 dark:text-gray-400">
                     <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2" />
                     Yükleniyor...
                   </td>
                 </tr>
               ) : records.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500 dark:text-gray-400">
                     Henüz kayıt yok
                   </td>
                 </tr>
               ) : (
                 records.slice(0, 50).map((record) => (
-                  <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30">
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+                  <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-gray-300">
                       {formatDate(record.created_at)}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                         record.consent_type === 'all' 
-                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400'
                           : record.consent_type === 'custom'
-                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                          : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400'
+                          : 'bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-gray-300'
                       }`}>
                         {record.consent_type === 'all' && <CheckCircle className="w-3 h-3" />}
                         {record.consent_type === 'custom' && <Settings className="w-3 h-3" />}
@@ -352,17 +352,17 @@ export default function CookieStatsPage() {
                       {record.analytics_accepted ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-slate-400" />
+                        <XCircle className="w-4 h-4 text-slate-400 dark:text-gray-500" />
                       )}
                     </td>
                     <td className="px-4 py-3">
                       {record.marketing_accepted ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-slate-400" />
+                        <XCircle className="w-4 h-4 text-slate-400 dark:text-gray-500" />
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 uppercase">
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-gray-300 uppercase">
                       {record.language || 'tr'}
                     </td>
                   </tr>

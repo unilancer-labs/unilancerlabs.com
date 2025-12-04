@@ -222,8 +222,8 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
     en: 'Marketing & Advertising'
   },
   'service.ai': {
-    tr: 'Yapay Zeka - Digibot',
-    en: 'Artificial Intelligence - Digibot'
+    tr: 'Yapay Zeka - digiBot',
+    en: 'Artificial Intelligence - digiBot'
   },
   'service.development': {
     tr: 'Yazılım Geliştirme',
@@ -553,7 +553,7 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
   },
   'home.services.ai.title': {
     tr: 'Yapay Zeka – Dijibot',
-    en: 'Artificial Intelligence – Digibot'
+    en: 'Artificial Intelligence – digiBot'
   },
   'home.services.ai.description': {
     tr: 'AI chatbotlar ve süreçleri hızlandıran akıllı çözümler.',
@@ -3220,8 +3220,8 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
     en: 'Analysis and Roadmap'
   },
   'howItWorks.step1.description': {
-    tr: "İhtiyacınızı dinliyoruz, Digibot'la dijital analiz raporunuzu çıkarıp yol haritanızı oluşturuyoruz.",
-    en: "We listen to your needs, create your digital analysis report with Digibot and build your roadmap."
+    tr: "İhtiyacınızı dinliyoruz, digiBot'la dijital analiz raporunuzu çıkarıp yol haritanızı oluşturuyoruz.",
+    en: "We listen to your needs, create your digital analysis report with digiBot and build your roadmap."
   },
   'howItWorks.step2.label': {
     tr: 'ADIM 2',

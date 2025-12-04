@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   FileText, Clock, CheckCircle, XCircle,
   AlertTriangle, Eye, Check, X, ExternalLink,
-  Search, Filter
+  Search, Filter, Download, FileSpreadsheet, ChevronDown, RefreshCw, Briefcase
 } from 'lucide-react';
 import { getProjectRequests, updateProjectStatus } from '../../../../lib/api/projectRequests';
+import { 
+  exportToCSV, 
+  exportToExcel, 
+  exportToPDF,
+  formatDateForExport,
+  formatStatusForExport 
+} from '../../../../lib/utils/export';
 import type { ProjectRequest, ProjectRequestStats } from '../types';
 
 const ProjectRequestsPage = () => {
@@ -16,6 +24,8 @@ const ProjectRequestsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [serviceFilter, setServiceFilter] = useState('all');
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [stats, setStats] = useState<ProjectRequestStats>({
     total: 0,
@@ -86,6 +96,51 @@ const ProjectRequestsPage = () => {
     return matchesSearch && matchesStatus && matchesService;
   });
 
+  // Export functions
+  const exportColumns = [
+    { key: 'company_name' as const, header: 'Firma Adı' },
+    { key: 'contact_name' as const, header: 'İletişim Kişisi' },
+    { key: 'email' as const, header: 'E-posta' },
+    { key: 'phone' as const, header: 'Telefon' },
+    { key: 'service_categories' as const, header: 'Hizmet Kategorileri' },
+    { key: 'budget_range' as const, header: 'Bütçe Aralığı' },
+    { key: 'timeline' as const, header: 'Teslim Süresi' },
+    { key: 'status' as const, header: 'Durum' },
+    { key: 'created_at' as const, header: 'Talep Tarihi' },
+  ];
+
+  const prepareExportData = () => {
+    return filteredRequests.map(r => ({
+      ...r,
+      service_categories: r.service_categories?.map(s => 
+        s === 'software' ? 'Yazılım' : s === 'design' ? 'Tasarım' : 'Dijital Strateji'
+      ).join(', ') || '',
+      status: formatStatusForExport(r.status),
+      created_at: formatDateForExport(r.created_at),
+    }));
+  };
+
+  const handleExportCSV = () => {
+    exportToCSV(prepareExportData(), 'proje-talepleri', exportColumns);
+    setShowExportMenu(false);
+  };
+
+  const handleExportExcel = () => {
+    exportToExcel(prepareExportData(), 'proje-talepleri', exportColumns, 'Proje Talepleri');
+    setShowExportMenu(false);
+  };
+
+  const handleExportPDF = () => {
+    exportToPDF(prepareExportData(), 'proje-talepleri', exportColumns, 'Proje Talepleri Raporu');
+    setShowExportMenu(false);
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
   const getStatusColor = (status: ProjectRequest['status']) => {
     switch (status) {
       case 'pending':
@@ -126,6 +181,76 @@ const ProjectRequestsPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Proje Talepleri</h1>
           <p className="text-slate-500 dark:text-gray-400 mt-1">Gelen proje taleplerini yönetin</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Refresh Button */}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing || loading}
+            className="flex items-center space-x-2 px-4 py-2.5 bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-gray-400 ${refreshing ? 'animate-spin' : ''}`} />
+            <span className="text-slate-600 dark:text-gray-400 hidden sm:inline">Yenile</span>
+          </button>
+
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center space-x-2 px-4 py-2.5 bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+            >
+              <Download className="w-4 h-4 text-slate-600 dark:text-gray-400" />
+              <span className="text-slate-600 dark:text-gray-400">Dışa Aktar</span>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showExportMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setShowExportMenu(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-50"
+                >
+                  <button
+                    onClick={handleExportCSV}
+                    className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left"
+                  >
+                    <FileText className="w-4 h-4 text-green-500" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">CSV</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">Virgülle ayrılmış</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={handleExportExcel}
+                    className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left border-t border-slate-100 dark:border-white/5"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">Excel</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">XLS formatı</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left border-t border-slate-100 dark:border-white/5"
+                  >
+                    <FileText className="w-4 h-4 text-red-500" />
+                    <div>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">PDF</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">Yazdırılabilir</p>
+                    </div>
+                  </button>
+                </motion.div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -233,30 +358,47 @@ const ProjectRequestsPage = () => {
       </div>
 
       {/* Requests List */}
-      <div className="bg-dark-light border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-slate-900 dark:text-white">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left py-4 px-6 font-medium">Firma</th>
-                <th className="text-left py-4 px-6 font-medium hidden sm:table-cell">Hizmetler</th>
-                <th className="text-left py-4 px-6 font-medium hidden lg:table-cell">İletişim</th>
-                <th className="text-left py-4 px-6 font-medium hidden md:table-cell">Tarih</th>
-                <th className="text-left py-4 px-6 font-medium">Durum</th>
-                <th className="text-right py-4 px-6 font-medium">İşlemler</th>
+              <tr className="border-b border-slate-200 dark:border-white/10">
+                <th className="text-left py-4 px-6 font-medium text-slate-600 dark:text-gray-300">Firma</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-600 dark:text-gray-300 hidden sm:table-cell">Hizmetler</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-600 dark:text-gray-300 hidden lg:table-cell">İletişim</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-600 dark:text-gray-300 hidden md:table-cell">Tarih</th>
+                <th className="text-left py-4 px-6 font-medium text-slate-600 dark:text-gray-300">Durum</th>
+                <th className="text-right py-4 px-6 font-medium text-slate-600 dark:text-gray-300">İşlemler</th>
               </tr>
             </thead>
             <tbody>
-              {filteredRequests.map((request) => (
+              {filteredRequests.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+                        <Briefcase className="w-8 h-8 text-slate-400 dark:text-gray-500" />
+                      </div>
+                      <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+                        Proje Talebi Bulunamadı
+                      </h3>
+                      <p className="text-slate-500 dark:text-gray-400">
+                        Filtrelere uygun proje talebi bulunamadı.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+              filteredRequests.map((request) => (
                 <tr 
                   key={request.id} 
-                  className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                  className="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
                 >
                   <td className="py-4 px-6">
-                    <div>
-                      <h4 className="font-medium">{request.company_name}</h4>
-                      <p className="text-sm text-gray-400">{request.contact_name}</p>
-                    </div>
+                    <Link to={`/admin/project-requests/${request.id}`} className="block hover:text-primary transition-colors">
+                      <h4 className="font-medium text-slate-900 dark:text-white">{request.company_name}</h4>
+                      <p className="text-sm text-slate-500 dark:text-gray-400">{request.contact_name}</p>
+                    </Link>
                   </td>
                   <td className="py-4 px-6 hidden sm:table-cell">
                     <div className="flex flex-wrap gap-2">
@@ -274,14 +416,14 @@ const ProjectRequestsPage = () => {
                   </td>
                   <td className="py-4 px-6 hidden lg:table-cell">
                     <div className="space-y-1">
-                      <div className="text-sm">{request.email}</div>
+                      <div className="text-sm text-slate-700 dark:text-gray-300">{request.email}</div>
                       {request.phone && (
-                        <div className="text-sm text-gray-400">{request.phone}</div>
+                        <div className="text-sm text-slate-500 dark:text-gray-400">{request.phone}</div>
                       )}
                     </div>
                   </td>
                   <td className="py-4 px-6 hidden md:table-cell">
-                    <div className="flex items-center text-gray-400">
+                    <div className="flex items-center text-slate-500 dark:text-gray-400">
                       <Clock className="w-4 h-4 mr-1" />
                       {new Date(request.created_at).toLocaleDateString('tr-TR')}
                     </div>
@@ -293,13 +435,13 @@ const ProjectRequestsPage = () => {
                   </td>
                   <td className="py-4 px-6 text-right">
                     <div className="flex items-center justify-end space-x-2">
-                      <button
-                        onClick={() => setSelectedRequest(request)}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                      <Link
+                        to={`/admin/project-requests/${request.id}`}
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                         title="Detayları Görüntüle"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
+                      </Link>
                       {request.status === 'pending' && (
                         <>
                           <button
@@ -332,7 +474,8 @@ const ProjectRequestsPage = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>
@@ -341,12 +484,12 @@ const ProjectRequestsPage = () => {
       {/* Request Detail Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-dark-light rounded-xl border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 bg-dark-light/95 backdrop-blur-sm">
-              <h2 className="text-xl font-bold">{selectedRequest.company_name}</h2>
+          <div className="bg-white dark:bg-dark-light rounded-xl border border-slate-200 dark:border-white/10 w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-slate-200 dark:border-white/10 flex items-center justify-between sticky top-0 bg-white dark:bg-dark-light/95 backdrop-blur-sm">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{selectedRequest.company_name}</h2>
               <button
                 onClick={() => setSelectedRequest(null)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500 dark:text-gray-400"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -355,8 +498,8 @@ const ProjectRequestsPage = () => {
             <div className="p-6 overflow-y-auto">
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">İletişim Bilgileri</h3>
-                  <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-slate-500 dark:text-gray-400 mb-2">İletişim Bilgileri</h3>
+                  <div className="space-y-2 text-slate-900 dark:text-white">
                     <p><strong>İletişim Kişisi:</strong> {selectedRequest.contact_name}</p>
                     <p><strong>E-posta:</strong> {selectedRequest.email}</p>
                     {selectedRequest.phone && (
@@ -366,9 +509,9 @@ const ProjectRequestsPage = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Proje Detayları</h3>
-                  <div className="space-y-4">
-                    <p>{selectedRequest.project_description}</p>
+                  <h3 className="text-sm font-medium text-slate-500 dark:text-gray-400 mb-2">Proje Detayları</h3>
+                  <div className="space-y-4 text-slate-900 dark:text-white">
+                    <p className="text-slate-700 dark:text-gray-300">{selectedRequest.project_description}</p>
                     
                     <div>
                       <strong>Hizmet Kategorileri:</strong>
@@ -413,8 +556,8 @@ const ProjectRequestsPage = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Durum Bilgisi</h3>
-                  <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-slate-500 dark:text-gray-400 mb-2">Durum Bilgisi</h3>
+                  <div className="space-y-2 text-slate-900 dark:text-white">
                     <p>
                       <strong>Mevcut Durum:</strong>
                       <span className={`ml-2 px-3 py-1 rounded-full text-sm ${getStatusColor(selectedRequest.status)}`}>
@@ -430,7 +573,7 @@ const ProjectRequestsPage = () => {
               </div>
             </div>
 
-            <div className="p-6 border-t border-white/10 bg-dark-light/95 backdrop-blur-sm">
+            <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-dark-light/95 backdrop-blur-sm">
               <div className="flex justify-end space-x-4">
                 {selectedRequest.status === 'pending' && (
                   <>
@@ -456,7 +599,7 @@ const ProjectRequestsPage = () => {
                 )}
                 <button
                   onClick={() => setSelectedRequest(null)}
-                  className="px-4 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                  className="px-4 py-2 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-gray-300 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
                 >
                   Kapat
                 </button>

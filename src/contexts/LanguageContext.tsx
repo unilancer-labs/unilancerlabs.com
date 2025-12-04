@@ -135,12 +135,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const loadDbTranslations = async () => {
     try {
       const { supabase } = await import('../lib/config/supabase');
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('translations')
         .select('content_key, translated_text')
         .eq('language', 'en');
 
-      if (data) {
+      // Handle RLS/permission errors gracefully - fall back to static translations
+      if (error) {
+        if (error.code === '42501' || error.message?.includes('permission') || error.code === 'PGRST301') {
+          console.warn('Translation table access denied, using static translations');
+          return;
+        }
+        // Table doesn't exist - this is fine, use static translations
+        if (error.code === '42P01') {
+          console.warn('Translation table not found, using static translations');
+          return;
+        }
+        console.error('Error loading translations from DB:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
         const translationMap: Record<string, string> = {};
         data.forEach((item) => {
           translationMap[item.content_key] = item.translated_text;
@@ -148,7 +163,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         setDbTranslations(translationMap);
       }
     } catch (error) {
-      console.error('Error loading translations from DB:', error);
+      // Network errors or other issues - gracefully fall back to static translations
+      console.warn('Failed to load DB translations, using static translations:', error);
     }
   };
 

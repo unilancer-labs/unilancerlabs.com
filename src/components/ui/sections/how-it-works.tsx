@@ -81,7 +81,7 @@ export const HowItWorks = memo(function HowItWorks() {
     {
       step: t('howItWorks.step1.label', 'ADIM 1'),
       title: t('howItWorks.step1.title', 'Analiz ve Yol Haritası'),
-      description: t('howItWorks.step1.description', "İhtiyacınızı dinliyoruz, Digibot'la dijital analiz raporunuzu çıkarıp yol haritanızı oluşturuyoruz."),
+      description: t('howItWorks.step1.description', "İhtiyacınızı dinliyoruz, digiBot'la dijital analiz raporunuzu çıkarıp yol haritanızı oluşturuyoruz."),
       icon: FileSearch,
       displayNumber: 1
     },

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Briefcase, Eye, Check, X, ExternalLink } from 'lucide-react';
 import type { FreelancerApplication } from '../types';
@@ -63,10 +64,10 @@ const FreelancerList = ({ freelancers, onView, onUpdateStatus }: FreelancerListP
                 className="border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
               >
                 <td className="py-4 px-6">
-                  <div>
+                  <Link to={`/admin/freelancers/${freelancer.id}`} className="block hover:text-primary transition-colors">
                     <h4 className="font-medium">{freelancer.full_name}</h4>
                     <p className="text-sm text-slate-500 dark:text-gray-400">{freelancer.email}</p>
-                  </div>
+                  </Link>
                 </td>
                 <td className="py-4 px-6">
                   <div className="flex flex-wrap gap-2">
@@ -104,13 +105,13 @@ const FreelancerList = ({ freelancers, onView, onUpdateStatus }: FreelancerListP
                 </td>
                 <td className="py-4 px-6 text-right">
                   <div className="flex items-center justify-end space-x-2">
-                    <button
-                      onClick={() => onView(freelancer)}
+                    <Link
+                      to={`/admin/freelancers/${freelancer.id}`}
                       className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white"
                       title="Detayları Görüntüle"
                     >
                       <Eye className="w-4 h-4" />
-                    </button>
+                    </Link>
                     {freelancer.status === 'pending' && (
                       <>
                         <button
