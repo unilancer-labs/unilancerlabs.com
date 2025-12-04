@@ -7,6 +7,10 @@ import {
 } from 'lucide-react';
 import { signOut } from '../../../../lib/auth';
 
+// Logo URLs
+const LOGO_FULL = 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/Unilancer%20logo%202.webp';
+const LOGO_ICON = 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images//Unilancer%20icon-01-03.png';
+
 interface AdminSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -95,9 +99,9 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
               {isOpen ? (
                 <motion.img 
                   key="full-logo"
-                  src="/images/Unilancer logo 2.png" 
+                  src={LOGO_FULL}
                   alt="Unilancer"
-                  className="h-8 dark:invert-0 invert"
+                  className="h-10 dark:invert-0"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
@@ -106,7 +110,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
               ) : (
                 <motion.img 
                   key="icon-logo"
-                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images//Unilancer%20icon-01-03.png" 
+                  src={LOGO_ICON}
                   alt="Unilancer"
                   className="h-12 w-12"
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -219,9 +223,9 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
                 <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-white/10">
                   <Link to="/">
                     <img 
-                      src="/images/Unilancer logo 2.png" 
+                      src={LOGO_FULL}
                       alt="Unilancer"
-                      className="h-8 dark:invert-0 invert"
+                      className="h-10"
                     />
                   </Link>
                   <button
