@@ -91,3 +91,73 @@ export const trackNewsletterSignup = (success: boolean): void => {
     success: success,
   });
 };
+
+// Lead generation tracking
+export const trackLeadGeneration = (
+  formName: string,
+  leadType: string,
+  additionalData?: Record<string, unknown>
+): void => {
+  trackEvent('generate_lead', {
+    form_name: formName,
+    lead_type: leadType,
+    currency: 'TRY',
+    ...additionalData,
+  });
+};
+
+// CTA click tracking
+export const trackCTAClick = (
+  buttonName: string,
+  location: string,
+  destinationUrl?: string
+): void => {
+  trackEvent('cta_click', {
+    button_name: buttonName,
+    page_location: location,
+    destination_url: destinationUrl,
+  });
+};
+
+// Calendly event tracking
+export const trackCalendlyEvent = (
+  eventType: 'modal_open' | 'modal_close' | 'meeting_scheduled',
+  source?: string
+): void => {
+  trackEvent(`calendly_${eventType}`, {
+    source: source,
+    event_category: 'engagement',
+  });
+};
+
+// Form step tracking (for multi-step forms)
+export const trackFormStep = (
+  formName: string,
+  stepNumber: number,
+  stepName: string,
+  action: 'view' | 'complete' | 'abandon'
+): void => {
+  trackEvent('form_step', {
+    form_name: formName,
+    step_number: stepNumber,
+    step_name: stepName,
+    action: action,
+  });
+};
+
+// Service page view tracking
+export const trackServiceView = (serviceName: string, serviceSlug: string): void => {
+  trackEvent('view_item', {
+    item_name: serviceName,
+    item_category: 'service',
+    item_id: serviceSlug,
+  });
+};
+
+// Scroll depth tracking
+export const trackScrollDepth = (percent: number, pagePath: string): void => {
+  trackEvent('scroll_depth', {
+    percent_scrolled: percent,
+    page_path: pagePath,
+  });
+};

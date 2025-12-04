@@ -15,6 +15,7 @@ import {
 import { LogosCarousel } from "../components/ui/sections/logos-carousel";
 import { HowItWorks } from "../components/ui/sections/how-it-works";
 import { useTranslation } from "../hooks/useTranslation";
+import { useScrollDepth } from "../hooks/useScrollDepth";
 import CalendlyModal from "../components/modals/CalendlyModal";
 import AudienceCard from "../components/ui/core/audience-card";
 import AnimatedText from "../components/ui/effects/animated-text";
@@ -24,6 +25,7 @@ import { ServiceCarousel, type Service } from "../components/ui/core/services-ca
 import { CTASection } from "../components/ui/cta-with-rectangle";
 import { FaqSection } from "../components/ui/sections/faq-section";
 import { WhyUsSection } from "../components/ui/sections/why-us";
+import { trackCTAClick } from "../lib/analytics";
 
 const getAudience = () => [
   {
@@ -59,6 +61,9 @@ const Home = () => {
   const { t } = useTranslation();
   const audience = getAudience();
   const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
+  
+  // Analytics: Track scroll depth
+  useScrollDepth();
 
   // Başlık için 3 satır: Türkiye'nin / Üniversiteli Freelancer / Ekosistemi
   const mainTitleTop = t("home.hero.mainTitle");
@@ -353,6 +358,7 @@ const Home = () => {
                 <motion.div variants={heroItemVariants} className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-1 sm:pt-2 justify-center lg:justify-start px-2 sm:px-0">
                   <motion.a
                     href="/project-request"
+                    onClick={() => trackCTAClick('start_project', 'hero', '/project-request')}
                     className="inline-flex items-center justify-center w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-3.5 min-h-[48px] bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-sm sm:text-base transition-all shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 group"
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}
@@ -363,7 +369,10 @@ const Home = () => {
                   </motion.a>
 
                   <motion.button
-                    onClick={() => setIsCalendlyOpen(true)}
+                    onClick={() => {
+                      trackCTAClick('get_free_report', 'hero', 'calendly_modal');
+                      setIsCalendlyOpen(true);
+                    }}
                     className="inline-flex items-center justify-center w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-3.5 min-h-[48px] bg-white/80 dark:bg-white/5 backdrop-blur-md text-slate-900 dark:text-white rounded-xl font-bold text-sm sm:text-base hover:bg-white dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/10 group shadow-sm"
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}

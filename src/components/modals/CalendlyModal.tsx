@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Clock, Video, CheckCircle2, Sparkles, ChevronDown } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { trackCalendlyEvent } from '../../lib/analytics';
 
 interface CalendlyModalProps {
   isOpen: boolean;
@@ -118,6 +119,9 @@ export const CalendlyModal: React.FC<CalendlyModalProps> = ({ isOpen, onClose })
       setIsLoading(true);
       document.body.style.overflow = 'hidden';
       
+      // Analytics: Track modal open
+      trackCalendlyEvent('modal_open', 'modal');
+      
       if (window.Calendly) {
         initCalendly();
       } else {
@@ -130,13 +134,28 @@ export const CalendlyModal: React.FC<CalendlyModalProps> = ({ isOpen, onClose })
         setTimeout(() => clearInterval(checkCalendly), 5000);
       }
     } else {
+      if (isVisible) {
+        // Analytics: Track modal close
+        trackCalendlyEvent('modal_close', 'modal');
+      }
       setIsVisible(false);
       document.body.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, initCalendly]);
+  }, [isOpen, initCalendly, isVisible]);
+
+  // Listen for Calendly meeting scheduled events
+  useEffect(() => {
+    const handleCalendlyMessage = (e: MessageEvent) => {
+      if (e.data.event === 'calendly.event_scheduled') {
+        trackCalendlyEvent('meeting_scheduled', 'modal');
+      }
+    };
+    window.addEventListener('message', handleCalendlyMessage);
+    return () => window.removeEventListener('message', handleCalendlyMessage);
+  }, []);
 
   // Handle escape key
   useEffect(() => {

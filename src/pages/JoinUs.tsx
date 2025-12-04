@@ -30,6 +30,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useRecaptcha } from '../hooks/useRecaptcha';
 import Navbar from '../components/Navbar';
 import { CalendlyModal } from '../components/modals/CalendlyModal';
+import { trackFormSubmission, trackLeadGeneration } from '../lib/analytics';
 
 /* -------------------------------
    VALIDATION HELPERS
@@ -306,9 +307,20 @@ const JoinUs = () => {
       });
       setSuccess(true);
       triggerConfetti();
+      
+      // Analytics: Track successful form submission
+      trackFormSubmission('joinus', true);
+      trackLeadGeneration('joinus', 'freelancer_application', {
+        categories: formData.categories.join(','),
+        expertise_count: formData.mainExpertise.length,
+        location_type: formData.locationType,
+      });
     } catch (err: any) {
       console.error('Form submission error:', err);
       setError(err.message || t('joinUs.error.submission', 'Başvuru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'));
+      
+      // Analytics: Track failed form submission
+      trackFormSubmission('joinus', false);
     } finally {
       setLoading(false);
     }

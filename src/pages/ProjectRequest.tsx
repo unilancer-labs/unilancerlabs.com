@@ -30,6 +30,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useRecaptcha } from '../hooks/useRecaptcha';
 import Navbar from '../components/Navbar';
 import { CalendlyModal } from '../components/modals/CalendlyModal';
+import { trackFormSubmission, trackLeadGeneration } from '../lib/analytics';
 
 /* -----------------------------
    VALIDATION HELPERS
@@ -270,9 +271,21 @@ const ProjectRequest = () => {
       });
       setSuccess(true);
       triggerConfetti();
+      
+      // Analytics: Track successful form submission
+      trackFormSubmission('project_request', true);
+      trackLeadGeneration('project_request', 'project_inquiry', {
+        service_categories: formData.service_categories.join(','),
+        solution_type: formData.solution_type,
+        timeline: formData.timeline,
+        has_brief: !!briefFile,
+      });
     } catch (err: any) {
       console.error('Form submission error:', err);
       setError(err.message || t('project_request.error.submission', 'Başvuru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'));
+      
+      // Analytics: Track failed form submission
+      trackFormSubmission('project_request', false);
     } finally {
       setLoading(false);
     }

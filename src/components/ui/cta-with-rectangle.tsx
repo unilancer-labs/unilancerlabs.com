@@ -1,7 +1,7 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Rocket } from "lucide-react";
+import { Rocket } from "lucide-react";
 import { motion } from "framer-motion";
+import { trackCTAClick } from "@/lib/analytics";
 
 function CTASection() {
   return (
@@ -54,7 +54,10 @@ function CTASection() {
             <Button 
               size="lg" 
               className="bg-primary hover:bg-primary-dark text-white w-full sm:w-auto sm:min-w-[180px] h-12 sm:h-14 text-base sm:text-lg shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 rounded-xl"
-              onClick={() => window.location.href = '/project-request'}
+              onClick={() => {
+                trackCTAClick('start_project', 'cta_section', '/project-request');
+                window.location.href = '/project-request';
+              }}
             >
               <Rocket className="mr-2 h-5 w-5" />
               Projeni Başlat
@@ -64,7 +67,10 @@ function CTASection() {
               size="lg" 
               className="text-white w-full sm:w-auto sm:min-w-[180px] h-12 sm:h-14 text-base sm:text-lg shadow-lg transition-all duration-300 rounded-xl hover:opacity-90"
               style={{ backgroundColor: '#b370ab' }}
-              onClick={() => window.location.href = '/tr/bize-katil'}
+              onClick={() => {
+                trackCTAClick('join_us', 'cta_section', '/tr/bize-katil');
+                window.location.href = '/tr/bize-katil';
+              }}
             >
               Bize Katıl
             </Button>
