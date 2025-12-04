@@ -2,21 +2,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Search, ArrowUpRight, Clock, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import type { EmblaCarouselType } from 'embla-carousel';
 import { getBlogPosts, type BlogPost } from '../lib/config/supabase';
+import { getCategories, type BlogCategory } from '../lib/api/blog';
 import { useTranslation } from '../hooks/useTranslation';
-
-const getCategoryKeys = () => [
-  'blog.category.all',
-  'blog.category.technology',
-  'blog.category.design',
-  'blog.category.ai',
-  'blog.category.webDevelopment',
-  'blog.category.mobile'
-];
 
 const BlogHeroSkeleton = () => (
   <div className="w-full h-[350px] sm:h-[450px] md:h-[500px] lg:h-[600px] bg-slate-200 dark:bg-white/5 animate-pulse relative">
@@ -45,8 +37,11 @@ const BlogCardSkeleton = () => (
 
 const Blog = () => {
   const { t, language } = useTranslation();
-  const categoryKeys = getCategoryKeys();
-  const [selectedCategory, setSelectedCategory] = useState(categoryKeys[0]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categorySlugFromUrl = searchParams.get('category');
+  
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -109,7 +104,27 @@ const Blog = () => {
 
   useEffect(() => {
     loadBlogPosts();
+    loadCategories();
   }, []);
+
+  // Handle category from URL
+  useEffect(() => {
+    if (categorySlugFromUrl && categories.length > 0) {
+      const cat = categories.find(c => c.slug === categorySlugFromUrl);
+      if (cat) {
+        setSelectedCategoryId(cat.id);
+      }
+    }
+  }, [categorySlugFromUrl, categories]);
+
+  const loadCategories = async () => {
+    try {
+      const cats = await getCategories(true);
+      setCategories(cats);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -122,17 +137,32 @@ const Blog = () => {
   // useMemo ile filtreleme optimizasyonu - gereksiz re-render'ları önler
   const visiblePosts = useMemo(() => {
     return posts.filter(post => {
-      // Check if category matches key or translated value
-      const matchesCategory = selectedCategory === "blog.category.all" || 
-                            post.category === selectedCategory || 
-                            post.category === t(selectedCategory);
+      // Check if category matches by ID or name
+      const matchesCategory = !selectedCategoryId || 
+                            post.category_id === selectedCategoryId ||
+                            (categories.find(c => c.id === selectedCategoryId)?.name === post.category);
                             
       const matchesSearch =
         post.title.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
         post.excerpt.toLowerCase().includes(debouncedQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, debouncedQuery, posts, t]);
+  }, [selectedCategoryId, debouncedQuery, posts, categories]);
+
+  const handleCategoryChange = (categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+    setPage(1);
+    
+    // Update URL
+    if (categoryId) {
+      const cat = categories.find(c => c.id === categoryId);
+      if (cat) {
+        setSearchParams({ category: cat.slug });
+      }
+    } else {
+      setSearchParams({});
+    }
+  };
 
   const loadBlogPosts = async () => {
     try {
@@ -190,13 +220,29 @@ const Blog = () => {
     }))
   }), [posts, language]);
 
-  const seoTitle = language === 'tr' 
-    ? "Blog | Teknoloji, Tasarım ve Dijital Dönüşüm - Unilancer"
-    : "Blog | Technology, Design and Digital Transformation - Unilancer";
+  const seoTitle = useMemo(() => {
+    const selectedCat = categories.find(c => c.id === selectedCategoryId);
+    if (selectedCat) {
+      return language === 'tr' 
+        ? `${selectedCat.name} Yazıları | Unilancer Blog`
+        : `${selectedCat.name_en || selectedCat.name} Posts | Unilancer Blog`;
+    }
+    return language === 'tr' 
+      ? "Blog | Teknoloji, Tasarım ve Dijital Dönüşüm - Unilancer"
+      : "Blog | Technology, Design and Digital Transformation - Unilancer";
+  }, [language, selectedCategoryId, categories]);
   
-  const seoDescription = language === 'tr'
-    ? "Teknoloji, tasarım, yapay zeka, web geliştirme ve dijital dönüşüm hakkında güncel blog yazıları. Uzman içerikler ve sektörel analizler."
-    : "Latest blog posts about technology, design, AI, web development and digital transformation. Expert content and industry analysis.";
+  const seoDescription = useMemo(() => {
+    const selectedCat = categories.find(c => c.id === selectedCategoryId);
+    if (selectedCat) {
+      return language === 'tr'
+        ? selectedCat.description || `${selectedCat.name} kategorisindeki en güncel blog yazıları.`
+        : selectedCat.description_en || `Latest blog posts in ${selectedCat.name_en || selectedCat.name} category.`;
+    }
+    return language === 'tr'
+      ? "Teknoloji, tasarım, yapay zeka, web geliştirme ve dijital dönüşüm hakkında güncel blog yazıları. Uzman içerikler ve sektörel analizler."
+      : "Latest blog posts about technology, design, AI, web development and digital transformation. Expert content and industry analysis.";
+  }, [language, selectedCategoryId, categories]);
 
   return (
     <div className="relative min-h-screen">
@@ -341,36 +387,58 @@ const Blog = () => {
           <div className="w-full">
             {/* Mobile: 3-column grid - 44px min touch target */}
             <div className="grid grid-cols-3 gap-2 sm:hidden">
-              {categoryKeys.map((key) => (
+              <button
+                onClick={() => handleCategoryChange(null)}
+                className={`
+                  px-2 py-2.5 min-h-[44px] rounded-xl text-xs font-medium transition-all duration-200 text-center active:scale-95
+                  ${!selectedCategoryId
+                    ? 'bg-primary text-white shadow-lg shadow-primary/25'
+                    : 'bg-white/90 dark:bg-white/10 text-slate-700 dark:text-gray-200 border border-slate-200/50 dark:border-white/10'}
+                `}
+              >
+                {t('blog.category.all', 'Tümü')}
+              </button>
+              {categories.map((cat) => (
                 <button
-                  key={key}
-                  onClick={() => { setSelectedCategory(key); setPage(1); }}
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.id)}
                   className={`
                     px-2 py-2.5 min-h-[44px] rounded-xl text-xs font-medium transition-all duration-200 text-center active:scale-95
-                    ${selectedCategory === key
+                    ${selectedCategoryId === cat.id
                       ? 'bg-primary text-white shadow-lg shadow-primary/25'
                       : 'bg-white/90 dark:bg-white/10 text-slate-700 dark:text-gray-200 border border-slate-200/50 dark:border-white/10'}
                   `}
                 >
-                  {t(key)}
+                  {language === 'en' && cat.name_en ? cat.name_en : cat.name}
                 </button>
               ))}
             </div>
             {/* Desktop: Pill style */}
             <div className="hidden sm:flex justify-center">
               <div className="bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 p-1.5 rounded-full inline-flex flex-wrap justify-center gap-1 shadow-lg">
-                {categoryKeys.map((key) => (
+                <button
+                  onClick={() => handleCategoryChange(null)}
+                  className={`
+                    px-4 md:px-6 py-2 sm:py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap
+                    ${!selectedCategoryId
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md'
+                      : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10'}
+                  `}
+                >
+                  {t('blog.category.all', 'Tümü')}
+                </button>
+                {categories.map((cat) => (
                   <button
-                    key={key}
-                    onClick={() => { setSelectedCategory(key); setPage(1); }}
+                    key={cat.id}
+                    onClick={() => handleCategoryChange(cat.id)}
                     className={`
                       px-4 md:px-6 py-2 sm:py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap
-                      ${selectedCategory === key
+                      ${selectedCategoryId === cat.id
                         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md'
                         : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10'}
                     `}
                   >
-                    {t(key)}
+                    {language === 'en' && cat.name_en ? cat.name_en : cat.name}
                   </button>
                 ))}
               </div>
@@ -380,11 +448,11 @@ const Blog = () => {
           {/* Search & Title Row */}
           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-3">
              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2 text-center md:text-left">
-               {selectedCategory === 'blog.category.all' ? (
+               {!selectedCategoryId ? (
                  <>
                    {t('blog.latestUpdates')} <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse" />
                  </>
-               ) : t(selectedCategory)}
+               ) : (language === 'en' && categories.find(c => c.id === selectedCategoryId)?.name_en) || categories.find(c => c.id === selectedCategoryId)?.name}
              </h2>
              
              <div className="flex items-center w-full md:w-auto">

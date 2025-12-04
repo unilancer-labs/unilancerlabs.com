@@ -6,6 +6,7 @@ import AdminLayout from './components/layout/AdminLayout';
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const BlogAdminPage = lazy(() => import('./blog/pages/BlogAdminPage'));
 const BlogEditor = lazy(() => import('./blog/pages/BlogEditor'));
+const CategoryManager = lazy(() => import('./blog/pages/CategoryManager'));
 const PortfolioAdminPage = lazy(() => import('./portfolio/pages/PortfolioAdminPage'));
 const PortfolioEditor = lazy(() => import('./portfolio/pages/PortfolioEditor'));
 const FreelancerList = lazy(() => import('./freelancers/pages/FreelancerList'));
@@ -29,6 +30,7 @@ const AdminRoutes = () => {
       <Route path="/blog" element={<BlogAdminPage />} />
       <Route path="/blog/new" element={<BlogEditor />} />
       <Route path="/blog/edit/:id" element={<BlogEditor />} />
+      <Route path="/blog/categories" element={<CategoryManager />} />
       
       {/* Portfolio routes */}
       <Route path="/portfolio" element={<PortfolioAdminPage />} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PlusCircle, RefreshCw, Download, FileText, FileSpreadsheet, ChevronDown } from 'lucide-react';
+import { PlusCircle, RefreshCw, Download, FileText, FileSpreadsheet, ChevronDown, Tags } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BlogStats from '../components/BlogStats';
 import BlogFilters from '../components/BlogFilters';
@@ -175,6 +175,15 @@ const BlogAdminPage = () => {
               </div>
             )}
           </div>
+
+          {/* Categories Button */}
+          <Link
+            to="/admin/blog/categories"
+            className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+          >
+            <Tags className="w-5 h-5 text-slate-600 dark:text-gray-400" />
+            <span className="text-slate-700 dark:text-gray-300 hidden sm:inline">Kategoriler</span>
+          </Link>
 
           <Link
             to="/admin/blog/new"

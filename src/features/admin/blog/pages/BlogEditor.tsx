@@ -1,13 +1,14 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { 
   Image, ArrowLeft, Bold, Italic, Link as LinkIcon, Code, 
   ListOrdered, List, Heading2, ImagePlus, Save,
-  AlignLeft, AlignCenter, AlignRight, Quote, Eye
+  AlignLeft, AlignCenter, AlignRight, Quote, Eye, Search
 } from 'lucide-react';
 import { createBlogPost, uploadImage, updateBlogPost } from '../../../../lib/config/supabase';
-import type { BlogPost } from '../types';
+import { getCategories, generateMetaTitle, generateMetaDescription } from '../../../../lib/api/blog';
+import type { BlogPost, BlogCategory } from '../types';
 import DOMPurify from 'dompurify';
 
 interface BlogEditorProps {
@@ -18,9 +19,11 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
   const navigate = useNavigate();
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const [previewMode, setPreviewMode] = useState(false);
+  const [activeTab, setActiveTab] = useState<'content' | 'seo'>('content');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [formData, setFormData] = useState({
     title: post?.title || '',
     slug: post?.slug || '',
@@ -28,11 +31,32 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
     content: post?.content || '',
     image_url: post?.image_url || '',
     category: post?.category || '',
+    category_id: post?.category_id || '',
     tags: post?.tags?.join(', ') || '',
     author_id: post?.author?.id || 'a52c1934-0c96-4c44-9567-97c36ce7e042',
     read_time: post?.read_time || '',
-    published: post?.published || false
+    published: post?.published || false,
+    // SEO fields
+    meta_title: post?.meta_title || '',
+    meta_description: post?.meta_description || '',
+    focus_keyword: post?.focus_keyword || '',
+    og_image_alt: post?.og_image_alt || '',
+    canonical_url: post?.canonical_url || '',
+    noindex: post?.noindex || false
   });
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const cats = await getCategories(true);
+        setCategories(cats);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const generateSlug = (title: string) => {
     const timestamp = Date.now().toString(36);
@@ -75,17 +99,28 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
     try {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(Boolean);
       
+      // Get category name from category_id for backward compatibility
+      const selectedCategory = categories.find(c => c.id === formData.category_id);
+      
       const postData = {
         title: formData.title,
         slug: formData.slug || generateSlug(formData.title),
         excerpt: formData.excerpt,
         content: formData.content,
         image_url: formData.image_url,
-        category: formData.category,
+        category: selectedCategory?.name || formData.category,
+        category_id: formData.category_id || null,
         tags: tagsArray,
         author_id: formData.author_id,
         read_time: formData.read_time,
-        published: shouldPublish
+        published: shouldPublish,
+        // SEO fields
+        meta_title: formData.meta_title || null,
+        meta_description: formData.meta_description || null,
+        focus_keyword: formData.focus_keyword || null,
+        og_image_alt: formData.og_image_alt || null,
+        canonical_url: formData.canonical_url || null,
+        noindex: formData.noindex
       };
 
       if (post?.id) {
@@ -319,18 +354,18 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
               <div>
                 <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">Kategori</label>
                 <select
-                  name="category"
-                  value={formData.category}
+                  name="category_id"
+                  value={formData.category_id}
                   onChange={handleChange}
                   className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
                   required
                 >
                   <option value="">Kategori Seçin</option>
-                  <option value="Teknoloji">Teknoloji</option>
-                  <option value="Tasarım">Tasarım</option>
-                  <option value="Yapay Zeka">Yapay Zeka</option>
-                  <option value="Web Geliştirme">Web Geliştirme</option>
-                  <option value="Mobil">Mobil</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -359,6 +394,110 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
                   placeholder="örn: 5 dk"
                   required
                 />
+              </div>
+
+              {/* SEO Section */}
+              <div className="border-t border-slate-200 dark:border-white/10 pt-6">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab(activeTab === 'seo' ? 'content' : 'seo')}
+                  className="flex items-center space-x-2 text-sm font-medium text-primary hover:text-primary-dark transition-colors mb-4"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>{activeTab === 'seo' ? 'SEO Ayarlarını Gizle' : 'SEO Ayarlarını Göster'}</span>
+                </button>
+
+                {activeTab === 'seo' && (
+                  <div className="space-y-4">
+                    {/* Google Preview */}
+                    <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-lg">
+                      <p className="text-xs text-slate-500 dark:text-gray-400 mb-2">Google Önizleme</p>
+                      <div className="space-y-1">
+                        <p className="text-lg text-blue-600 dark:text-blue-400 truncate">
+                          {formData.meta_title || generateMetaTitle(formData.title)}
+                        </p>
+                        <p className="text-sm text-green-700 dark:text-green-400">
+                          unilancerlabs.com/blog/{formData.slug || 'url-buraya-gelecek'}
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-2">
+                          {formData.meta_description || generateMetaDescription(formData.excerpt) || 'Meta açıklama buraya gelecek...'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Meta Title */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">
+                        Meta Başlık <span className="text-slate-400">({(formData.meta_title || formData.title).length}/60)</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="meta_title"
+                        value={formData.meta_title}
+                        onChange={handleChange}
+                        maxLength={60}
+                        className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
+                        placeholder={formData.title || 'Meta başlık...'}
+                      />
+                    </div>
+
+                    {/* Meta Description */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">
+                        Meta Açıklama <span className="text-slate-400">({(formData.meta_description || formData.excerpt).length}/155)</span>
+                      </label>
+                      <textarea
+                        name="meta_description"
+                        value={formData.meta_description}
+                        onChange={handleChange}
+                        maxLength={155}
+                        rows={3}
+                        className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
+                        placeholder={formData.excerpt || 'Meta açıklama...'}
+                      />
+                    </div>
+
+                    {/* Focus Keyword */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">Odak Anahtar Kelime</label>
+                      <input
+                        type="text"
+                        name="focus_keyword"
+                        value={formData.focus_keyword}
+                        onChange={handleChange}
+                        className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
+                        placeholder="örn: freelance vergi"
+                      />
+                    </div>
+
+                    {/* OG Image Alt */}
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">Görsel Alt Metni (SEO)</label>
+                      <input
+                        type="text"
+                        name="og_image_alt"
+                        value={formData.og_image_alt}
+                        onChange={handleChange}
+                        className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
+                        placeholder="Görsel açıklaması..."
+                      />
+                    </div>
+
+                    {/* Noindex */}
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="noindex"
+                        checked={formData.noindex}
+                        onChange={(e) => setFormData(prev => ({ ...prev, noindex: e.target.checked }))}
+                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm text-slate-700 dark:text-gray-300">
+                        Bu sayfayı arama motorlarından gizle (noindex)
+                      </span>
+                    </label>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}

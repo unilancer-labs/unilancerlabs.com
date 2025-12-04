@@ -119,6 +119,14 @@ const BlogDetail = () => {
     );
   }
 
+  // SEO meta from post or fallback to excerpt
+  const seoTitle = (post as any).meta_title || post.title;
+  const seoDescription = (post as any).meta_description || 
+    (post.excerpt.length > 155 ? post.excerpt.substring(0, 152) + '...' : post.excerpt);
+  const ogImageAlt = (post as any).og_image_alt || post.title;
+  const noindex = (post as any).noindex || false;
+  const canonicalUrl = (post as any).canonical_url || `https://unilancerlabs.com/${language}/blog/${post.slug}`;
+
   // SEO: Article structured data
   const articleSchema = {
     "@context": "https://schema.org",
@@ -148,30 +156,31 @@ const BlogDetail = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": language === 'tr' ? "Ana Sayfa" : "Home", "item": `https://unilancer.co/${language}` },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": `https://unilancer.co/${language}/blog` },
-      { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://unilancer.co/${language}/blog/${post.slug}` }
+      { "@type": "ListItem", "position": 1, "name": language === 'tr' ? "Ana Sayfa" : "Home", "item": `https://unilancerlabs.com/${language}` },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": `https://unilancerlabs.com/${language}/blog` },
+      { "@type": "ListItem", "position": 3, "name": post.title, "item": canonicalUrl }
     ]
   };
-
-  const seoDescription = post.excerpt.length > 160 ? post.excerpt.substring(0, 157) + '...' : post.excerpt;
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark relative">
       <Helmet>
-        <title>{post.title} | Unilancer Blog</title>
+        <title>{seoTitle} | Unilancer Blog</title>
         <meta name="description" content={seoDescription} />
+        
+        {/* Robots - respect noindex setting */}
+        <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1"} />
         
         {/* Open Graph - Article */}
         <meta property="og:type" content="article" />
-        <meta property="og:title" content={post.title} />
+        <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
-        <meta property="og:url" content={`https://unilancer.co/${language}/blog/${post.slug}`} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:site_name" content="Unilancer" />
         <meta property="og:image" content={post.image_url} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={post.title} />
+        <meta property="og:image:alt" content={ogImageAlt} />
         <meta property="og:locale" content={language === 'tr' ? 'tr_TR' : 'en_US'} />
         <meta property="article:published_time" content={post.created_at} />
         <meta property="article:modified_time" content={post.updated_at || post.created_at} />
@@ -180,16 +189,15 @@ const BlogDetail = () => {
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={post.image_url} />
-        <meta name="twitter:image:alt" content={post.title} />
+        <meta name="twitter:image:alt" content={ogImageAlt} />
         
         {/* Additional SEO */}
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-        <link rel="canonical" href={`https://unilancer.co/${language}/blog/${post.slug}`} />
+        <link rel="canonical" href={canonicalUrl} />
         <meta name="author" content="Unilancer" />
-        <meta name="keywords" content={post.tags?.join(', ') || post.category} />
+        <meta name="keywords" content={(post as any).focus_keyword || post.tags?.join(', ') || post.category} />
         
         {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
