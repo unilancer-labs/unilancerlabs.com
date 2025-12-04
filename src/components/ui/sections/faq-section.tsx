@@ -47,17 +47,17 @@ const FaqItem = memo(({
       <button
         onClick={onToggle}
         className={cn(
-          "w-full text-left rounded-2xl border transition-colors duration-150 overflow-hidden",
+          "w-full text-left rounded-2xl border overflow-hidden",
           isOpen
             ? "bg-white dark:bg-white/5 border-primary/30 shadow-sm"
-            : "bg-white/80 dark:bg-white/5 border-slate-200/60 dark:border-white/10 hover:border-primary/20"
+            : "bg-white/80 dark:bg-white/5 border-slate-200/60 dark:border-white/10"
         )}
       >
         {/* Question Header */}
         <div className="p-5 md:p-6 flex items-center gap-4">
           {/* Number Badge */}
           <div className={cn(
-            "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-colors duration-150",
+            "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold",
             isOpen
               ? "bg-primary text-white"
               : "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400"
@@ -75,30 +75,25 @@ const FaqItem = memo(({
             {t(faq.qKey)}
           </h4>
           
-          {/* Toggle Icon */}
+          {/* Toggle Icon - No animation */}
           <div className={cn(
-            "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-150",
+            "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
             isOpen
-              ? "bg-primary/10 text-primary rotate-180"
+              ? "bg-primary/10 text-primary"
               : "bg-slate-100 dark:bg-white/10 text-slate-400"
           )}>
-            <ChevronDown className="w-5 h-5" />
+            <ChevronDown className={cn("w-5 h-5", isOpen && "rotate-180")} />
           </div>
         </div>
         
-        {/* Answer - CSS-based animation for better performance */}
-        <div className={cn(
-          "grid transition-all duration-300 ease-out",
-          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        )}>
-          <div className="overflow-hidden">
-            <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0 pl-[4.5rem] md:pl-[5rem]">
-              <p className="text-[15px] md:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                {t(faq.aKey)}
-              </p>
-            </div>
+        {/* Answer - Simple show/hide for better mobile performance */}
+        {isOpen && (
+          <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0 pl-[4.5rem] md:pl-[5rem]">
+            <p className="text-[15px] md:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+              {t(faq.aKey)}
+            </p>
           </div>
-        </div>
+        )}
       </button>
     </div>
   );
@@ -145,26 +140,16 @@ export function FaqSection() {
           </p>
         </div>
 
-        {/* Tabs - Improved Design */}
+        {/* Tabs - Simple Design for Performance */}
         <div className="flex justify-center mb-10">
-          <div className="p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl inline-flex gap-1 relative shadow-inner">
-            {/* Sliding Background */}
-            <div
-              className={cn(
-                "absolute top-1.5 bottom-1.5 rounded-xl bg-white dark:bg-primary shadow-md transition-all duration-300 ease-out",
-                activeTab === "employer" 
-                  ? "left-1.5 w-[calc(50%-4px)]" 
-                  : "left-[calc(50%+2px)] w-[calc(50%-4px)]"
-              )}
-            />
-
+          <div className="p-1.5 bg-slate-100 dark:bg-white/5 rounded-2xl inline-flex gap-1 shadow-inner">
             <button
               onClick={() => handleTabChange("employer")}
               className={cn(
-                "relative z-10 flex items-center gap-2.5 px-5 md:px-8 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-semibold transition-all duration-200 min-h-[44px]",
+                "flex items-center gap-2.5 px-5 md:px-8 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-semibold min-h-[44px]",
                 activeTab === "employer" 
-                  ? "text-primary dark:text-white" 
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  ? "bg-white dark:bg-primary text-primary dark:text-white shadow-md" 
+                  : "text-slate-500 dark:text-slate-400"
               )}
             >
               <Briefcase className="w-4 h-4 md:w-5 md:h-5" />
@@ -174,10 +159,10 @@ export function FaqSection() {
             <button
               onClick={() => handleTabChange("freelancer")}
               className={cn(
-                "relative z-10 flex items-center gap-2.5 px-5 md:px-8 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-semibold transition-all duration-200 min-h-[44px]",
+                "flex items-center gap-2.5 px-5 md:px-8 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-semibold min-h-[44px]",
                 activeTab === "freelancer" 
-                  ? "text-primary dark:text-white" 
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  ? "bg-white dark:bg-primary text-primary dark:text-white shadow-md" 
+                  : "text-slate-500 dark:text-slate-400"
               )}
             >
               <Code2 className="w-4 h-4 md:w-5 md:h-5" />
