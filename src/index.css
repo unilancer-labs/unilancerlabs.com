@@ -72,10 +72,6 @@
   html {
     @apply overflow-x-hidden;
   }
-  
-  body {
-    @apply overflow-x-hidden;
-  }
 
   :root {
     --brand: 27 96% 61%;

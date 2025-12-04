@@ -220,7 +220,7 @@ const Home = () => {
         </script>
       </Helmet>
       
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen">
       {/* Arka plan */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         <AuroraBackground />
