@@ -292,12 +292,12 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
     en: 'Get Free Digital Report'
   },
   'home.hero.stats.projects': {
-    tr: '100+ proje',
-    en: '100+ projects'
+    tr: '120+ proje',
+    en: '120+ projects'
   },
   'home.hero.stats.freelancers': {
-    tr: '500+ üniversiteli freelancer ekosistemi',
-    en: '500+ university freelancer ecosystem'
+    tr: '200+ üniversiteli freelancer',
+    en: '200+ university freelancers'
   },
 
   // For Whom Section

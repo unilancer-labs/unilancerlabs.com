@@ -93,18 +93,18 @@ export const HowItWorks = memo(function HowItWorks() {
       displayNumber: 2
     },
     {
-      step: t('howItWorks.step4.label', 'ADIM 4'),
-      title: t('howItWorks.step4.title', 'Teslimat ve Destek'),
-      description: t('howItWorks.step4.description', 'Çıktılar kalite kontrolden geçiyor, proje zamanında teslim ediliyor; gerektiğinde destek vermeyi sürdürüyoruz.'),
-      icon: Rocket,
-      displayNumber: 4
-    },
-    {
       step: t('howItWorks.step3.label', 'ADIM 3'),
       title: t('howItWorks.step3.title', 'Üretim ve Raporlama'),
       description: t('howItWorks.step3.description', 'Proje yöneticimiz üniversiteli ekibi kuruyor, siz ilerlemeyi düzenli raporlarla takip ediyorsunuz.'),
       icon: Settings,
       displayNumber: 3
+    },
+    {
+      step: t('howItWorks.step4.label', 'ADIM 4'),
+      title: t('howItWorks.step4.title', 'Teslimat ve Destek'),
+      description: t('howItWorks.step4.description', 'Çıktılar kalite kontrolden geçiyor, proje zamanında teslim ediliyor; gerektiğinde destek vermeyi sürdürüyoruz.'),
+      icon: Rocket,
+      displayNumber: 4
     }
   ], [t]);
 

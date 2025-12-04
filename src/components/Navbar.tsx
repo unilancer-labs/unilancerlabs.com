@@ -125,6 +125,9 @@ const Navbar = () => {
   useEffect(() => {
     setIsOpen(false);
     setIsServicesOpen(false);
+    setIsCorporateOpen(false);
+    setMobileServicesOpen(false);
+    setMobileCorporateOpen(false);
   }, [location]);
 
   // Lock body scroll when mobile menu is open

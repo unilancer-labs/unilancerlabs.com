@@ -252,9 +252,9 @@ const Home = () => {
               "availableLanguage": ["Turkish", "English"]
             },
             "sameAs": [
-              "https://www.linkedin.com/company/unilancer",
-              "https://www.instagram.com/unilancer",
-              "https://twitter.com/unilancer"
+              "https://www.instagram.com/unilancerlabs/",
+              "https://www.linkedin.com/company/unilancer-labs",
+              "https://www.tiktok.com/@unilancerlabs"
             ],
             "areaServed": {
               "@type": "Country",
