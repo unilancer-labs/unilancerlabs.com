@@ -113,21 +113,9 @@ const Navbar = () => {
   }, [isScrolled]);
 
   useEffect(() => {
-    let timeoutId: number;
-    
-    const debouncedScroll = () => {
-      if (timeoutId) {
-        window.cancelAnimationFrame(timeoutId);
-      }
-      timeoutId = window.requestAnimationFrame(() => handleScroll());
-    };
-
-    window.addEventListener('scroll', debouncedScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', debouncedScroll);
-      if (timeoutId) {
-        window.cancelAnimationFrame(timeoutId);
-      }
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);
 
@@ -566,7 +554,7 @@ const Navbar = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
-                className="fixed left-0 right-0 top-[72px] bottom-0 bg-white dark:bg-dark z-40 md:hidden overflow-y-auto overflow-x-hidden overscroll-contain"
+                className="fixed left-0 right-0 top-[64px] bottom-0 bg-white dark:bg-dark z-[60] md:hidden overflow-y-auto overflow-x-hidden"
                 style={{ WebkitOverflowScrolling: 'touch' }}
               >
                 <div className="px-4 py-6 pb-32">
