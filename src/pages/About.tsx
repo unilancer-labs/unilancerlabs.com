@@ -181,6 +181,7 @@ const About = () => {
                 <img 
                   src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/ekiparkaplan.webp" 
                   alt="Unilancer Ekibi"
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -338,6 +339,7 @@ const About = () => {
                 <img 
                   src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/hakkimizda1.webp" 
                   alt="Unilancer Manifesto"
+                  loading="lazy"
                   className="w-full h-[400px] md:h-[500px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -448,6 +450,7 @@ const About = () => {
                 <img 
                   src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/hakkimizda2.webp" 
                   alt="Unilancer İş Modeli"
+                  loading="lazy"
                   className="w-full h-[400px] md:h-[500px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

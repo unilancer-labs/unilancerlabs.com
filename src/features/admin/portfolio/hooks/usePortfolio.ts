@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { getPortfolioItems, deletePortfolioItem } from '../../../../lib/api/portfolio';
 import type { PortfolioItem, PortfolioStats, PortfolioFilters } from '../types';
 
@@ -48,9 +49,10 @@ export function usePortfolio() {
     try {
       await deletePortfolioItem(id);
       setItems(prev => prev.filter(item => item.id !== id));
-      alert('Portfolyo projesi başarıyla silindi!');
+      toast.success('Portfolyo projesi başarıyla silindi!');
     } catch (error) {
       console.error('Portfolio deletion error:', error);
+      toast.error('Portfolyo projesi silinirken bir hata oluştu.');
       throw new Error('Portfolyo projesi silinirken bir hata oluştu.');
     }
   };

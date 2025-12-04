@@ -209,6 +209,7 @@ const Navbar = () => {
                 src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/Unilancer%20logo%202.webp"
                 alt="Unilancer"
                 className="relative h-10 w-auto object-contain"
+                loading="eager"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = '/images/unilancer-logo.png';
@@ -422,6 +423,7 @@ const Navbar = () => {
                                 src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop" 
                                 alt="Digital Analysis" 
                                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                loading="lazy"
                             />
                             <div className="absolute top-4 right-4 z-20">
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/90 dark:bg-black/80 text-primary backdrop-blur-sm shadow-sm border border-white/20">

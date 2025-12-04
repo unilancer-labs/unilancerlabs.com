@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
   ArrowLeft,
   Image,
@@ -168,11 +169,11 @@ const PortfolioEditor = () => {
       if (id) {
         // Güncelleme
         await updatePortfolioItem(id, postData);
-        alert('Portfolyo projesi başarıyla güncellendi!');
+        toast.success('Portfolyo projesi başarıyla güncellendi!');
       } else {
         // Yeni ekleme
         await createPortfolioItem(postData);
-        alert('Portfolyo projesi başarıyla eklendi!');
+        toast.success('Portfolyo projesi başarıyla eklendi!');
       }
 
       navigate('/admin/portfolio');

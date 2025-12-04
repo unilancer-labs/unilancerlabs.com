@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import {
   ArrowLeft,
   User,
@@ -108,9 +109,10 @@ const FreelancerDetailPage: React.FC = () => {
 
       setFreelancer({ ...freelancer, status: newStatus as any });
       loadData(); // Reload to get updated activity log
+      toast.success('Durum başarıyla güncellendi');
     } catch (error) {
       console.error('Error updating status:', error);
-      alert('Durum güncellenirken bir hata oluştu.');
+      toast.error('Durum güncellenirken bir hata oluştu.');
     } finally {
       setUpdating(false);
     }
@@ -128,9 +130,10 @@ const FreelancerDetailPage: React.FC = () => {
       });
       setEditMode(false);
       loadData();
+      toast.success('Detaylar başarıyla kaydedildi');
     } catch (error) {
       console.error('Error saving details:', error);
-      alert('Detaylar kaydedilirken bir hata oluştu.');
+      toast.error('Detaylar kaydedilirken bir hata oluştu.');
     } finally {
       setUpdating(false);
     }
@@ -145,9 +148,10 @@ const FreelancerDetailPage: React.FC = () => {
       setNewNote('');
       const updatedNotes = await getAdminNotes('freelancer', id);
       setNotes(updatedNotes);
+      toast.success('Not başarıyla eklendi');
     } catch (error) {
       console.error('Error adding note:', error);
-      alert('Not eklenirken bir hata oluştu.');
+      toast.error('Not eklenirken bir hata oluştu.');
     } finally {
       setSavingNote(false);
     }
@@ -159,9 +163,10 @@ const FreelancerDetailPage: React.FC = () => {
     try {
       await deleteAdminNote(noteId);
       setNotes(notes.filter((n) => n.id !== noteId));
+      toast.success('Not başarıyla silindi');
     } catch (error) {
       console.error('Error deleting note:', error);
-      alert('Not silinirken bir hata oluştu.');
+      toast.error('Not silinirken bir hata oluştu.');
     }
   };
 

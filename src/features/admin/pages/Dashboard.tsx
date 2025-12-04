@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
   Users,
   FileText,
@@ -127,10 +128,10 @@ const AdminDashboard = () => {
     try {
       await deleteBlogPost(id);
       setBlogPosts((posts) => posts.filter((post) => post.id !== id));
-      alert('Blog yazısı başarıyla silindi!');
+      toast.success('Blog yazısı başarıyla silindi!');
     } catch (error) {
       console.error('Blog silme hatası:', error);
-      alert('Blog yazısı silinirken bir hata oluştu.');
+      toast.error('Blog yazısı silinirken bir hata oluştu.');
     }
   };
 

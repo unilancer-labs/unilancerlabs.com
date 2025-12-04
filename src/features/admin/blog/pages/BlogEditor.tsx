@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { 
   Image, ArrowLeft, Bold, Italic, Link as LinkIcon, Code, 
   ListOrdered, List, Heading2, ImagePlus, Save,
@@ -89,10 +90,10 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
 
       if (post?.id) {
         await updateBlogPost(post.id, postData);
-        alert('Blog yazısı başarıyla güncellendi!');
+        toast.success('Blog yazısı başarıyla güncellendi!');
       } else {
         await createBlogPost(postData);
-        alert('Blog yazısı başarıyla eklendi!');
+        toast.success('Blog yazısı başarıyla eklendi!');
       }
       
       navigate('/admin/blog');

@@ -59,6 +59,7 @@ export function WhyUsSection() {
                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images/kurumsalfreelancer.webp" 
                  className="absolute left-0 w-full object-contain bg-transparent -top-16 md:top-auto md:-bottom-8" 
                  alt="Kurumsal Freelancer"
+                 loading="lazy"
                />
             </div>
           </motion.div>
@@ -86,6 +87,7 @@ export function WhyUsSection() {
                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/bandgrade.webp" 
                  className="absolute inset-0 object-cover w-full h-full hover:scale-105 transition-transform duration-700" 
                  alt="Project Management"
+                 loading="lazy"
                />
             </div>
           </motion.div>
@@ -111,6 +113,7 @@ export function WhyUsSection() {
                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images/projebildirimi.webp" 
                  className="relative object-contain w-full h-full rounded-lg shadow-xl transition-all duration-500 bg-transparent" 
                  alt="Project Management"
+                 loading="lazy"
                />
             </div>
           </motion.div>
@@ -136,6 +139,7 @@ export function WhyUsSection() {
                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images/unilancerteklogo.webp" 
                  className="relative object-contain w-full h-full opacity-30 group-hover:opacity-100 transition-all duration-500" 
                  alt="Unilancer Logo"
+                 loading="lazy"
                />
             </div>
           </motion.div>
@@ -168,6 +172,7 @@ export function WhyUsSection() {
                     src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/genclerduvaradiki.webp" 
                     className="object-cover w-full h-full object-top" 
                     alt="Global Connection Left"
+                    loading="lazy"
                   />
                </div>
                <div className="w-1/2 h-full overflow-hidden rounded-br-[24px] sm:rounded-br-[32px]">
@@ -175,6 +180,7 @@ export function WhyUsSection() {
                     src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/genclerduvarad.webp" 
                     className="object-cover w-full h-full object-top" 
                     alt="Global Connection Right"
+                    loading="lazy"
                   />
                </div>
             </div>
@@ -185,6 +191,7 @@ export function WhyUsSection() {
                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/genclerduvaradiki.webp" 
                  className="object-cover w-full h-full hover:scale-105 transition-transform duration-700 md:object-left" 
                  alt="Global Connection Left"
+                 loading="lazy"
                />
             </div>
 
@@ -194,6 +201,7 @@ export function WhyUsSection() {
                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/genclerduvarad.webp" 
                  className="object-cover w-full h-full hover:scale-105 transition-transform duration-700 md:object-right" 
                  alt="Global Connection Right"
+                 loading="lazy"
                />
             </div>
           </motion.div>

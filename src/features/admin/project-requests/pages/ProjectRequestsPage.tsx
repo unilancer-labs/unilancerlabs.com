@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { 
   FileText, Clock, CheckCircle, XCircle,
   AlertTriangle, Eye, Check, X, ExternalLink,
@@ -78,9 +79,10 @@ const ProjectRequestsPage = () => {
     try {
       await updateProjectStatus(id, status);
       await loadData();
+      toast.success('Durum başarıyla güncellendi');
     } catch (error) {
       console.error('Status update error:', error);
-      alert('Durum güncellenirken bir hata oluştu.');
+      toast.error('Durum güncellenirken bir hata oluştu.');
     }
   };
 

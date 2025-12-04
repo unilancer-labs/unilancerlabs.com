@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { trackPageView } from './lib/analytics';
 import { HelmetProvider } from 'react-helmet-async';
+import { Toaster } from 'sonner';
 import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import { PrivacyTermsProvider } from './components/ui/modals/privacy-terms-provider';
@@ -82,6 +83,7 @@ function App() {
               <PrivacyTermsProvider>
                 <ScrollToTop />
                 <CookieConsent />
+                <Toaster position="top-right" richColors closeButton />
               <div className="min-h-screen bg-white dark:bg-dark text-slate-900 dark:text-white font-sans transition-colors duration-300">
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
