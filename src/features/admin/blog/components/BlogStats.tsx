@@ -1,5 +1,6 @@
 import React from 'react';
-import { FileText, Eye, Edit3, BarChart2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { FileText, Eye, Edit3, Tags } from 'lucide-react';
 import type { BlogStats } from '../types';
 
 interface BlogStatsProps {
@@ -7,55 +8,69 @@ interface BlogStatsProps {
 }
 
 const BlogStats = ({ stats }: BlogStatsProps) => {
+  const getPercentage = (value: number) => {
+    if (stats.totalPosts === 0) return 0;
+    return Math.round((value / stats.totalPosts) * 100);
+  };
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-      <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-slate-500 dark:text-gray-400 text-sm">Toplam Yazı</p>
-            <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{stats.totalPosts}</h3>
-          </div>
-          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-            <FileText className="w-6 h-6 text-primary" />
-          </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* Toplam */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <FileText className="w-4 h-4 text-primary" />
+          <span className="text-xs text-slate-500 dark:text-gray-400">Toplam Yazı</span>
         </div>
-      </div>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.totalPosts}</p>
+      </motion.div>
 
-      <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-slate-500 dark:text-gray-400 text-sm">Yayında</p>
-            <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{stats.publishedPosts}</h3>
-          </div>
-          <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center">
-            <Eye className="w-6 h-6 text-green-500" />
-          </div>
+      {/* Yayında */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Eye className="w-4 h-4 text-green-500" />
+          <span className="text-xs text-slate-500 dark:text-gray-400">Yayında</span>
         </div>
-      </div>
+        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.publishedPosts}</p>
+        <p className="text-xs text-slate-500 dark:text-gray-400">%{getPercentage(stats.publishedPosts)}</p>
+      </motion.div>
 
-      <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-slate-500 dark:text-gray-400 text-sm">Taslak</p>
-            <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{stats.draftPosts}</h3>
-          </div>
-          <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center">
-            <Edit3 className="w-6 h-6 text-yellow-500" />
-          </div>
+      {/* Taslak */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Edit3 className="w-4 h-4 text-yellow-500" />
+          <span className="text-xs text-slate-500 dark:text-gray-400">Taslak</span>
         </div>
-      </div>
+        <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.draftPosts}</p>
+        <p className="text-xs text-slate-500 dark:text-gray-400">%{getPercentage(stats.draftPosts)}</p>
+      </motion.div>
 
-      <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-slate-500 dark:text-gray-400 text-sm">Kategori</p>
-            <h3 className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">{stats.categories.size}</h3>
-          </div>
-          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-            <BarChart2 className="w-6 h-6 text-primary" />
-          </div>
+      {/* Kategori */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="bg-white dark:bg-dark-light rounded-xl p-4 border border-slate-200 dark:border-white/10"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Tags className="w-4 h-4 text-primary" />
+          <span className="text-xs text-slate-500 dark:text-gray-400">Kategori</span>
         </div>
-      </div>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.categories.size}</p>
+      </motion.div>
     </div>
   );
 };

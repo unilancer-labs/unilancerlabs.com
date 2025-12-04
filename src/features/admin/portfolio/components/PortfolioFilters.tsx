@@ -24,7 +24,43 @@ const PortfolioFiltersComponent = ({
 
   return (
     <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-4 lg:p-6 mb-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Pill Status Filters */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center bg-slate-100 dark:bg-dark rounded-lg p-1">
+          <button
+            onClick={() => onFilterChange('status', '')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              filters.status === '' 
+                ? 'bg-white dark:bg-dark-light text-primary shadow-sm' 
+                : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            Tümü
+          </button>
+          <button
+            onClick={() => onFilterChange('status', 'published')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              filters.status === 'published' 
+                ? 'bg-white dark:bg-dark-light text-green-500 shadow-sm' 
+                : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            Yayında
+          </button>
+          <button
+            onClick={() => onFilterChange('status', 'draft')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              filters.status === 'draft' 
+                ? 'bg-white dark:bg-dark-light text-yellow-500 shadow-sm' 
+                : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            Taslak
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 dark:text-gray-400" />
@@ -36,17 +72,6 @@ const PortfolioFiltersComponent = ({
             className="w-full bg-slate-50 dark:bg-dark border border-slate-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
           />
         </div>
-
-        {/* Status Filter */}
-        <select
-          value={filters.status}
-          onChange={(e) => onFilterChange('status', e.target.value)}
-          className="w-full bg-slate-50 dark:bg-dark border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
-        >
-          <option value="">Tüm Durumlar</option>
-          <option value="published">Yayında</option>
-          <option value="draft">Taslak</option>
-        </select>
 
         {/* Category Filter */}
         <select

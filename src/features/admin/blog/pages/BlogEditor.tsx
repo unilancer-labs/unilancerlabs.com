@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { 
   Image, ArrowLeft, Bold, Italic, Link as LinkIcon, Code, 
   ListOrdered, List, Heading2, ImagePlus, Save,
-  AlignLeft, AlignCenter, AlignRight, Quote, Eye, Search
+  AlignLeft, AlignCenter, AlignRight, Quote, Eye, Search, Lightbulb
 } from 'lucide-react';
 import { createBlogPost, uploadImage, updateBlogPost } from '../../../../lib/config/supabase';
 import { getCategories, generateMetaTitle, generateMetaDescription } from '../../../../lib/api/blog';
@@ -14,6 +14,15 @@ import DOMPurify from 'dompurify';
 interface BlogEditorProps {
   post?: BlogPost;
 }
+
+// Otomatik okuma süresi hesaplama
+const calculateReadTime = (content: string): string => {
+  const wordsPerMinute = 200;
+  const textContent = content.replace(/<[^>]*>/g, ''); // HTML taglerini kaldır
+  const words = textContent.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
+  return `${minutes} dk`;
+};
 
 const BlogEditor = ({ post }: BlogEditorProps) => {
   const navigate = useNavigate();
@@ -57,6 +66,16 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
     };
     fetchCategories();
   }, []);
+
+  // İçerik değiştiğinde okuma süresini otomatik hesapla
+  useEffect(() => {
+    if (formData.content) {
+      const newReadTime = calculateReadTime(formData.content);
+      if (newReadTime !== formData.read_time) {
+        setFormData(prev => ({ ...prev, read_time: newReadTime }));
+      }
+    }
+  }, [formData.content]);
 
   const generateSlug = (title: string) => {
     const timestamp = Date.now().toString(36);
@@ -234,12 +253,18 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
             <div className="col-span-2 space-y-6">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">Başlık</label>
+                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">
+                  Başlık
+                  <span className={`ml-2 text-xs font-normal ${formData.title.length > 60 ? 'text-red-500' : 'text-slate-400'}`}>
+                    {formData.title.length}/60
+                  </span>
+                </label>
                 <input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
+                  maxLength={80}
                   className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
                   placeholder="Blog yazısı başlığı"
                   required
@@ -338,11 +363,17 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
 
               {/* Excerpt */}
               <div>
-                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">Özet</label>
+                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">
+                  Özet
+                  <span className={`ml-2 text-xs font-normal ${formData.excerpt.length > 160 ? 'text-red-500' : 'text-slate-400'}`}>
+                    {formData.excerpt.length}/160
+                  </span>
+                </label>
                 <textarea
                   name="excerpt"
                   value={formData.excerpt}
                   onChange={handleChange}
+                  maxLength={200}
                   className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
                   rows={3}
                   placeholder="Blog yazısının kısa özeti..."
@@ -371,29 +402,51 @@ const BlogEditor = ({ post }: BlogEditorProps) => {
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">Etiketler</label>
+                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">
+                  Etiketler
+                  <span className="ml-2 text-xs font-normal text-slate-400">virgülle ayırın</span>
+                </label>
                 <input
                   type="text"
                   name="tags"
                   value={formData.tags}
                   onChange={handleChange}
                   className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
-                  placeholder="Etiketleri virgülle ayırın..."
+                  placeholder="react, typescript, web geliştirme..."
                 />
               </div>
 
-              {/* Read Time */}
+              {/* Read Time - Otomatik */}
               <div>
-                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">Okuma Süresi</label>
+                <label className="block text-sm font-medium mb-2 text-slate-900 dark:text-white">
+                  Okuma Süresi
+                  <span className="ml-2 text-xs font-normal text-green-500">✓ otomatik</span>
+                </label>
                 <input
                   type="text"
                   name="read_time"
                   value={formData.read_time}
                   onChange={handleChange}
-                  className="w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
-                  placeholder="örn: 5 dk"
-                  required
+                  className="w-full bg-slate-50 dark:bg-dark border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-primary text-slate-900 dark:text-white"
+                  placeholder="Otomatik hesaplanır"
+                  readOnly
                 />
+              </div>
+
+              {/* Yardımcı İpuçları */}
+              <div className="p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <Lightbulb className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-700 dark:text-blue-400 mb-2">Yazı İpuçları</h4>
+                    <ul className="text-xs text-blue-600 dark:text-blue-300 space-y-1">
+                      <li>• Başlık 50-60 karakter arası ideal</li>
+                      <li>• Özet 150-160 karakter SEO için en uygun</li>
+                      <li>• Kapak görseli 1200x630px önerilir</li>
+                      <li>• İçeriğe en az 1 görsel ekleyin</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
               {/* SEO Section */}

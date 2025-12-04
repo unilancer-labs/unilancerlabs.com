@@ -256,67 +256,112 @@ const ProjectRequestsPage = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-8">
-        <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-500 dark:text-gray-400 text-sm">Toplam Talep</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.total}</h3>
+      {/* Stats - Kompakt Tasarım */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+              <FileText className="w-5 h-5 text-primary" />
             </div>
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-              <FileText className="w-6 h-6 text-primary" />
+            <div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Toplam</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">{stats.total}</h3>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-500 dark:text-gray-400 text-sm">Bekleyen</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.pending}</h3>
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-yellow-500" />
             </div>
-            <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center">
-              <Clock className="w-6 h-6 text-yellow-500" />
+            <div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Bekleyen</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{stats.pending}</h3>
+                {stats.total > 0 && (
+                  <span className="text-xs text-yellow-500">%{Math.round((stats.pending / stats.total) * 100)}</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-500 dark:text-gray-400 text-sm">Devam Eden</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.inProgress}</h3>
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-blue-500" />
             </div>
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-primary" />
+            <div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Devam Eden</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{stats.inProgress}</h3>
+                {stats.total > 0 && (
+                  <span className="text-xs text-blue-500">%{Math.round((stats.inProgress / stats.total) * 100)}</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-500 dark:text-gray-400 text-sm">Tamamlanan</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.completed}</h3>
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-green-500" />
             </div>
-            <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-500" />
+            <div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">Tamamlanan</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{stats.completed}</h3>
+                {stats.total > 0 && (
+                  <span className="text-xs text-green-500">%{Math.round((stats.completed / stats.total) * 100)}</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-500 dark:text-gray-400 text-sm">İptal Edilen</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{stats.cancelled}</h3>
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl p-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center">
+              <XCircle className="w-5 h-5 text-red-500" />
             </div>
-            <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center">
-              <XCircle className="w-6 h-6 text-red-500" />
+            <div>
+              <p className="text-xs text-slate-500 dark:text-gray-400">İptal</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{stats.cancelled}</h3>
+                {stats.total > 0 && (
+                  <span className="text-xs text-red-500">%{Math.round((stats.cancelled / stats.total) * 100)}</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Filters */}

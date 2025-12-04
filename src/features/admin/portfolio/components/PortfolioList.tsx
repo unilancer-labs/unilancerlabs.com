@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Edit3, Trash2, Eye, ExternalLink, Github } from 'lucide-react';
+import { Calendar, Edit3, Trash2, Eye, FolderOpen, PlusCircle } from 'lucide-react';
 import type { PortfolioItem } from '../types';
 
 interface PortfolioListProps {
@@ -11,6 +11,34 @@ interface PortfolioListProps {
 }
 
 const PortfolioList = ({ items, onEdit, onDelete, onView }: PortfolioListProps) => {
+  // Empty state
+  if (items.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center justify-center py-16 bg-white dark:bg-dark-light rounded-xl border border-slate-200 dark:border-white/10"
+      >
+        <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
+          <FolderOpen className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+        </div>
+        <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+          Henüz proje yok
+        </h3>
+        <p className="text-sm text-slate-500 dark:text-gray-400 mb-6 text-center max-w-sm">
+          Portfolyonuza yeni projeler ekleyerek çalışmalarınızı sergileyin
+        </p>
+        <button
+          onClick={() => onEdit({} as PortfolioItem)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          <PlusCircle className="w-4 h-4" />
+          <span>İlk Projeyi Ekle</span>
+        </button>
+      </motion.div>
+    );
+  }
+
   return (
     <div className="bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
