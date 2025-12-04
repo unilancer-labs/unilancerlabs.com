@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { signIn } from '../lib/auth';
-import { ArrowRight, Eye, EyeOff, AlertTriangle, Shield, Building2 } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, AlertTriangle, Shield } from 'lucide-react';
 import { supabase } from '../lib/config/supabase';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -162,82 +162,14 @@ const Login = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-teal-600 to-teal-800"
+        className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
       >
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/blog-images//3236267.jpg"
-            alt="Abstract Background"
-            className="w-full h-full object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-teal-600/80 to-teal-900/90" />
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute inset-0">
-          {/* Gradient Orbs */}
-          <motion.div
-            animate={{ 
-              opacity: [0.3, 0.5, 0.3],
-              scale: [1, 1.2, 1]
-            }}
-            transition={{ 
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{ 
-              opacity: [0.2, 0.4, 0.2],
-              scale: [1.2, 1, 1.2]
-            }}
-            transition={{ 
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            }}
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-300/20 rounded-full blur-3xl"
-          />
-        </div>
-
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
-            <Building2 className="w-16 h-16 text-white/80 mx-auto mb-6" />
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Hoş Geldiniz
-            </h2>
-            <p className="text-xl text-white/80 max-w-md">
-              Unilancer Admin Paneli ile projelerinizi, içeriklerinizi ve takımınızı tek bir yerden yönetin.
-            </p>
-          </motion.div>
-
-          {/* Feature List */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="mt-12 space-y-4 text-left"
-          >
-            {['Blog & Portfolio Yönetimi', 'Proje Talepleri Takibi', 'Freelancer Başvuruları', 'Çoklu Dil Desteği'].map((feature, i) => (
-              <div key={i} className="flex items-center gap-3 text-white/90">
-                <div className="w-2 h-2 bg-white rounded-full" />
-                <span>{feature}</span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
+        {/* Full Image */}
+        <img
+          src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/adminsectionphoto.webp"
+          alt="Unilancer Admin"
+          className="w-full h-full object-cover"
+        />
       </motion.div>
 
       {/* Right Panel - Login Form (Light Mode) */}
