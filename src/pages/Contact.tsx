@@ -38,24 +38,19 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!recaptchaLoaded) {
-      setErrorMessage(t('contact.error.recaptcha_loading', 'Güvenlik doğrulaması yükleniyor, lütfen bekleyin...'));
-      setSubmitStatus('error');
-      return;
-    }
-    
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage('');
     
     try {
-      // Validate with reCAPTCHA
-      const recaptchaResult = await validateSubmission('contact_form', 0.5);
+      // Validate with reCAPTCHA (permissive - allows submission on any error)
+      const recaptchaResult = await validateSubmission('contact_form', 0.3);
       
       if (!recaptchaResult.valid) {
-        setErrorMessage(t('contact.error.spam_detected', 'Güvenlik doğrulaması başarısız. Lütfen tekrar deneyin.'));
+        setErrorMessage(recaptchaResult.error || t('contact.error.spam_detected', 'Spam algılandı. Lütfen tekrar deneyin.'));
         setSubmitStatus('error');
         trackFormSubmission('contact', false);
+        setIsSubmitting(false);
         return;
       }
       

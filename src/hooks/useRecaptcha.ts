@@ -3,6 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6Le3jyAsAAAAANFS_8V7rK1FK4fsYfkzj7dUuNve';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
+// Timeout for reCAPTCHA loading (5 seconds)
+const RECAPTCHA_TIMEOUT = 5000;
+
 declare global {
   interface Window {
     grecaptcha: {
@@ -24,15 +27,27 @@ export const useRecaptcha = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    // Timeout fallback - if reCAPTCHA doesn't load in time, allow form submission anyway
+    timeoutId = setTimeout(() => {
+      if (!isLoaded) {
+        console.warn('reCAPTCHA loading timeout - allowing form submission without verification');
+        setIsLoaded(true); // Allow forms to submit
+        setIsLoading(false);
+      }
+    }, RECAPTCHA_TIMEOUT);
+
     // Check if script already exists
     if (document.querySelector('script[src*="recaptcha"]')) {
       if (window.grecaptcha) {
         window.grecaptcha.ready(() => {
           setIsLoaded(true);
           setIsLoading(false);
+          clearTimeout(timeoutId);
         });
       }
-      return;
+      return () => clearTimeout(timeoutId);
     }
 
     // Load reCAPTCHA script
@@ -42,21 +57,26 @@ export const useRecaptcha = () => {
     script.defer = true;
 
     script.onload = () => {
-      window.grecaptcha.ready(() => {
-        setIsLoaded(true);
-        setIsLoading(false);
-      });
+      if (window.grecaptcha) {
+        window.grecaptcha.ready(() => {
+          setIsLoaded(true);
+          setIsLoading(false);
+          clearTimeout(timeoutId);
+        });
+      }
     };
 
     script.onerror = () => {
-      console.error('Failed to load reCAPTCHA');
+      console.warn('Failed to load reCAPTCHA - allowing form submission without verification');
+      setIsLoaded(true); // Allow forms to submit anyway
       setIsLoading(false);
+      clearTimeout(timeoutId);
     };
 
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup: hide reCAPTCHA badge on unmount if needed
+      clearTimeout(timeoutId);
     };
   }, []);
 
@@ -104,23 +124,40 @@ export const useRecaptcha = () => {
   }, []);
 
   const validateSubmission = useCallback(async (action: string, minScore = 0.5): Promise<{ valid: boolean; score: number; error?: string }> => {
-    const token = await executeRecaptcha(action);
-    
-    if (!token) {
-      return { valid: false, score: 0, error: 'Could not generate reCAPTCHA token' };
+    // If grecaptcha is not available, allow submission (fallback)
+    if (!window.grecaptcha) {
+      console.warn('reCAPTCHA not available - allowing submission without verification');
+      return { valid: true, score: 0 };
     }
 
-    const result = await verifyToken(token);
+    try {
+      const token = await executeRecaptcha(action);
+      
+      if (!token) {
+        // Allow submission if token generation fails
+        console.warn('Could not generate reCAPTCHA token - allowing submission');
+        return { valid: true, score: 0 };
+      }
 
-    if (!result.success) {
-      return { valid: false, score: 0, error: result.error || 'Verification failed' };
+      const result = await verifyToken(token);
+
+      if (!result.success) {
+        // Allow submission if verification fails (Edge Function issue)
+        console.warn('reCAPTCHA verification failed - allowing submission:', result.error);
+        return { valid: true, score: 0 };
+      }
+
+      if (result.score < minScore) {
+        // This is the only case where we block - confirmed bot
+        return { valid: false, score: result.score, error: 'Spam algılandı. Lütfen daha sonra tekrar deneyin.' };
+      }
+
+      return { valid: true, score: result.score };
+    } catch (error) {
+      // On any error, allow submission
+      console.warn('reCAPTCHA error - allowing submission:', error);
+      return { valid: true, score: 0 };
     }
-
-    if (result.score < minScore) {
-      return { valid: false, score: result.score, error: 'Low reCAPTCHA score - suspected bot' };
-    }
-
-    return { valid: true, score: result.score };
   }, [executeRecaptcha, verifyToken]);
 
   return {

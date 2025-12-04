@@ -27,24 +27,19 @@ const Footer = () => {
       return;
     }
     
-    if (!recaptchaLoaded) {
-      setErrorMessage(t('footer.error.recaptcha_loading', 'Güvenlik doğrulaması yükleniyor...'));
-      setSubmitStatus('error');
-      return;
-    }
-    
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage('');
     
     try {
-      // Validate with reCAPTCHA
-      const recaptchaResult = await validateSubmission('newsletter_subscribe', 0.5);
+      // Validate with reCAPTCHA (permissive - allows submission on any error)
+      const recaptchaResult = await validateSubmission('newsletter_subscribe', 0.3);
       
       if (!recaptchaResult.valid) {
-        setErrorMessage(t('footer.error.spam_detected', 'Güvenlik doğrulaması başarısız'));
+        setErrorMessage(recaptchaResult.error || t('footer.error.spam_detected', 'Spam algılandı'));
         setSubmitStatus('error');
         trackNewsletterSignup(false);
+        setIsSubmitting(false);
         return;
       }
       
