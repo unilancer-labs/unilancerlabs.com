@@ -347,3 +347,8 @@ model-viewer::part(default-ar-button):active {
 .delay-200 {
   animation-delay: 200ms;
 }
+
+/* Hide reCAPTCHA badge - required notice is shown in forms */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}

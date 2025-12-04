@@ -3,12 +3,16 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import {
   Mail, Phone, MapPin, Send,
-  MessageSquare, ExternalLink, Sparkles
+  MessageSquare, ExternalLink, Sparkles, Loader2, CheckCircle, AlertCircle
 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import { useRecaptcha } from '../hooks/useRecaptcha';
+import { submitContactForm } from '../lib/api/contact';
+import { trackFormSubmission } from '../lib/analytics';
 
 const Contact = () => {
   const { t } = useTranslation();
+  const { validateSubmission, isLoaded: recaptchaLoaded } = useRecaptcha();
   
   // SEO meta data
   const currentLang = window.location.pathname.startsWith('/en') ? 'en' : 'tr';
@@ -26,10 +30,58 @@ const Contact = () => {
     subject: '',
     message: ''
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission logic
+    
+    if (!recaptchaLoaded) {
+      setErrorMessage(t('contact.error.recaptcha_loading', 'Güvenlik doğrulaması yükleniyor, lütfen bekleyin...'));
+      setSubmitStatus('error');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+    
+    try {
+      // Validate with reCAPTCHA
+      const recaptchaResult = await validateSubmission('contact_form', 0.5);
+      
+      if (!recaptchaResult.valid) {
+        setErrorMessage(t('contact.error.spam_detected', 'Güvenlik doğrulaması başarısız. Lütfen tekrar deneyin.'));
+        setSubmitStatus('error');
+        trackFormSubmission('contact', false);
+        return;
+      }
+      
+      // Submit form
+      const result = await submitContactForm({
+        ...formData,
+        recaptcha_score: recaptchaResult.score,
+      });
+      
+      if (result.success) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        trackFormSubmission('contact', true);
+      } else {
+        setErrorMessage(result.error || t('contact.error.generic', 'Bir hata oluştu. Lütfen tekrar deneyin.'));
+        setSubmitStatus('error');
+        trackFormSubmission('contact', false);
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setErrorMessage(t('contact.error.generic', 'Bir hata oluştu. Lütfen tekrar deneyin.'));
+      setSubmitStatus('error');
+      trackFormSubmission('contact', false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -225,15 +277,56 @@ const Contact = () => {
                 </div>
                 
                 <div className="pt-4">
+                  {/* Success Message */}
+                  {submitStatus === 'success' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-4 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl flex items-center gap-3"
+                    >
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <p className="text-green-700 dark:text-green-400 text-sm">
+                        {t('contact.success', 'Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.')}
+                      </p>
+                    </motion.div>
+                  )}
+                  
+                  {/* Error Message */}
+                  {submitStatus === 'error' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-4 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl flex items-center gap-3"
+                    >
+                      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                      <p className="text-red-700 dark:text-red-400 text-sm">{errorMessage}</p>
+                    </motion.div>
+                  )}
+                  
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className="w-full bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-xl transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 flex items-center justify-center space-x-2 font-semibold text-lg"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.01 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.99 }}
+                    className="w-full bg-primary hover:bg-primary-dark disabled:bg-primary/50 disabled:cursor-not-allowed text-white px-8 py-4 rounded-xl transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 flex items-center justify-center space-x-2 font-semibold text-lg"
                   >
-                    <Send className="w-5 h-5" />
-                    <span>{t('contact.form.submit')}</span>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{t('contact.form.sending', 'Gönderiliyor...')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        <span>{t('contact.form.submit')}</span>
+                      </>
+                    )}
                   </motion.button>
+                  
+                  {/* reCAPTCHA Badge Notice */}
+                  <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-4">
+                    {t('contact.recaptcha_notice', 'Bu site reCAPTCHA tarafından korunmaktadır.')}
+                  </p>
                 </div>
               </form>
             </div>

@@ -1,5 +1,6 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { trackPageView } from './lib/analytics';
 import { HelmetProvider } from 'react-helmet-async';
 import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -40,15 +41,24 @@ const AdminRoutes = lazy(() => import('./features/admin/routes'));
 // 404 Page
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-// Scroll to top component
+// Scroll to top component with page tracking
 function ScrollToTop() {
   const { pathname } = useLocation();
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
+    
+    // Track page view for GA4
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      trackPageView(pathname);
+    } else {
+      trackPageView(pathname);
+    }
   }, [pathname]);
 
   return null;

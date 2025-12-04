@@ -1,11 +1,85 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, ArrowUpRight, Linkedin, Twitter, Instagram, Github } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowUpRight, Linkedin, Twitter, Instagram, Github, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { usePrivacyTerms } from './ui/modals/privacy-terms-provider';
 import { useTranslation } from '../hooks/useTranslation';
+import { useRecaptcha } from '../hooks/useRecaptcha';
+import { subscribeNewsletter } from '../lib/api/contact';
+import { trackNewsletterSignup } from '../lib/analytics';
 
 const Footer = () => {
   const { openPrivacyPolicy, openTerms } = usePrivacyTerms();
   const { t } = useTranslation();
+  const { validateSubmission, isLoaded: recaptchaLoaded } = useRecaptcha();
+  
+  // Newsletter state
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+      setErrorMessage(t('footer.error.invalid_email', 'Geçerli bir e-posta adresi girin'));
+      setSubmitStatus('error');
+      return;
+    }
+    
+    if (!recaptchaLoaded) {
+      setErrorMessage(t('footer.error.recaptcha_loading', 'Güvenlik doğrulaması yükleniyor...'));
+      setSubmitStatus('error');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+    
+    try {
+      // Validate with reCAPTCHA
+      const recaptchaResult = await validateSubmission('newsletter_subscribe', 0.5);
+      
+      if (!recaptchaResult.valid) {
+        setErrorMessage(t('footer.error.spam_detected', 'Güvenlik doğrulaması başarısız'));
+        setSubmitStatus('error');
+        trackNewsletterSignup(false);
+        return;
+      }
+      
+      // Get current language
+      const currentLang = window.location.pathname.startsWith('/en') ? 'en' : 'tr';
+      
+      // Submit subscription
+      const result = await subscribeNewsletter({
+        email: newsletterEmail,
+        language: currentLang,
+        source: 'footer',
+        recaptcha_score: recaptchaResult.score,
+      });
+      
+      if (result.success) {
+        setSubmitStatus('success');
+        setNewsletterEmail('');
+        trackNewsletterSignup(true);
+        
+        // Reset success message after 5 seconds
+        setTimeout(() => setSubmitStatus('idle'), 5000);
+      } else {
+        setErrorMessage(result.error || t('footer.error.generic', 'Bir hata oluştu'));
+        setSubmitStatus('error');
+        trackNewsletterSignup(false);
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setErrorMessage(t('footer.error.generic', 'Bir hata oluştu'));
+      setSubmitStatus('error');
+      trackNewsletterSignup(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <footer className="relative bg-gradient-to-b from-slate-50 to-slate-100 dark:from-dark dark:to-dark-light border-t border-slate-200 dark:border-white/10">
@@ -129,21 +203,51 @@ const Footer = () => {
               <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                 {t('footer.newsletterDesc', 'Güncel teknoloji haberlerini ve blog yazılarımızı takip edin.')}
               </p>
-              <form className="space-y-3">
+              <form onSubmit={handleNewsletterSubmit} className="space-y-3">
                 <div className="relative group">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/50 to-primary-light/50 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500" />
                   <input
                     type="email"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder={t('footer.emailPlaceholder', 'E-posta adresiniz')}
-                    className="relative w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors text-sm text-slate-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-500"
+                    disabled={isSubmitting}
+                    className="relative w-full bg-white dark:bg-dark-light border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2.5 focus:outline-none focus:border-primary transition-colors text-sm text-slate-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-500 disabled:opacity-50"
                   />
                 </div>
+                
+                {/* Success Message */}
+                {submitStatus === 'success' && (
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>{t('footer.success', 'Başarıyla abone oldunuz!')}</span>
+                  </div>
+                )}
+                
+                {/* Error Message */}
+                {submitStatus === 'error' && (
+                  <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+                
                 <button
                   type="submit"
-                  className="w-full bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium relative group overflow-hidden"
+                  disabled={isSubmitting}
+                  className="w-full bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-dark disabled:bg-primary/50 disabled:cursor-not-allowed transition-colors text-sm font-medium relative group overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary-light to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="relative">{t('footer.subscribe', 'Abone Ol')}</span>
+                  <span className="relative flex items-center justify-center gap-2">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>{t('footer.subscribing', 'Kaydediliyor...')}</span>
+                      </>
+                    ) : (
+                      t('footer.subscribe', 'Abone Ol')
+                    )}
+                  </span>
                 </button>
               </form>
             </div>

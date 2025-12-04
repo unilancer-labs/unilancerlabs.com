@@ -164,6 +164,7 @@ const Navbar = () => {
   const shouldBeSolid = isScrolled || isUniversitiesPage || isBlogDetailPage || isOpen;
 
   return (
+    <>
     <motion.nav
       className={`
         fixed w-full z-50 transition-all duration-300
@@ -545,287 +546,219 @@ const Navbar = () => {
               )}
             </AnimatePresence>
           </motion.button>
-
-          {/* Mobile Menu */}
-          <AnimatePresence mode="wait">
-            {isOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="fixed left-0 right-0 top-[64px] bottom-0 bg-white dark:bg-dark z-[60] md:hidden overflow-y-auto overflow-x-hidden"
-                style={{ WebkitOverflowScrolling: 'touch' }}
-              >
-                <div className="px-4 py-6 pb-32">
-                  <div className="space-y-4 max-w-lg mx-auto">
-                    
-                    {/* Quick Action Buttons - En üstte */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <Link
-                        to={getRouteForLanguage('/project-request', language)}
-                        className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-primary text-white rounded-xl active:scale-[0.98] transition-all font-semibold shadow-lg shadow-primary/25"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <Rocket className="w-5 h-5" />
-                        <span>{t('nav.getQuote')}</span>
-                      </Link>
-                      <Link
-                        to={getRouteForLanguage('/join', language)}
-                        className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white rounded-xl active:scale-[0.98] transition-all font-semibold"
-                        onClick={() => {
-                          setIsOpen(false);
-                          scrollToTop();
-                        }}
-                      >
-                        <Users className="w-5 h-5" />
-                        <span>{t('nav.joinUs')}</span>
-                      </Link>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="h-px bg-slate-200 dark:bg-white/10" />
-
-                    {/* Navigation Links */}
-                    <div className="space-y-2">
-                      
-                      {/* digitAll Services Accordion */}
-                      <div className="rounded-2xl overflow-hidden bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
-                        <button
-                          onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                          className="w-full px-4 py-4 min-h-[56px] flex items-center justify-between active:bg-slate-100 dark:active:bg-white/10 transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                              <Sparkles className="w-5 h-5 text-primary" />
-                            </div>
-                            <span className="font-bold text-base" style={{ fontFamily: '"Space Grotesk", "Inter", sans-serif' }}>
-                              <span className="text-slate-900 dark:text-white">digit</span>
-                              <span className="text-primary">All</span>
-                            </span>
-                          </div>
-                          <motion.div
-                            animate={{ rotate: mobileServicesOpen ? 180 : 0 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <ChevronDown className="w-5 h-5 text-slate-400" />
-                          </motion.div>
-                        </button>
-
-                        <AnimatePresence>
-                          {mobileServicesOpen && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="px-3 pb-3 grid grid-cols-2 gap-2">
-                                {digitAllServices.map((service, index) => (
-                                  <Link
-                                    key={index}
-                                    to={service.path}
-                                    className="flex items-center gap-2.5 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl active:scale-[0.98] active:bg-slate-50 dark:active:bg-white/10 transition-all border border-slate-100 dark:border-white/5"
-                                    onClick={() => {
-                                      setIsOpen(false);
-                                      setMobileServicesOpen(false);
-                                      scrollToTop();
-                                    }}
-                                  >
-                                    <service.icon className="w-4 h-4 text-primary flex-shrink-0" />
-                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{service.label}</span>
-                                  </Link>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-
-                      {/* Universities Link */}
-                      <Link
-                        to={getRouteForLanguage('/universities', language)}
-                        className="flex items-center justify-between px-4 py-4 min-h-[56px] bg-slate-50 dark:bg-white/5 rounded-2xl active:scale-[0.98] active:bg-slate-100 dark:active:bg-white/10 transition-all border border-slate-200/50 dark:border-white/5"
-                        onClick={() => {
-                          setIsOpen(false);
-                          scrollToTop();
-                        }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                            <Users className="w-5 h-5 text-blue-500" />
-                          </div>
-                          <span className="font-semibold text-slate-900 dark:text-white">{t('nav.universities', 'Üniversiteliler')}</span>
-                        </div>
-                        <ArrowRight className="w-5 h-5 text-slate-400" />
-                      </Link>
-
-                      {/* Digibot Link */}
-                      <Link
-                        to={getRouteForLanguage('/digibot', language)}
-                        className="flex items-center justify-between px-4 py-4 min-h-[56px] bg-slate-50 dark:bg-white/5 rounded-2xl active:scale-[0.98] active:bg-slate-100 dark:active:bg-white/10 transition-all border border-slate-200/50 dark:border-white/5"
-                        onClick={() => {
-                          setIsOpen(false);
-                          scrollToTop();
-                        }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                            <BrainCircuit className="w-5 h-5 text-purple-500" />
-                          </div>
-                          <span className="font-semibold text-slate-900 dark:text-white">Digibot</span>
-                        </div>
-                        <ArrowRight className="w-5 h-5 text-slate-400" />
-                      </Link>
-
-                      {/* Corporate Accordion */}
-                      <div className="rounded-2xl overflow-hidden bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
-                        <button
-                          onClick={() => setMobileCorporateOpen(!mobileCorporateOpen)}
-                          className="w-full px-4 py-4 min-h-[56px] flex items-center justify-between active:bg-slate-100 dark:active:bg-white/10 transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
-                              <Users className="w-5 h-5 text-amber-500" />
-                            </div>
-                            <span className="font-semibold text-slate-900 dark:text-white">
-                              {t('nav.corporate', 'Kurumsal')}
-                            </span>
-                          </div>
-                          <motion.div
-                            animate={{ rotate: mobileCorporateOpen ? 180 : 0 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <ChevronDown className="w-5 h-5 text-slate-400" />
-                          </motion.div>
-                        </button>
-
-                        <AnimatePresence>
-                          {mobileCorporateOpen && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="px-3 pb-3 space-y-2">
-                                {[
-                                  { to: '/about', label: t('nav.about'), icon: Users },
-                                  { to: '/team', label: t('nav.team', 'Ekibimiz'), icon: Users },
-                                  { to: '/contact', label: t('nav.contact'), icon: MessageSquare }
-                                ].map((item, index) => (
-                                  <Link
-                                    key={index}
-                                    to={getRouteForLanguage(item.to, language)}
-                                    className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl active:scale-[0.98] active:bg-slate-50 dark:active:bg-white/10 transition-all border border-slate-100 dark:border-white/5"
-                                    onClick={() => {
-                                      setIsOpen(false);
-                                      setMobileCorporateOpen(false);
-                                      scrollToTop();
-                                    }}
-                                  >
-                                    <item.icon className="w-4 h-4 text-amber-500" />
-                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{item.label}</span>
-                                  </Link>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-
-                      {/* Blog Link */}
-                      {language !== 'en' && (
-                        <Link
-                          to={getRouteForLanguage('/blog', language)}
-                          className="flex items-center justify-between px-4 py-4 min-h-[56px] bg-slate-50 dark:bg-white/5 rounded-2xl active:scale-[0.98] active:bg-slate-100 dark:active:bg-white/10 transition-all border border-slate-200/50 dark:border-white/5"
-                          onClick={() => {
-                            setIsOpen(false);
-                            scrollToTop();
-                          }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
-                              <FileText className="w-5 h-5 text-green-500" />
-                            </div>
-                            <span className="font-semibold text-slate-900 dark:text-white">{t('nav.blog')}</span>
-                          </div>
-                          <ArrowRight className="w-5 h-5 text-slate-400" />
-                        </Link>
-                      )}
-                    </div>
-
-                    {/* Divider */}
-                    <div className="h-px bg-slate-200 dark:bg-white/10" />
-
-                    {/* Settings Row - Language & Theme */}
-                    <div className="flex gap-3">
-                      <button
-                        onClick={toggleLanguage}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-slate-100 dark:bg-white/5 rounded-xl active:scale-[0.98] transition-all"
-                      >
-                        <Globe className="w-5 h-5 text-primary" />
-                        <span className="font-semibold text-slate-700 dark:text-slate-200">
-                          {language === 'tr' ? 'EN' : 'TR'}
-                        </span>
-                      </button>
-                      <button
-                        onClick={toggleTheme}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-slate-100 dark:bg-white/5 rounded-xl active:scale-[0.98] transition-all"
-                      >
-                        {theme === 'dark' ? (
-                          <>
-                            <Sun className="w-5 h-5 text-yellow-500" />
-                            <span className="font-semibold text-slate-700 dark:text-slate-200">{t('nav.lightTheme', 'Açık')}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Moon className="w-5 h-5 text-slate-700" />
-                            <span className="font-semibold text-slate-700 dark:text-slate-200">{t('nav.darkTheme', 'Koyu')}</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Free Consultation CTA - En altta */}
-                    <div className="bg-gradient-to-br from-primary/10 to-purple-500/10 dark:from-primary/20 dark:to-purple-500/20 rounded-2xl p-5 border border-primary/20">
-                      <div className="text-center space-y-3">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                          <Calendar className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                            {t('nav.getFreeReport', 'Ücretsiz Dijital Analiz')}
-                          </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            {t('nav.freeConsultation', 'Web sitenizi analiz edelim')}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setIsOpen(false);
-                            setIsCalendlyOpen(true);
-                          }}
-                          className="w-full flex items-center justify-center gap-2 px-5 py-3.5 min-h-[52px] bg-primary hover:bg-primary-dark text-white rounded-xl active:scale-[0.98] transition-all font-bold shadow-lg shadow-primary/25"
-                        >
-                          <Calendar className="w-5 h-5" />
-                          <span>{t('nav.scheduleConsultation', 'Randevu Al')}</span>
-                        </button>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </div>
-
-      <CalendlyModal isOpen={isCalendlyOpen} onClose={() => setIsCalendlyOpen(false)} />
     </motion.nav>
+
+    {/* Mobile Menu - Outside navbar for proper z-index stacking */}
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 top-[64px] bg-white dark:bg-dark z-[100] md:hidden overflow-y-auto"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
+          <div className="px-4 py-6 pb-32">
+            <div className="space-y-4 max-w-lg mx-auto">
+              
+              {/* Quick Action Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  to={getRouteForLanguage('/project-request', language)}
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-primary text-white rounded-xl active:scale-[0.98] transition-all font-semibold shadow-lg shadow-primary/25"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Rocket className="w-5 h-5" />
+                  <span>{t('nav.getQuote')}</span>
+                </Link>
+                <Link
+                  to={getRouteForLanguage('/join', language)}
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white rounded-xl active:scale-[0.98] transition-all font-semibold"
+                  onClick={() => {
+                    setIsOpen(false);
+                    scrollToTop();
+                  }}
+                >
+                  <Users className="w-5 h-5" />
+                  <span>{t('nav.joinUs')}</span>
+                </Link>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-slate-200 dark:bg-white/10" />
+
+              {/* digitAll Services */}
+              <div className="rounded-2xl overflow-hidden bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
+                <button
+                  onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                  className="w-full px-4 py-4 min-h-[56px] flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="font-bold text-base">
+                      <span className="text-slate-900 dark:text-white">digit</span>
+                      <span className="text-primary">All</span>
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {mobileServicesOpen && (
+                  <div className="px-3 pb-3 grid grid-cols-2 gap-2">
+                    {digitAllServices.map((service, index) => (
+                      <Link
+                        key={index}
+                        to={service.path}
+                        className="flex items-center gap-2.5 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setMobileServicesOpen(false);
+                        }}
+                      >
+                        <service.icon className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{service.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Universities Link */}
+              <Link
+                to={getRouteForLanguage('/universities', language)}
+                className="flex items-center justify-between px-4 py-4 min-h-[56px] rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
+                    <Users className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <span className="font-semibold text-slate-900 dark:text-white">Üniversiteliler</span>
+                </div>
+                <ArrowRight className="w-5 h-5 text-slate-400" />
+              </Link>
+
+              {/* Digibot Link */}
+              <Link
+                to={getRouteForLanguage('/digibot', language)}
+                className="flex items-center justify-between px-4 py-4 min-h-[56px] rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
+                    <BrainCircuit className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <span className="font-semibold text-slate-900 dark:text-white">Digibot</span>
+                </div>
+                <ArrowRight className="w-5 h-5 text-slate-400" />
+              </Link>
+
+              {/* Kurumsal Accordion */}
+              <div className="rounded-2xl overflow-hidden bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
+                <button
+                  onClick={() => setMobileCorporateOpen(!mobileCorporateOpen)}
+                  className="w-full px-4 py-4 min-h-[56px] flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
+                      <Users className="w-5 h-5 text-amber-500" />
+                    </div>
+                    <span className="font-semibold text-slate-900 dark:text-white">Kurumsal</span>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${mobileCorporateOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {mobileCorporateOpen && (
+                  <div className="px-3 pb-3 space-y-2">
+                    <Link
+                      to={getRouteForLanguage('/about', language)}
+                      className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <FileText className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.about')}</span>
+                    </Link>
+                    <Link
+                      to={getRouteForLanguage('/team', language)}
+                      className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Users className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.team')}</span>
+                    </Link>
+                    <Link
+                      to={getRouteForLanguage('/portfolio', language)}
+                      className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Palette className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.portfolio')}</span>
+                    </Link>
+                    <Link
+                      to={getRouteForLanguage('/contact', language)}
+                      className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <MessageSquare className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.contact')}</span>
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Blog Link */}
+              <Link
+                to={getRouteForLanguage('/blog', language)}
+                className="flex items-center justify-between px-4 py-4 min-h-[56px] rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5"
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-green-500" />
+                  </div>
+                  <span className="font-semibold text-slate-900 dark:text-white">Blog</span>
+                </div>
+                <ArrowRight className="w-5 h-5 text-slate-400" />
+              </Link>
+
+              {/* Divider */}
+              <div className="h-px bg-slate-200 dark:bg-white/10" />
+
+              {/* Language & Theme */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={toggleLanguage}
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-slate-100 dark:bg-white/5 rounded-xl"
+                >
+                  <Globe className="w-5 h-5 text-primary" />
+                  <span className="font-semibold text-slate-900 dark:text-white">{language === 'tr' ? 'EN' : 'TR'}</span>
+                </button>
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-slate-100 dark:bg-white/5 rounded-xl"
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="w-5 h-5 text-yellow-400" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-slate-700" />
+                  )}
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {theme === 'dark' ? 'Aydınlık Tema' : 'Karanlık Tema'}
+                  </span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    <CalendlyModal isOpen={isCalendlyOpen} onClose={() => setIsCalendlyOpen(false)} />
+  </>
   );
 };
 
