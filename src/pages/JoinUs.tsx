@@ -31,6 +31,7 @@ import { useRecaptcha } from '../hooks/useRecaptcha';
 import Navbar from '../components/Navbar';
 import { CalendlyModal } from '../components/modals/CalendlyModal';
 import { trackFormSubmission, trackLeadGeneration } from '../lib/analytics';
+import { trackLead, trackFormSubmit, trackConversion } from '../lib/gtm';
 
 /* -------------------------------
    VALIDATION HELPERS
@@ -315,6 +316,15 @@ const JoinUs = () => {
         expertise_count: formData.mainExpertise.length,
         location_type: formData.locationType,
       });
+      
+      // GTM DataLayer: Track for Meta Pixel & Google Ads
+      trackFormSubmit('joinus_form', 'Freelancer Application', true);
+      trackLead('joinus', {
+        lead_type: 'freelancer_application',
+        expertise_count: formData.mainExpertise.length,
+        location_type: formData.locationType,
+      });
+      trackConversion('freelancer_signup');
     } catch (err: any) {
       console.error('Form submission error:', err);
       setError(err.message || t('joinUs.error.submission', 'Başvuru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'));

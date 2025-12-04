@@ -31,6 +31,7 @@ import { useRecaptcha } from '../hooks/useRecaptcha';
 import Navbar from '../components/Navbar';
 import { CalendlyModal } from '../components/modals/CalendlyModal';
 import { trackFormSubmission, trackLeadGeneration } from '../lib/analytics';
+import { trackLead, trackFormSubmit, trackConversion } from '../lib/gtm';
 
 /* -----------------------------
    VALIDATION HELPERS
@@ -280,6 +281,16 @@ const ProjectRequest = () => {
         timeline: formData.timeline,
         has_brief: !!briefFile,
       });
+      
+      // GTM DataLayer: Track for Meta Pixel & Google Ads
+      trackFormSubmit('project_request_form', 'Project Request', true);
+      trackLead('project_request', {
+        lead_type: 'project_inquiry',
+        service_categories: formData.service_categories.join(','),
+        solution_type: formData.solution_type,
+        timeline: formData.timeline,
+      });
+      trackConversion('project_inquiry');
     } catch (err: any) {
       console.error('Form submission error:', err);
       setError(err.message || t('project_request.error.submission', 'Başvuru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'));

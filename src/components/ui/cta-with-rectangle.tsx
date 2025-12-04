@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Rocket } from "lucide-react";
 import { motion } from "framer-motion";
 import { trackCTAClick } from "@/lib/analytics";
+import { trackCTAClick as gtmTrackCTA } from "@/lib/gtm";
 
 function CTASection() {
   return (
@@ -56,6 +57,7 @@ function CTASection() {
               className="bg-primary hover:bg-primary-dark text-white w-full sm:w-auto sm:min-w-[180px] h-12 sm:h-14 text-base sm:text-lg shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 rounded-xl"
               onClick={() => {
                 trackCTAClick('start_project', 'cta_section', '/project-request');
+                gtmTrackCTA('start_project', 'Projeni Başlat', 'cta_section');
                 window.location.href = '/project-request';
               }}
             >
@@ -69,6 +71,7 @@ function CTASection() {
               style={{ backgroundColor: '#b370ab' }}
               onClick={() => {
                 trackCTAClick('join_us', 'cta_section', '/tr/bize-katil');
+                gtmTrackCTA('join_us', 'Bize Katıl', 'cta_section');
                 window.location.href = '/tr/bize-katil';
               }}
             >

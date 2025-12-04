@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Clock, Video, CheckCircle2, Sparkles, ChevronDown } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { trackCalendlyEvent } from '../../lib/analytics';
+import { trackCalendlyAction, trackConversion, trackLead } from '../../lib/gtm';
 
 interface CalendlyModalProps {
   isOpen: boolean;
@@ -121,6 +122,7 @@ export const CalendlyModal: React.FC<CalendlyModalProps> = ({ isOpen, onClose })
       
       // Analytics: Track modal open
       trackCalendlyEvent('modal_open', 'modal');
+      trackCalendlyAction('open');
       
       if (window.Calendly) {
         initCalendly();
@@ -137,6 +139,7 @@ export const CalendlyModal: React.FC<CalendlyModalProps> = ({ isOpen, onClose })
       if (isVisible) {
         // Analytics: Track modal close
         trackCalendlyEvent('modal_close', 'modal');
+        trackCalendlyAction('close');
       }
       setIsVisible(false);
       document.body.style.overflow = 'unset';
@@ -151,6 +154,11 @@ export const CalendlyModal: React.FC<CalendlyModalProps> = ({ isOpen, onClose })
     const handleCalendlyMessage = (e: MessageEvent) => {
       if (e.data.event === 'calendly.event_scheduled') {
         trackCalendlyEvent('meeting_scheduled', 'modal');
+        
+        // GTM DataLayer: Track for Meta Pixel & Google Ads - High value conversion!
+        trackCalendlyAction('scheduled');
+        trackConversion('meeting_scheduled', 100); // Assign value for ROI tracking
+        trackLead('calendly', { lead_type: 'meeting_scheduled' });
       }
     };
     window.addEventListener('message', handleCalendlyMessage);

@@ -9,6 +9,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useRecaptcha } from '../hooks/useRecaptcha';
 import { submitContactForm } from '../lib/api/contact';
 import { trackFormSubmission } from '../lib/analytics';
+import { trackContact, trackFormSubmit, trackLead } from '../lib/gtm';
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -64,6 +65,11 @@ const Contact = () => {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
         trackFormSubmission('contact', true);
+        
+        // GTM DataLayer: Track for Meta Pixel & Google Ads
+        trackFormSubmit('contact_form', 'Contact Form', true);
+        trackContact('form');
+        trackLead('contact', { lead_type: 'contact_inquiry' });
       } else {
         setErrorMessage(result.error || t('contact.error.generic', 'Bir hata oluştu. Lütfen tekrar deneyin.'));
         setSubmitStatus('error');
