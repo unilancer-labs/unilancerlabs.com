@@ -2,8 +2,20 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Sparkles, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../lib/config/supabase';
 
 const CONSENT_KEY = 'cookie_consent';
+const VISITOR_ID_KEY = 'visitor_id';
+
+// Get or create visitor ID
+const getVisitorId = (): string => {
+  let visitorId = localStorage.getItem(VISITOR_ID_KEY);
+  if (!visitorId) {
+    visitorId = 'v_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    localStorage.setItem(VISITOR_ID_KEY, visitorId);
+  }
+  return visitorId;
+};
 
 interface ConsentSettings {
   necessary: boolean;
@@ -82,23 +94,41 @@ export default function CookieConsent() {
     }
   };
 
-  const saveConsent = (consent: ConsentSettings) => {
+  // Save consent to Supabase
+  const saveConsentToDb = async (consent: ConsentSettings, type: 'all' | 'essential' | 'custom') => {
+    try {
+      await supabase.from('cookie_consents').insert({
+        visitor_id: getVisitorId(),
+        consent_type: type,
+        analytics_accepted: consent.analytics,
+        marketing_accepted: consent.marketing,
+        user_agent: navigator.userAgent,
+        page_url: window.location.href,
+        language: language,
+      });
+    } catch (error) {
+      console.error('Error saving cookie consent:', error);
+    }
+  };
+
+  const saveConsent = (consent: ConsentSettings, type: 'all' | 'essential' | 'custom' = 'custom') => {
     localStorage.setItem(CONSENT_KEY, JSON.stringify(consent));
     localStorage.setItem('cookie_consent_date', new Date().toISOString());
     applyConsent(consent);
+    saveConsentToDb(consent, type);
     setIsVisible(false);
   };
 
   const handleAcceptAll = () => {
-    saveConsent({ necessary: true, analytics: true, marketing: true });
+    saveConsent({ necessary: true, analytics: true, marketing: true }, 'all');
   };
 
   const handleRejectAll = () => {
-    saveConsent({ necessary: true, analytics: false, marketing: false });
+    saveConsent({ necessary: true, analytics: false, marketing: false }, 'essential');
   };
 
   const handleSaveSettings = () => {
-    saveConsent(settings);
+    saveConsent(settings, 'custom');
   };
 
   if (!isVisible) return null;

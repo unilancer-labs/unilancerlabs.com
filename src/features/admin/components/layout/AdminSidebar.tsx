@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, Users, LogOut, X, ChevronLeft, Briefcase,
-  Image, Globe
+  Image, Globe, Cookie
 } from 'lucide-react';
 import { signOut } from '../../../../lib/auth';
 
@@ -37,6 +37,11 @@ const sidebarLinks = [
     icon: Globe,
     label: 'Çeviriler',
     href: '/admin/translations'
+  },
+  {
+    icon: Cookie,
+    label: 'Çerez İstatistikleri',
+    href: '/admin/cookie-stats'
   }
 ];
 

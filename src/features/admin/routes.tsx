@@ -10,6 +10,7 @@ const PortfolioEditor = lazy(() => import('./portfolio/pages/PortfolioEditor'));
 const FreelancerList = lazy(() => import('./freelancers/pages/FreelancerList'));
 const ProjectRequestsPage = lazy(() => import('./project-requests/pages/ProjectRequestsPage'));
 const TranslationManager = lazy(() => import('./translations/pages/TranslationManager'));
+const CookieStatsPage = lazy(() => import('./pages/CookieStatsPage'));
 
 const AdminRoutes = () => {
   return (
@@ -34,8 +35,11 @@ const AdminRoutes = () => {
       {/* Project Requests routes */}
       <Route path="/project-requests" element={<ProjectRequestsPage />} />
 
-      {/* Translation Management routes */}
+/* Translation Management routes */
       <Route path="/translations" element={<TranslationManager />} />
+
+      {/* Cookie Stats routes */}
+      <Route path="/cookie-stats" element={<CookieStatsPage />} />
 
       {/* Fallback redirect */}
       <Route path="*" element={<Navigate to="/admin/blog" replace />} />
