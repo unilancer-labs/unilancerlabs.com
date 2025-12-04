@@ -8,6 +8,7 @@ import { PrivacyTermsProvider } from './components/ui/modals/privacy-terms-provi
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import SiteLayout from './components/layout/SiteLayout';
+import CookieConsent from './components/CookieConsent';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
@@ -80,6 +81,7 @@ function App() {
             <LanguageProvider>
               <PrivacyTermsProvider>
                 <ScrollToTop />
+                <CookieConsent />
               <div className="min-h-screen bg-white dark:bg-dark text-slate-900 dark:text-white font-sans transition-colors duration-300">
                 <Suspense fallback={<PageLoader />}>
                   <Routes>

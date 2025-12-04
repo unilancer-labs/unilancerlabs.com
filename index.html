@@ -61,11 +61,37 @@
     <!-- Model Viewer for 3D/AR -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
     
-    <!-- Google Analytics 4 -->
+    <!-- Google Analytics 4 with Consent Mode -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-5H0G6D2CFE"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      
+      // Default consent - deny until user accepts
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'wait_for_update': 500
+      });
+      
+      // Check for existing consent
+      (function() {
+        try {
+          var consent = localStorage.getItem('cookie_consent');
+          if (consent) {
+            var parsed = JSON.parse(consent);
+            gtag('consent', 'update', {
+              'analytics_storage': parsed.analytics ? 'granted' : 'denied',
+              'ad_storage': parsed.marketing ? 'granted' : 'denied',
+              'ad_user_data': parsed.marketing ? 'granted' : 'denied',
+              'ad_personalization': parsed.marketing ? 'granted' : 'denied'
+            });
+          }
+        } catch(e) {}
+      })();
+      
       gtag('js', new Date());
       gtag('config', 'G-5H0G6D2CFE', { send_page_view: false });
     </script>
