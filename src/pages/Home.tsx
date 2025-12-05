@@ -283,12 +283,70 @@ const Home = () => {
             "@context": "https://schema.org",
             "@type": "WebSite",
             "name": "Unilancer",
+            "alternateName": "Unilancer Labs",
             "url": "https://unilancer.co",
+            "description": seoDescription,
+            "inLanguage": ["tr-TR", "en-US"],
             "potentialAction": {
               "@type": "SearchAction",
-              "target": "https://unilancer.co/search?q={search_term_string}",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://unilancer.co/tr/blog?search={search_term_string}"
+              },
               "query-input": "required name=search_term_string"
             }
+          })}
+        </script>
+
+        {/* SiteNavigationElement Schema for Sitelinks */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": [
+              {
+                "@type": "SiteNavigationElement",
+                "position": 1,
+                "name": currentLang === 'tr' ? "Hizmetler" : "Services",
+                "description": currentLang === 'tr' ? "Web tasarım, yazılım, 3D/AR, e-ticaret ve dijital pazarlama hizmetleri" : "Web design, software, 3D/AR, e-commerce and digital marketing services",
+                "url": `https://unilancer.co/${currentLang}/${currentLang === 'tr' ? 'hizmetler' : 'services'}`
+              },
+              {
+                "@type": "SiteNavigationElement",
+                "position": 2,
+                "name": currentLang === 'tr' ? "Hakkımızda" : "About Us",
+                "description": currentLang === 'tr' ? "Unilancer hakkında bilgi edinin" : "Learn about Unilancer",
+                "url": `https://unilancer.co/${currentLang}/${currentLang === 'tr' ? 'hakkimizda' : 'about'}`
+              },
+              {
+                "@type": "SiteNavigationElement",
+                "position": 3,
+                "name": "Blog",
+                "description": currentLang === 'tr' ? "Dijital dünya hakkında içerikler" : "Content about the digital world",
+                "url": `https://unilancer.co/${currentLang}/blog`
+              },
+              {
+                "@type": "SiteNavigationElement",
+                "position": 4,
+                "name": currentLang === 'tr' ? "Portfolyo" : "Portfolio",
+                "description": currentLang === 'tr' ? "Tamamladığımız projeler" : "Our completed projects",
+                "url": `https://unilancer.co/${currentLang}/${currentLang === 'tr' ? 'portfolyo' : 'portfolio'}`
+              },
+              {
+                "@type": "SiteNavigationElement",
+                "position": 5,
+                "name": currentLang === 'tr' ? "İletişim" : "Contact",
+                "description": currentLang === 'tr' ? "Bizimle iletişime geçin" : "Get in touch with us",
+                "url": `https://unilancer.co/${currentLang}/${currentLang === 'tr' ? 'iletisim' : 'contact'}`
+              },
+              {
+                "@type": "SiteNavigationElement",
+                "position": 6,
+                "name": currentLang === 'tr' ? "Teklif Al" : "Get Quote",
+                "description": currentLang === 'tr' ? "Projeniz için ücretsiz teklif alın" : "Get a free quote for your project",
+                "url": `https://unilancer.co/${currentLang}/${currentLang === 'tr' ? 'teklif-al' : 'project-request'}`
+              }
+            ]
           })}
         </script>
       </Helmet>

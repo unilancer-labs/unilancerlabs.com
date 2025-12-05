@@ -5,6 +5,7 @@
   <!-- Turkish Pages -->
   <url>
     <loc>https://unilancer.co/tr</loc>
+    <lastmod>2025-12-05</lastmod>
     <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en"/>
     <changefreq>weekly</changefreq>
@@ -13,6 +14,7 @@
   
   <url>
     <loc>https://unilancer.co/tr/hakkimizda</loc>
+    <lastmod>2025-12-05</lastmod>
     <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr/hakkimizda"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en/about"/>
     <changefreq>monthly</changefreq>
@@ -21,6 +23,7 @@
   
   <url>
     <loc>https://unilancer.co/tr/hizmetler</loc>
+    <lastmod>2025-12-05</lastmod>
     <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr/hizmetler"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en/services"/>
     <changefreq>weekly</changefreq>
@@ -29,6 +32,7 @@
   
   <url>
     <loc>https://unilancer.co/tr/portfolyo</loc>
+    <lastmod>2025-12-05</lastmod>
     <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr/portfolyo"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en/portfolio"/>
     <changefreq>weekly</changefreq>
@@ -37,6 +41,7 @@
   
   <url>
     <loc>https://unilancer.co/tr/iletisim</loc>
+    <lastmod>2025-12-05</lastmod>
     <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr/iletisim"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en/contact"/>
     <changefreq>monthly</changefreq>
@@ -45,6 +50,7 @@
   
   <url>
     <loc>https://unilancer.co/tr/ekibimiz</loc>
+    <lastmod>2025-12-05</lastmod>
     <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr/ekibimiz"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en/team"/>
     <changefreq>monthly</changefreq>
@@ -84,8 +90,18 @@
   
   <url>
     <loc>https://unilancer.co/tr/teklif-al</loc>
+    <lastmod>2025-12-05</lastmod>
     <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr/teklif-al"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en/project-request"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://unilancer.co/tr/basvuru</loc>
+    <lastmod>2025-12-05</lastmod>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://unilancer.co/tr/basvuru"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://unilancer.co/en/join-us"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
