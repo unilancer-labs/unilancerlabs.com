@@ -177,7 +177,7 @@ export default function TeamSection({ limit }: { limit?: number }) {
         {
             name: 'Yusuf Pehlivan',
             role: 'Sosyal Medya Uzmanı',
-            avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/yusuf-pehlivan.webp',
+            avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/yusuf-pehlivan%20(1).webp',
             linkedin: 'https://www.linkedin.com/in/ypehlivan/',
             email: 'yusufpehlivan@unilancerlabs.com',
         },
