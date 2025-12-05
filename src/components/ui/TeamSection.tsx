@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Linkedin } from 'lucide-react';
+import { Linkedin, Mail } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import { memo } from 'react';
 
@@ -33,7 +33,7 @@ const SpiralArrow = memo(() => (
     </svg>
 ));
 
-const MemberCard = memo(({ member, index }: { member: { name: string; role: string; avatar: string; linkedin?: string }; index: number }) => (
+const MemberCard = memo(({ member, index }: { member: { name: string; role: string; avatar: string; linkedin?: string; email?: string }; index: number }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -48,16 +48,27 @@ const MemberCard = memo(({ member, index }: { member: { name: string; role: stri
                 className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
                 loading="lazy"
             />
-            {member.linkedin && (
-                <a 
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute bottom-3 right-3 p-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl text-slate-900 dark:text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg"
-                >
-                    <Linkedin size={18} />
-                </a>
-            )}
+            <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                {member.email && (
+                    <a 
+                        href={`mailto:${member.email}`}
+                        className="p-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl text-slate-900 dark:text-white hover:scale-110 transition-transform shadow-lg"
+                        title={member.email}
+                    >
+                        <Mail size={18} />
+                    </a>
+                )}
+                {member.linkedin && (
+                    <a 
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl text-slate-900 dark:text-white hover:scale-110 transition-transform shadow-lg"
+                    >
+                        <Linkedin size={18} />
+                    </a>
+                )}
+            </div>
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 tracking-tight">
             {member.name}
@@ -78,24 +89,28 @@ export default function TeamSection({ limit }: { limit?: number }) {
             role: 'CEO & Kurucu Ortak',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/emrah-er.webp',
             linkedin: 'https://www.linkedin.com/in/emrah-er-550b52228/',
+            email: 'emrah@unilancerlabs.com',
         },
         {
             name: 'Taha Karahüseyinoğlu',
             role: 'COO & Kurucu Ortak',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/taha-karahuseyinoglu.webp',
             linkedin: 'https://www.linkedin.com/in/taha-karahüseyinoğlu-324924214/',
+            email: 'taha@unilancerlabs.com',
         },
         {
             name: 'Koray Andırınlı',
             role: 'Program Yöneticisi & Kurucu Ortak',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/koray-andirinli.webp',
             linkedin: 'https://www.linkedin.com/in/koray-a-9aaa6822a/',
+            email: 'koray@unilancerlabs.com',
         },
         {
             name: 'Selvinaz Deniz Koca',
             role: 'CMO',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/selvinaz-deniz-koca.webp',
             linkedin: 'https://www.linkedin.com/in/selvinaz-deniz-koca/',
+            email: 'deniz@unilancerlabs.com',
         },
         // Team Members
         {
@@ -109,18 +124,21 @@ export default function TeamSection({ limit }: { limit?: number }) {
             role: 'İçerik ve İletişim Uzmanı',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/deniz-aytekin.webp',
             linkedin: 'https://www.linkedin.com/in/deniz-aytekin-283469216/',
+            email: 'denizaytekin@unilancerlabs.com',
         },
         {
             name: 'Dudunur Özdamar',
             role: 'İş Geliştirme Uzmanı',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/dudunur-ozdamar.webp',
             linkedin: 'https://www.linkedin.com/in/dudunur-özdamar-6348a122b/',
+            email: 'dudu@unilancerlabs.com',
         },
         {
             name: 'Muhammed Berkhan Karlık',
             role: 'Satış Sorumlusu',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/muhammed-berkhan-karlik.webp',
             linkedin: 'https://www.linkedin.com/in/muhammed-berkhan-karlık-191079327/',
+            email: 'berkhamkarlik@unilancerlabs.com',
         },
         {
             name: 'Muhammed Sergen Çetintürk',
@@ -133,30 +151,35 @@ export default function TeamSection({ limit }: { limit?: number }) {
             role: 'Yapay Zeka ve Otomasyon Mühendisi',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/omer-cetin.webp',
             linkedin: 'https://www.linkedin.com/in/ömer-çetin-77a864240/',
+            email: 'omercetin@unilancerlabs.com',
         },
         {
             name: 'Rabia Fidan',
             role: 'Web Geliştirici',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/rabia-fidan.webp',
             linkedin: 'https://www.linkedin.com/in/rabia-fidan-695a3a275/',
+            email: 'rabiafidan@unilancerlabs.com',
         },
         {
             name: 'Salih Cesur',
             role: 'Web Geliştirici',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/salih-cesur.webp',
             linkedin: 'https://www.linkedin.com/in/salih-cesur-461a14332/',
+            email: 'salihcesur@unilancerlabs.com',
         },
         {
             name: 'Tanya Polat',
             role: 'Yapay Zeka ve Otomasyon Geliştirici',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/tanya-polat.webp',
             linkedin: 'https://www.linkedin.com/in/tanya-polat-546a53321/',
+            email: 'tanya@unilancerlabs.com',
         },
         {
             name: 'Yusuf Pehlivan',
             role: 'Sosyal Medya Uzmanı',
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/yusuf-pehlivan.webp',
             linkedin: 'https://www.linkedin.com/in/ypehlivan/',
+            email: 'yusufpehlivan@unilancerlabs.com',
         },
     ];
 
