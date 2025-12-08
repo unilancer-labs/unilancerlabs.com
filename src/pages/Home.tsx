@@ -25,7 +25,35 @@ import { ServiceCarousel, type Service } from "../components/ui/core/services-ca
 import { CTASection } from "../components/ui/cta-with-rectangle";
 import { FaqSection } from "../components/ui/sections/faq-section";
 import { WhyUsSection } from "../components/ui/sections/why-us";
+import { AnimatedTestimonials } from "../components/ui/animated-testimonials";
 import { trackCTAClick } from "../lib/analytics";
+
+const getTestimonials = () => [
+  {
+    quote: "Unilancer ekibiyle çalışmak harika bir deneyimdi. Web sitemizi modern ve kullanıcı dostu bir şekilde yeniden tasarladılar.",
+    name: "Mehmet Yılmaz",
+    designation: "CEO, TechStart",
+    src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    quote: "E-ticaret projemizi zamanında ve bütçe dahilinde teslim ettiler. Satışlarımız %150 arttı!",
+    name: "Ayşe Kaya",
+    designation: "Kurucu, ModaStore",
+    src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    quote: "Yapay zeka chatbot çözümleri müşteri hizmetlerimizi tamamen dönüştürdü. Müşteri memnuniyetimiz %40 arttı.",
+    name: "Can Özdemir",
+    designation: "CTO, FinTech Solutions",
+    src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=500&auto=format&fit=crop",
+  },
+  {
+    quote: "3D ve AR deneyimleri ile ürün kataloğumuzu hayata geçirdik. Müşterilerimiz artık ürünleri evlerinde deneyimleyebiliyor.",
+    name: "Zeynep Demir",
+    designation: "Pazarlama Direktörü, MobilyaPlus",
+    src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=500&auto=format&fit=crop",
+  },
+];
 
 const getAudience = () => [
   {
@@ -60,6 +88,7 @@ const getAudience = () => [
 const Home = () => {
   const { t } = useTranslation();
   const audience = getAudience();
+  const testimonials = getTestimonials();
   const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
   
   // Analytics: Track scroll depth
@@ -537,6 +566,9 @@ const Home = () => {
             </div>
           </div>
         </section>
+
+        {/* MÜŞTERİ YORUMLARI - TESTIMONIALS */}
+        <AnimatedTestimonials testimonials={testimonials} autoplay />
 
         {/* NEDEN UNILANCER - MODERN BENTO GRID */}
         <WhyUsSection />
