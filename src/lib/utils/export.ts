@@ -550,3 +550,392 @@ export function formatStatusForExport(status: string): string {
   };
   return statusMap[status] || status;
 }
+
+// Export Digital Analysis Report to PDF
+export function exportAnalysisReportToPDF(
+  companyName: string,
+  websiteUrl: string,
+  digitalScore: number | undefined,
+  analysisResult: any
+): void {
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    alert('Pop-up engelleyici aktif olabilir. Lütfen pop-up\'lara izin verin.');
+    return;
+  }
+
+  const currentDate = new Date().toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  // Build scores section
+  let scoresHtml = '';
+  if (analysisResult.scores) {
+    scoresHtml = '<div class="scores-grid">';
+    Object.entries(analysisResult.scores).forEach(([key, value]) => {
+      if (key !== 'overall' && typeof value === 'number') {
+        const scoreClass = value >= 80 ? 'score-high' : value >= 60 ? 'score-medium' : 'score-low';
+        scoresHtml += `
+          <div class="score-card ${scoreClass}">
+            <div class="score-value">${value}</div>
+            <div class="score-label">${key.replace(/_/g, ' ')}</div>
+          </div>
+        `;
+      }
+    });
+    scoresHtml += '</div>';
+  }
+
+  // Build recommendations section
+  let recommendationsHtml = '';
+  if (analysisResult.recommendations && analysisResult.recommendations.length > 0) {
+    recommendationsHtml = '<div class="recommendations">';
+    analysisResult.recommendations.forEach((rec: any, index: number) => {
+      const priorityClass = rec.priority === 'high' ? 'priority-high' : rec.priority === 'medium' ? 'priority-medium' : 'priority-low';
+      recommendationsHtml += `
+        <div class="recommendation-item">
+          <div class="recommendation-header">
+            <h4>${index + 1}. ${escapeHtml(rec.title)}</h4>
+            <span class="priority-badge ${priorityClass}">${rec.priority === 'high' ? 'Yüksek' : rec.priority === 'medium' ? 'Orta' : 'Düşük'}</span>
+          </div>
+          <p>${escapeHtml(rec.description)}</p>
+          ${rec.impact || rec.effort ? `
+            <div class="recommendation-meta">
+              ${rec.impact ? `<span><strong>Etki:</strong> ${escapeHtml(rec.impact)}</span>` : ''}
+              ${rec.effort ? `<span><strong>Efor:</strong> ${escapeHtml(rec.effort)}</span>` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+    recommendationsHtml += '</div>';
+  }
+
+  // Build insights section
+  let insightsHtml = '';
+  if (analysisResult.insights && analysisResult.insights.length > 0) {
+    insightsHtml = '<div class="insights">';
+    analysisResult.insights.forEach((insight: any) => {
+      const typeClass = insight.type === 'positive' ? 'insight-positive' : insight.type === 'negative' ? 'insight-negative' : 'insight-neutral';
+      insightsHtml += `
+        <div class="insight-item ${typeClass}">
+          <h4>${escapeHtml(insight.title)}</h4>
+          <p>${escapeHtml(insight.description)}</p>
+        </div>
+      `;
+    });
+    insightsHtml += '</div>';
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Dijital Analiz Raporu - ${escapeHtml(companyName)}</title>
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          padding: 40px;
+          color: #333;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 3px solid #5FC8DA;
+        }
+        .logo {
+          font-size: 28px;
+          font-weight: bold;
+          color: #5FC8DA;
+        }
+        .date {
+          color: #666;
+          font-size: 11px;
+        }
+        .title-section {
+          text-align: center;
+          margin-bottom: 40px;
+          padding: 30px;
+          background: linear-gradient(135deg, #5FC8DA 0%, #4AB3C5 100%);
+          color: white;
+          border-radius: 12px;
+        }
+        .title-section h1 {
+          font-size: 28px;
+          margin-bottom: 10px;
+        }
+        .title-section .company {
+          font-size: 18px;
+          opacity: 0.95;
+          margin-bottom: 5px;
+        }
+        .title-section .url {
+          font-size: 12px;
+          opacity: 0.8;
+        }
+        .overall-score {
+          text-align: center;
+          margin: 40px 0;
+          padding: 30px;
+          background: #f8f9fa;
+          border-radius: 12px;
+          border: 2px solid #e0e0e0;
+        }
+        .overall-score .label {
+          font-size: 14px;
+          color: #666;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-bottom: 10px;
+        }
+        .overall-score .value {
+          font-size: 72px;
+          font-weight: bold;
+          color: #5FC8DA;
+          line-height: 1;
+        }
+        .section {
+          margin-bottom: 40px;
+          page-break-inside: avoid;
+        }
+        .section-title {
+          font-size: 18px;
+          color: #1a1a1a;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #5FC8DA;
+          font-weight: 600;
+        }
+        .executive-summary {
+          background: #f8f9fa;
+          padding: 20px;
+          border-radius: 8px;
+          border-left: 4px solid #5FC8DA;
+          margin-bottom: 30px;
+        }
+        .scores-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin: 20px 0;
+        }
+        .score-card {
+          text-align: center;
+          padding: 20px;
+          border-radius: 8px;
+          border: 2px solid #e0e0e0;
+        }
+        .score-card.score-high {
+          background: #e8f5e9;
+          border-color: #4caf50;
+        }
+        .score-card.score-medium {
+          background: #fff8e1;
+          border-color: #ffc107;
+        }
+        .score-card.score-low {
+          background: #ffebee;
+          border-color: #f44336;
+        }
+        .score-value {
+          font-size: 36px;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        .score-card.score-high .score-value {
+          color: #4caf50;
+        }
+        .score-card.score-medium .score-value {
+          color: #ffc107;
+        }
+        .score-card.score-low .score-value {
+          color: #f44336;
+        }
+        .score-label {
+          font-size: 11px;
+          text-transform: capitalize;
+          color: #666;
+        }
+        .recommendations {
+          margin: 20px 0;
+        }
+        .recommendation-item {
+          background: white;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          padding: 15px;
+          margin-bottom: 15px;
+        }
+        .recommendation-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: start;
+          margin-bottom: 10px;
+        }
+        .recommendation-header h4 {
+          color: #1a1a1a;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .priority-badge {
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+        .priority-high {
+          background: #ffebee;
+          color: #c62828;
+        }
+        .priority-medium {
+          background: #fff8e1;
+          color: #f57c00;
+        }
+        .priority-low {
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+        .recommendation-item p {
+          color: #555;
+          font-size: 12px;
+          margin-bottom: 8px;
+        }
+        .recommendation-meta {
+          display: flex;
+          gap: 15px;
+          font-size: 11px;
+          color: #888;
+        }
+        .insights {
+          margin: 20px 0;
+        }
+        .insight-item {
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 15px;
+          border-left: 4px solid;
+        }
+        .insight-positive {
+          background: #e8f5e9;
+          border-color: #4caf50;
+        }
+        .insight-negative {
+          background: #ffebee;
+          border-color: #f44336;
+        }
+        .insight-neutral {
+          background: #e3f2fd;
+          border-color: #2196f3;
+        }
+        .insight-item h4 {
+          font-size: 13px;
+          margin-bottom: 5px;
+          color: #1a1a1a;
+        }
+        .insight-item p {
+          font-size: 12px;
+          color: #555;
+        }
+        .footer {
+          margin-top: 60px;
+          padding-top: 20px;
+          border-top: 2px solid #e0e0e0;
+          text-align: center;
+          color: #999;
+          font-size: 10px;
+        }
+        @media print {
+          body {
+            padding: 20px;
+          }
+          .section {
+            page-break-inside: avoid;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="logo">UNILANCER</div>
+        <div class="date">Rapor Tarihi: ${currentDate}</div>
+      </div>
+      
+      <div class="title-section">
+        <h1>Dijital Analiz Raporu</h1>
+        <div class="company">${escapeHtml(companyName)}</div>
+        <div class="url">${escapeHtml(websiteUrl)}</div>
+      </div>
+
+      ${digitalScore !== undefined ? `
+        <div class="overall-score">
+          <div class="label">Genel Dijital Skor</div>
+          <div class="value">${digitalScore}</div>
+        </div>
+      ` : ''}
+
+      ${analysisResult.executive_summary ? `
+        <div class="section">
+          <h2 class="section-title">Yönetici Özeti</h2>
+          <div class="executive-summary">
+            ${escapeHtml(analysisResult.executive_summary).replace(/\n/g, '<br>')}
+          </div>
+        </div>
+      ` : ''}
+
+      ${scoresHtml ? `
+        <div class="section">
+          <h2 class="section-title">Detaylı Skorlar</h2>
+          ${scoresHtml}
+        </div>
+      ` : ''}
+
+      ${recommendationsHtml ? `
+        <div class="section">
+          <h2 class="section-title">Öneriler</h2>
+          ${recommendationsHtml}
+        </div>
+      ` : ''}
+
+      ${insightsHtml ? `
+        <div class="section">
+          <h2 class="section-title">İçgörüler</h2>
+          ${insightsHtml}
+        </div>
+      ` : ''}
+
+      <div class="footer">
+        Bu rapor Unilancer AI destekli dijital analiz sistemi tarafından otomatik olarak oluşturulmuştur.<br>
+        © ${new Date().getFullYear()} Unilancer - Tüm hakları saklıdır.
+      </div>
+      
+      <script>
+        window.onload = function() {
+          window.print();
+          window.onafterprint = function() {
+            window.close();
+          };
+        };
+      </script>
+    </body>
+    </html>
+  `;
+
+  printWindow.document.write(html);
+  printWindow.document.close();
+}

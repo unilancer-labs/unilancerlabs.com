@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, Users, LogOut, X, ChevronLeft, Briefcase,
-  Image, Globe, Cookie, LayoutDashboard
+  Image, Globe, Cookie, LayoutDashboard, Brain
 } from 'lucide-react';
 import { signOut } from '../../../../lib/auth';
 
@@ -31,6 +31,11 @@ const sidebarLinks = [
     icon: Briefcase,
     label: 'Proje Talepleri',
     href: '/admin/project-requests'
+  },
+  {
+    icon: Brain,
+    label: 'Dijital Analiz',
+    href: '/admin/digital-analysis'
   },
   {
     icon: FileText,

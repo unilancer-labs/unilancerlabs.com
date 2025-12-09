@@ -15,6 +15,7 @@ const ProjectRequestsPage = lazy(() => import('./project-requests/pages/ProjectR
 const ProjectRequestDetailPage = lazy(() => import('./project-requests/pages/ProjectRequestDetailPage'));
 const TranslationManager = lazy(() => import('./translations/pages/TranslationManager'));
 const CookieStatsPage = lazy(() => import('./pages/CookieStatsPage'));
+const DigitalAnalysisPage = lazy(() => import('./digital-analysis/pages/DigitalAnalysisPage'));
 
 const AdminRoutes = () => {
   return (
@@ -47,6 +48,9 @@ const AdminRoutes = () => {
 
       {/* Translation Management routes */}
       <Route path="/translations" element={<TranslationManager />} />
+
+      {/* Digital Analysis routes */}
+      <Route path="/digital-analysis" element={<DigitalAnalysisPage />} />
 
       {/* Cookie Stats routes */}
       <Route path="/cookie-stats" element={<CookieStatsPage />} />
