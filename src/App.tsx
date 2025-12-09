@@ -114,6 +114,7 @@ function App() {
                       <Route path="/tr/universiteliler" element={<Universities />} />
                       <Route path="/tr/digibot" element={<DigibotPage />} />
                       <Route path="/tr/dijital-analiz" element={<Demo />} />
+                      <Route path="/tr/demo" element={<Demo />} />
 
                       {/* English routes */}
                       <Route path="/en" element={<Home />} />
@@ -138,6 +139,7 @@ function App() {
                       <Route path="/en/universities" element={<Universities />} />
                       <Route path="/en/digibot" element={<DigibotPage />} />
                       <Route path="/en/digital-analysis" element={<Demo />} />
+                      <Route path="/en/demo" element={<Demo />} />
                     </Route>
 
                     {/* Form routes without navbar/footer */}
