@@ -68,8 +68,14 @@ serve(async (req) => {
     // Build messages array
     const messages: ChatMessage[] = [];
 
-    // System prompt - use custom or default
-    const systemPrompt = config.systemPrompt || buildDefaultSystemPrompt(reportContext);
+    // System prompt - use custom JSON or default
+    let systemPrompt: string;
+    if (config.systemPrompt) {
+      // Custom prompt - parse if JSON format
+      systemPrompt = parseJsonSystemPrompt(config.systemPrompt, reportContext);
+    } else {
+      systemPrompt = buildDefaultSystemPrompt(reportContext);
+    }
     messages.push({ role: 'system', content: systemPrompt });
 
     // Add history
@@ -190,6 +196,76 @@ serve(async (req) => {
     );
   }
 });
+
+// JSON formatındaki system prompt'u okunabilir formata dönüştür
+function parseJsonSystemPrompt(jsonPrompt: string, reportContext?: string): string {
+  try {
+    const config = JSON.parse(jsonPrompt);
+    
+    let prompt = '';
+    
+    // Identity
+    if (config.identity) {
+      prompt += `## KİMLİK\n`;
+      prompt += `- İsim: ${config.identity.name || 'DigiBot'}\n`;
+      prompt += `- Rol: ${config.identity.role || 'Dijital Asistan'}\n`;
+      prompt += `- Kişilik: ${config.identity.personality || 'Profesyonel'}\n\n`;
+    }
+    
+    // Company
+    if (config.company) {
+      prompt += `## ŞİRKET\n`;
+      prompt += `- ${config.company.name}: ${config.company.description || ''}\n`;
+      if (config.company.website) prompt += `- Website: ${config.company.website}\n`;
+      if (config.company.contact?.email) prompt += `- Email: ${config.company.contact.email}\n`;
+      prompt += '\n';
+    }
+    
+    // Services
+    if (config.services && Array.isArray(config.services)) {
+      prompt += `## HİZMETLER\n`;
+      config.services.forEach((s: any) => {
+        prompt += `• ${s.name}: ${s.priceRange}${s.duration ? ` (${s.duration})` : ''}\n`;
+      });
+      prompt += '\n';
+    }
+    
+    // Tasks
+    if (config.tasks && Array.isArray(config.tasks)) {
+      prompt += `## GÖREVLER\n`;
+      config.tasks.forEach((t: string, i: number) => {
+        prompt += `${i + 1}. ${t}\n`;
+      });
+      prompt += '\n';
+    }
+    
+    // Response Rules
+    if (config.responseRules) {
+      const r = config.responseRules;
+      prompt += `## YANIT KURALLARI\n`;
+      if (r.language) prompt += `- Dil: ${r.language}\n`;
+      if (r.tone) prompt += `- Ton: ${r.tone}\n`;
+      if (r.maxLength) prompt += `- Max uzunluk: ${r.maxLength}\n`;
+      if (r.format) prompt += `- Format: ${r.format}\n`;
+      if (r.mustInclude?.length) prompt += `- İçermeli: ${r.mustInclude.join(', ')}\n`;
+      if (r.avoid?.length) prompt += `- Kaçınılacak: ${r.avoid.join(', ')}\n`;
+      prompt += '\n';
+    }
+    
+    // Context Instructions
+    if (config.contextInstructions) {
+      prompt += `## TALİMATLAR\n${config.contextInstructions}\n\n`;
+    }
+    
+    // Report Context
+    prompt += `## RAPOR BAĞLAMI\n${reportContext || 'Rapor bilgisi yüklenmedi.'}\n`;
+    
+    return prompt;
+  } catch (e) {
+    // JSON parse başarısız olursa direkt kullan (eski format)
+    return jsonPrompt + `\n\n## RAPOR BAĞLAMI\n${reportContext || 'Rapor bilgisi yüklenmedi.'}`;
+  }
+}
 
 function buildDefaultSystemPrompt(reportContext?: string): string {
   return `Sen DigiBot'sun - Unilancer Labs'ın yapay zeka destekli dijital analiz asistanısın.

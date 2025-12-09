@@ -16,7 +16,10 @@ import {
   Zap,
   Brain,
   Copy,
-  Check
+  Check,
+  Code,
+  Minimize2,
+  FileJson
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '../../../../lib/config/supabase';
@@ -33,26 +36,47 @@ interface AIConfig {
   updated_at: string;
 }
 
-const DEFAULT_SYSTEM_PROMPT = `Sen Unilancer Labs'ın dijital asistanı DigiBot'sun. Şirketlere dijital dönüşüm yolculuklarında yardımcı oluyorsun.
-
-Görevlerin:
-1. Dijital analiz raporlarını açıklamak
-2. Dijital skorları yorumlamak
-3. İyileştirme önerileri sunmak
-4. Unilancer Labs hizmetleri hakkında bilgi vermek
-
-Unilancer Labs Hizmetleri:
-- Web Tasarım & Geliştirme (5.000₺ - 50.000₺+)
-- Dijital Pazarlama & SEO (3.000₺/ay - 15.000₺/ay)
-- Sosyal Medya Yönetimi (2.500₺/ay - 10.000₺/ay)
-- Marka Kimliği Tasarımı (4.000₺ - 25.000₺)
-- E-Ticaret Çözümleri (15.000₺ - 100.000₺+)
-
-Yanıt Kuralları:
-- Türkçe yanıt ver
-- Samimi ama profesyonel ol
-- Somut öneriler sun
-- Maksimum 200 kelime`;
+// JSON yapılı system prompt - daha organize ve AI için daha anlaşılır
+const DEFAULT_SYSTEM_PROMPT = JSON.stringify({
+  identity: {
+    name: "DigiBot",
+    role: "Unilancer Labs Dijital Asistan",
+    personality: "Samimi, profesyonel, çözüm odaklı"
+  },
+  company: {
+    name: "Unilancer Labs",
+    description: "Dijital dönüşüm ve yazılım çözümleri sunan teknoloji şirketi",
+    website: "unilancerlabs.com",
+    contact: {
+      email: "info@unilancerlabs.com",
+      phone: "+90 xxx xxx xx xx"
+    }
+  },
+  services: [
+    { name: "Web Tasarım & Geliştirme", priceRange: "5.000₺ - 50.000₺+", duration: "2-8 hafta" },
+    { name: "Dijital Pazarlama & SEO", priceRange: "3.000₺/ay - 15.000₺/ay", duration: "Aylık" },
+    { name: "Sosyal Medya Yönetimi", priceRange: "2.500₺/ay - 10.000₺/ay", duration: "Aylık" },
+    { name: "Marka Kimliği Tasarımı", priceRange: "4.000₺ - 25.000₺", duration: "2-4 hafta" },
+    { name: "E-Ticaret Çözümleri", priceRange: "15.000₺ - 100.000₺+", duration: "4-12 hafta" },
+    { name: "Mobil Uygulama", priceRange: "30.000₺ - 150.000₺+", duration: "8-16 hafta" }
+  ],
+  tasks: [
+    "Dijital analiz raporlarını açıklamak ve yorumlamak",
+    "Dijital skorları detaylı analiz etmek",
+    "Kişiselleştirilmiş iyileştirme önerileri sunmak",
+    "Unilancer Labs hizmetleri hakkında bilgi vermek",
+    "Potansiyel müşterileri yönlendirmek"
+  ],
+  responseRules: {
+    language: "Türkçe",
+    tone: "Samimi ama profesyonel",
+    maxLength: "200 kelime",
+    format: "Markdown destekli (bold, liste)",
+    mustInclude: ["Somut öneriler", "Aksiyon adımları"],
+    avoid: ["Teknik jargon", "Belirsiz ifadeler", "Rakip firmalardan bahsetme"]
+  },
+  contextInstructions: "Kullanıcının dijital analiz raporu bağlamında yanıt ver. Skoru düşük alanlar için öncelikli öneriler sun."
+}, null, 2);
 
 const AVAILABLE_MODELS = [
   { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Hızlı ve ekonomik', cost: '$' },
@@ -67,6 +91,7 @@ const AIConfigPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [jsonError, setJsonError] = useState<string | null>(null);
   
   // Form state
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
@@ -127,8 +152,56 @@ const AIConfigPage: React.FC = () => {
     setHasChanges(changed);
   }, [systemPrompt, model, temperature, maxTokens, isActive, config]);
 
+  // Validate JSON
+  const validateJson = (value: string): boolean => {
+    try {
+      JSON.parse(value);
+      setJsonError(null);
+      return true;
+    } catch (e: any) {
+      setJsonError(e.message);
+      return false;
+    }
+  };
+
+  // Handle system prompt change with validation
+  const handlePromptChange = (value: string) => {
+    setSystemPrompt(value);
+    validateJson(value);
+  };
+
+  // Format JSON
+  const handleFormatJson = () => {
+    try {
+      const parsed = JSON.parse(systemPrompt);
+      setSystemPrompt(JSON.stringify(parsed, null, 2));
+      setJsonError(null);
+      toast.success('JSON formatlandı');
+    } catch (e: any) {
+      toast.error('Geçersiz JSON - formatlama yapılamadı');
+    }
+  };
+
+  // Minify JSON
+  const handleMinifyJson = () => {
+    try {
+      const parsed = JSON.parse(systemPrompt);
+      setSystemPrompt(JSON.stringify(parsed));
+      setJsonError(null);
+      toast.success('JSON sıkıştırıldı');
+    } catch (e: any) {
+      toast.error('Geçersiz JSON - sıkıştırma yapılamadı');
+    }
+  };
+
   // Save config
   const handleSave = async () => {
+    // Validate JSON before saving
+    if (!validateJson(systemPrompt)) {
+      toast.error('Geçersiz JSON formatı - lütfen düzeltin');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const configData = {
@@ -254,37 +327,76 @@ const AIConfigPage: React.FC = () => {
           <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <MessageSquare className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <FileJson className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 dark:text-white">System Prompt</h3>
-                <p className="text-xs text-slate-500">AI'ın kişiliğini ve davranışını tanımlar</p>
+                <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                  System Prompt
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">JSON</span>
+                </h3>
+                <p className="text-xs text-slate-500">Yapılandırılmış AI konfigürasyonu</p>
               </div>
             </div>
-            <button
-              onClick={handleCopyPrompt}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              title="Kopyala"
-            >
-              {copied ? (
-                <Check className="w-4 h-4 text-emerald-500" />
-              ) : (
-                <Copy className="w-4 h-4 text-slate-400" />
-              )}
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleFormatJson}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                title="JSON Formatla"
+              >
+                <Code className="w-4 h-4 text-slate-400" />
+              </button>
+              <button
+                onClick={handleMinifyJson}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                title="JSON Sıkıştır"
+              >
+                <Minimize2 className="w-4 h-4 text-slate-400" />
+              </button>
+              <button
+                onClick={handleCopyPrompt}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                title="Kopyala"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <Copy className="w-4 h-4 text-slate-400" />
+                )}
+              </button>
+            </div>
           </div>
           <div className="p-4">
             <textarea
               value={systemPrompt}
-              onChange={(e) => setSystemPrompt(e.target.value)}
-              rows={16}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none font-mono"
-              placeholder="System prompt yazın..."
+              onChange={(e) => handlePromptChange(e.target.value)}
+              rows={20}
+              className={`w-full px-4 py-3 bg-slate-900 dark:bg-slate-950 border rounded-xl text-sm text-emerald-400 dark:text-emerald-300 placeholder-slate-500 focus:outline-none focus:ring-2 resize-none font-mono leading-relaxed ${
+                jsonError 
+                  ? 'border-red-500 focus:ring-red-500/50' 
+                  : 'border-slate-700 focus:ring-primary/50'
+              }`}
+              placeholder='{"identity": {...}, "services": [...], ...}'
+              spellCheck={false}
             />
-            <p className="mt-2 text-xs text-slate-500 flex items-center gap-1">
-              <Info className="w-3 h-3" />
-              {systemPrompt.length} karakter • Prompt ne kadar detaylı olursa AI o kadar iyi yanıt verir
-            </p>
+            {/* JSON Status */}
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {jsonError ? (
+                  <span className="flex items-center gap-1.5 text-xs text-red-500">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    JSON Hatası: {jsonError.slice(0, 50)}...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-xs text-emerald-500">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Geçerli JSON
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-slate-500">
+                {systemPrompt.length} karakter
+              </span>
+            </div>
           </div>
         </div>
 
