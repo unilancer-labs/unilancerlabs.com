@@ -52,6 +52,34 @@ ON CONFLICT (id) DO NOTHING;
 -- ==========================================
 -- 3. Enhance report_chat_conversations table
 -- ==========================================
+
+-- Ensure RLS is properly configured for insert
+ALTER TABLE report_chat_conversations ENABLE ROW LEVEL SECURITY;
+
+-- Allow service role to insert (for edge functions)
+DROP POLICY IF EXISTS "Service role full access" ON report_chat_conversations;
+CREATE POLICY "Service role full access" ON report_chat_conversations
+  FOR ALL TO service_role
+  USING (true) WITH CHECK (true);
+
+-- Allow anon to insert (for public chat)
+DROP POLICY IF EXISTS "Anon insert access" ON report_chat_conversations;
+CREATE POLICY "Anon insert access" ON report_chat_conversations
+  FOR INSERT TO anon
+  WITH CHECK (true);
+
+-- Allow authenticated to read all
+DROP POLICY IF EXISTS "Authenticated read all" ON report_chat_conversations;
+CREATE POLICY "Authenticated read all" ON report_chat_conversations
+  FOR SELECT TO authenticated
+  USING (true);
+
+-- Allow authenticated to insert
+DROP POLICY IF EXISTS "Authenticated insert" ON report_chat_conversations;
+CREATE POLICY "Authenticated insert" ON report_chat_conversations
+  FOR INSERT TO authenticated
+  WITH CHECK (true);
+
 -- Add new columns if they don't exist
 DO $$ 
 BEGIN

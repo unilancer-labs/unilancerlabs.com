@@ -180,6 +180,18 @@ const AIDashboardPage: React.FC = () => {
       });
     } catch (error) {
       console.error('Stats fetch error:', error);
+      // Set empty stats on error
+      setStats({
+        totalConversations: 0,
+        totalMessages: 0,
+        totalTokens: 0,
+        estimatedCost: 0,
+        activeSessionsToday: 0,
+        avgMessagesPerSession: 0,
+        topReports: [],
+        dailyStats: [],
+        modelUsage: []
+      });
     } finally {
       setIsLoading(false);
     }
@@ -308,6 +320,44 @@ const AIDashboardPage: React.FC = () => {
           color="bg-gradient-to-br from-purple-500 to-purple-600"
         />
       </div>
+
+      {/* No Data Info */}
+      {stats && stats.totalMessages === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-6"
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
+              <Brain className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-amber-800 dark:text-amber-200">Henüz veri yok</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                DigiBot henüz kullanılmamış veya konuşmalar kaydedilmemiş. 
+                Demo sayfasından DigiBot ile sohbet ettikten sonra istatistikler burada görünecek.
+              </p>
+              <div className="flex gap-3 mt-4">
+                <a
+                  href="/tr/demo"
+                  target="_blank"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Demo Sayfasına Git
+                </a>
+                <Link
+                  to="/admin/ai-playground"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/50 text-amber-800 dark:text-amber-200 text-sm font-medium rounded-lg transition-colors"
+                >
+                  Playground'da Test Et
+                </Link>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

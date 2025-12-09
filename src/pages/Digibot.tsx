@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import AuroraBackground from '../components/ui/effects/aurora-background';
-import { Bot, Send, CheckCircle2, Users, ArrowUpRight, Sparkles, Zap, Brain, MessageSquare, BarChart3, FileSearch } from 'lucide-react';
+import { Send, CheckCircle2, Users, ArrowUpRight, Sparkles, Zap, Brain, BarChart3, FileSearch } from 'lucide-react';
 
 const Digibot = () => {
   const [email, setEmail] = useState('');
@@ -145,7 +145,7 @@ const Digibot = () => {
                       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                         <div className="relative flex-1 max-w-sm">
                           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-5 h-5" />
+                            <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-6 h-6 object-contain" />
                           </div>
                           <input
                             type="email"
@@ -201,8 +201,8 @@ const Digibot = () => {
                       {/* Header */}
                       <div className="px-5 py-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                            <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-5 h-5" />
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-md ring-2 ring-primary/20">
+                            <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotkucuk.webp" alt="DigiBot" className="w-8 h-8 object-contain drop-shadow-sm" />
                           </div>
                           <div>
                             <h3 className="font-semibold text-slate-900 dark:text-white text-sm">digiBot</h3>
@@ -222,8 +222,8 @@ const Digibot = () => {
                       <div className="p-5 space-y-4 min-h-[280px]">
                         {/* Bot Welcome */}
                         <div className="flex gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-4 h-4" />
+                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/90 to-primary-dark flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-6 h-6 object-contain drop-shadow-sm" />
                           </div>
                           <div className="bg-slate-100 dark:bg-white/5 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
                             <p className="text-sm text-slate-700 dark:text-gray-200">
@@ -253,8 +253,8 @@ const Digibot = () => {
                             transition={{ duration: 0.3 }}
                             className="flex gap-3"
                           >
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <Bot className="w-4 h-4 text-primary" />
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/90 to-primary-dark flex items-center justify-center flex-shrink-0 shadow-sm">
+                              <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-6 h-6 object-contain drop-shadow-sm" />
                             </div>
                             <div className="space-y-2 max-w-[85%]">
                               <div className="bg-slate-100 dark:bg-white/5 rounded-2xl rounded-tl-md px-4 py-3">
