@@ -17,7 +17,7 @@ import {
   Download
 } from 'lucide-react';
 import { toast } from 'sonner';
-import type { AnalysisResultData } from '../../types';
+import type { AnalysisResultData } from '../types';
 import { useTranslation } from '../../../../hooks/useTranslation';
 import { exportAnalysisReportToPDF } from '../../../../lib/utils/export';
 import { incrementPDFDownloadCount } from '../../../../lib/api/digitalAnalysis';

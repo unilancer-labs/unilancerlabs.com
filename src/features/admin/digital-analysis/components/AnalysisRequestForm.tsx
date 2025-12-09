@@ -4,7 +4,7 @@ import { Loader2, Building2, Globe, Linkedin } from 'lucide-react';
 import { toast } from 'sonner';
 import { createDigitalAnalysisReport, triggerAnalysisWebhook } from '../../../../lib/api/digitalAnalysis';
 import { useTranslation } from '../../../../hooks/useTranslation';
-import type { CreateAnalysisRequest } from '../../types';
+import type { CreateAnalysisRequest } from '../types';
 
 interface AnalysisRequestFormProps {
   onSuccess?: (reportId: string) => void;

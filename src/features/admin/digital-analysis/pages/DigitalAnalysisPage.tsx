@@ -23,7 +23,7 @@ import {
   getDigitalAnalysisStats,
   deleteDigitalAnalysisReport
 } from '../../../../lib/api/digitalAnalysis';
-import type { DigitalAnalysisReport, AnalysisFilters } from '../../types';
+import type { DigitalAnalysisReport, AnalysisFilters } from '../types';
 import { AnalysisRequestForm } from '../components/AnalysisRequestForm';
 import { AnalysisReportViewer } from '../components/AnalysisReportViewer';
 import { exportToCSV, exportToExcel, exportToPDF } from '../../../../lib/utils/export';
@@ -487,3 +487,5 @@ export function DigitalAnalysisPage() {
     </div>
   );
 }
+
+export default DigitalAnalysisPage;
