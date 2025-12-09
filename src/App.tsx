@@ -40,6 +40,10 @@ const GraphicDesign = lazy(() => import('./pages/services/GraphicDesign'));
 // Admin routes
 const AdminRoutes = lazy(() => import('./features/admin/routes'));
 
+// Platform routes (freelancer & employer)
+const PlatformRoutes = lazy(() => import('./features/platform/routes'));
+import { AuthProvider } from './features/platform/context/AuthContext';
+
 // 404 Page
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -150,6 +154,16 @@ function App() {
                         <PrivateRoute>
                           <AdminRoutes />
                         </PrivateRoute>
+                      }
+                    />
+
+                    {/* Platform routes - freelancer & employer */}
+                    <Route
+                      path="/platform/*"
+                      element={
+                        <AuthProvider>
+                          <PlatformRoutes />
+                        </AuthProvider>
                       }
                     />
 
