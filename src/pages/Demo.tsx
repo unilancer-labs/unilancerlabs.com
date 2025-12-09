@@ -36,12 +36,15 @@ import {
   Moon,
   X,
   Minus,
-  RefreshCw
+  RefreshCw,
+  Copy,
+  Check,
+  Clock,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateDigiBotResponse } from '../data/unilancerKnowledge';
-import { sendDigiBotMessage, buildReportContext } from '../lib/api/digibot';
-import { AI_CONFIG } from '../lib/config/ai';
+import { sendDigiBotMessageStream } from '../lib/api/digibot';
 import { signOut } from '../lib/auth';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -188,6 +191,17 @@ SEO çalışması yapılmamış, Google Ads veya sosyal medya reklamları aktif 
 // Tab types
 type TabType = 'overview' | 'details' | 'recommendations';
 
+// LocalStorage key
+const CHAT_HISTORY_KEY = 'digibot_chat_history';
+
+// Format timestamp
+const formatTime = (date: Date): string => {
+  return new Intl.DateTimeFormat('tr-TR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
+
 const Demo = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
@@ -210,7 +224,101 @@ const Demo = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [chatSessionId] = useState(() => crypto.randomUUID());
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Load chat history from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CHAT_HISTORY_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Convert timestamp strings back to Date objects
+        const messages = parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+        setChatMessages(messages);
+      }
+    } catch (error) {
+      console.error('Failed to load chat history:', error);
+    }
+  }, []);
+
+  // Save chat history to localStorage
+  useEffect(() => {
+    if (chatMessages.length > 0) {
+      try {
+        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatMessages));
+      } catch (error) {
+        console.error('Failed to save chat history:', error);
+      }
+    }
+  }, [chatMessages]);
+
+  // Copy message to clipboard
+  const handleCopyMessage = async (messageId: string, content: string) => {
+    try {
+      // Strip HTML and markdown
+      const plainText = content
+        .replace(/<[^>]*>/g, '')
+        .replace(/\*\*/g, '')
+        .replace(/\n+/g, '\n')
+        .trim();
+      await navigator.clipboard.writeText(plainText);
+      setCopiedMessageId(messageId);
+      toast.success('Mesaj kopyalandı!');
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (error) {
+      toast.error('Kopyalama başarısız');
+    }
+  };
+
+  // Clear chat history
+  const handleClearHistory = () => {
+    setChatMessages([]);
+    localStorage.removeItem(CHAT_HISTORY_KEY);
+    toast.success('Sohbet geçmişi temizlendi');
+  };
+
+  // Dynamic suggestions based on report
+  const getDynamicSuggestions = (): { text: string; icon: string }[] => {
+    if (!analysisResult) {
+      return [
+        { text: 'Hizmetleriniz neler?', icon: '🛠️' },
+        { text: 'Fiyatlar hakkında bilgi', icon: '💰' },
+        { text: 'İletişime geç', icon: '📞' }
+      ];
+    }
+
+    const suggestions: { text: string; icon: string }[] = [];
+    const scores = analysisResult.scores;
+    
+    // Add score-based suggestions
+    suggestions.push({ text: `${analysisResult.digital_score} skorumu açıkla`, icon: '📊' });
+    
+    // Find weakest area
+    const scoreEntries = [
+      { key: 'Web Varlığı', value: scores.web_presence },
+      { key: 'Sosyal Medya', value: scores.social_media },
+      { key: 'Marka Kimliği', value: scores.brand_identity },
+      { key: 'Dijital Pazarlama', value: scores.digital_marketing },
+      { key: 'Kullanıcı Deneyimi', value: scores.user_experience }
+    ];
+    const weakest = scoreEntries.sort((a, b) => a.value - b.value)[0];
+    suggestions.push({ text: `${weakest.key} nasıl artırılır?`, icon: '📈' });
+    
+    // Priority-based suggestion
+    const highPriorityRec = analysisResult.recommendations.find(r => r.priority === 'high');
+    if (highPriorityRec) {
+      suggestions.push({ text: `${highPriorityRec.title} hakkında`, icon: '🎯' });
+    }
+    
+    // Always include pricing and contact
+    suggestions.push({ text: 'Fiyat teklifi al', icon: '💰' });
+    
+    return suggestions.slice(0, 4);
+  };
 
   // Handle logout
   const handleLogout = async () => {
@@ -292,7 +400,33 @@ const Demo = () => {
     }]);
   };
 
-  // Handle chat message - AI entegrasyonu ile
+  // Rapor bağlamı oluştur
+  const buildReportContext = (result: AnalysisResult | null): string => {
+    if (!result) return '';
+    return `
+ŞİRKET: ${result.company_name}
+GENEL DİJİTAL SKOR: ${result.digital_score}/100
+SKORLAR:
+- Web Varlığı: ${result.scores.web_presence}/100
+- Sosyal Medya: ${result.scores.social_media}/100
+- Marka Kimliği: ${result.scores.brand_identity}/100
+- Dijital Pazarlama: ${result.scores.digital_marketing}/100
+- Kullanıcı Deneyimi: ${result.scores.user_experience}/100
+
+ÖZET: ${result.summary}
+
+GÜÇLÜ YÖNLER:
+${result.strengths.map(s => `• ${s}`).join('\n')}
+
+ZAYIF YÖNLER:
+${result.weaknesses.map(w => `• ${w}`).join('\n')}
+
+ÖNERİLER:
+${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}] ${r.title}: ${r.description}`).join('\n')}
+    `.trim();
+  };
+
+  // Handle chat message - Streaming AI ile
   const handleSendMessage = async () => {
     if (!chatInput.trim() || isChatLoading) return;
 
@@ -308,56 +442,62 @@ const Demo = () => {
     setChatInput('');
     setIsChatLoading(true);
 
+    // Streaming mesaj için placeholder ekle
+    const assistantMessageId = crypto.randomUUID();
+    setChatMessages(prev => [...prev, {
+      id: assistantMessageId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date()
+    }]);
+
     try {
-      // Rapor bağlamını oluştur
       const reportContext = buildReportContext(analysisResult);
       const reportId = analysisResult?.id || 'demo-report';
 
-      // AI API çağrısı yap
-      const response = await sendDigiBotMessage(
+      // Streaming API çağrısı
+      await sendDigiBotMessageStream(
         reportId,
         chatSessionId,
         question,
-        reportContext
-      );
-
-      if (response.success && response.message) {
-        setChatMessages(prev => [...prev, {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: response.message,
-          timestamp: new Date()
-        }]);
-      } else {
-        // AI başarısız olursa fallback kullan
-        if (AI_CONFIG.enableFallback) {
+        reportContext,
+        // onChunk - her karakter geldiğinde
+        (chunk: string) => {
+          setChatMessages(prev => prev.map(msg => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: msg.content + chunk }
+              : msg
+          ));
+        },
+        // onComplete
+        () => {
+          setIsChatLoading(false);
+        },
+        // onError - hata durumunda fallback
+        (error: string) => {
+          console.error('Streaming error:', error);
+          // Fallback kullan
           const fallbackResponse = generateDigiBotResponse(question, analysisResult);
-          setChatMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: fallbackResponse,
-            timestamp: new Date()
-          }]);
-        } else {
-          setChatMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: 'Üzgünüm, şu anda yanıt veremiyorum. Lütfen daha sonra tekrar deneyin.',
-            timestamp: new Date()
-          }]);
+          setChatMessages(prev => prev.map(msg => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: fallbackResponse }
+              : msg
+          ));
+          setIsChatLoading(false);
         }
-      }
+      );
     } catch (error) {
       console.error('Chat error:', error);
-      // Hata durumunda fallback
       const fallbackResponse = generateDigiBotResponse(question, analysisResult);
-      setChatMessages(prev => [...prev, {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: fallbackResponse,
-        timestamp: new Date()
-      }]);
-    } finally {
+      setChatMessages(prev => {
+        const filtered = prev.filter(msg => msg.id !== assistantMessageId);
+        return [...filtered, {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: fallbackResponse,
+          timestamp: new Date()
+        }];
+      });
       setIsChatLoading(false);
     }
   };
@@ -978,6 +1118,15 @@ const Demo = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
+                        {chatMessages.length > 0 && (
+                          <button 
+                            onClick={handleClearHistory}
+                            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            title="Sohbet geçmişini temizle"
+                          >
+                            <Trash2 className="w-4 h-4 text-white" />
+                          </button>
+                        )}
                         <button 
                           onClick={() => setIsChatMinimized(!isChatMinimized)}
                           className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -995,14 +1144,14 @@ const Demo = () => {
 
                     {!isChatMinimized && (
                       <>
-                        {/* Messages - Enhanced */}
+                        {/* Messages - Enhanced with timestamp and copy */}
                         <div className="h-80 overflow-y-auto p-4 space-y-3 bg-slate-50/50 dark:bg-slate-900/50">
                           {chatMessages.map((msg) => (
                             <motion.div
                               key={msg.id}
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
-                              className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                              className={`flex gap-2.5 group ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                             >
                               <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
                                 msg.role === 'user' 
@@ -1015,25 +1164,47 @@ const Demo = () => {
                                   <Bot className="w-4 h-4 text-white" />
                                 )}
                               </div>
-                              <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm ${
-                                msg.role === 'user' 
-                                  ? 'bg-primary text-white rounded-br-md' 
-                                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-md shadow-sm border border-slate-100 dark:border-slate-700'
-                              }`}>
-                                {/* Markdown rendering */}
-                                <div 
-                                  className="whitespace-pre-wrap leading-relaxed prose prose-sm dark:prose-invert max-w-none
-                                    [&_strong]:font-semibold [&_strong]:text-inherit
-                                    [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:my-1
-                                    [&_li]:my-0.5"
-                                  dangerouslySetInnerHTML={{ 
-                                    __html: msg.content
-                                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                      .replace(/^• /gm, '<li>')
-                                      .replace(/<li>(.+)$/gm, '<li>$1</li>')
-                                      .replace(/\n/g, '<br/>')
-                                  }} 
-                                />
+                              <div className="flex flex-col max-w-[80%]">
+                                <div className={`px-4 py-2.5 rounded-2xl text-sm ${
+                                  msg.role === 'user' 
+                                    ? 'bg-primary text-white rounded-br-md' 
+                                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-md shadow-sm border border-slate-100 dark:border-slate-700'
+                                }`}>
+                                  {/* Markdown rendering */}
+                                  <div 
+                                    className="whitespace-pre-wrap leading-relaxed prose prose-sm dark:prose-invert max-w-none
+                                      [&_strong]:font-semibold [&_strong]:text-inherit
+                                      [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:my-1
+                                      [&_li]:my-0.5"
+                                    dangerouslySetInnerHTML={{ 
+                                      __html: msg.content
+                                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                        .replace(/^• /gm, '<li>')
+                                        .replace(/<li>(.+)$/gm, '<li>$1</li>')
+                                        .replace(/\n/g, '<br/>')
+                                    }} 
+                                  />
+                                </div>
+                                {/* Timestamp and copy button */}
+                                <div className={`flex items-center gap-2 mt-1 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                  <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {formatTime(msg.timestamp)}
+                                  </span>
+                                  {msg.role === 'assistant' && msg.content && (
+                                    <button
+                                      onClick={() => handleCopyMessage(msg.id, msg.content)}
+                                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"
+                                      title="Mesajı kopyala"
+                                    >
+                                      {copiedMessageId === msg.id ? (
+                                        <Check className="w-3 h-3 text-emerald-500" />
+                                      ) : (
+                                        <Copy className="w-3 h-3 text-slate-400" />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             </motion.div>
                           ))}
@@ -1059,22 +1230,18 @@ const Demo = () => {
                           <div ref={chatEndRef} />
                         </div>
 
-                        {/* Quick Actions - Styled */}
+                        {/* Quick Actions - Dynamic based on report */}
                         <div className="px-4 py-2.5 bg-white dark:bg-dark-card border-t border-slate-100 dark:border-slate-800">
                           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
-                            {[
-                              { text: 'Skorumu açıkla', icon: '📊' },
-                              { text: 'Öneriler ver', icon: '💡' },
-                              { text: 'Fiyatlar', icon: '💰' },
-                              { text: 'İletişim', icon: '📞' }
-                            ].map((action) => (
+                            {getDynamicSuggestions().map((action) => (
                               <button
                                 key={action.text}
                                 onClick={() => {
                                   setChatInput(action.text);
                                   setTimeout(() => handleSendMessage(), 100);
                                 }}
-                                className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-full whitespace-nowrap hover:bg-primary hover:text-white dark:hover:bg-primary transition-all flex items-center gap-1.5 border border-transparent hover:border-primary/20"
+                                disabled={isChatLoading}
+                                className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-full whitespace-nowrap hover:bg-primary hover:text-white dark:hover:bg-primary transition-all flex items-center gap-1.5 border border-transparent hover:border-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <span>{action.icon}</span>
                                 {action.text}

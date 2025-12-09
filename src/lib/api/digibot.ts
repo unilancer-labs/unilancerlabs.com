@@ -1,5 +1,5 @@
 /**
- * DigiBot API - Edge Function çağrıları
+ * DigiBot API - Edge Function çağrıları (Streaming destekli)
  */
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -13,7 +13,7 @@ interface ChatResponse {
 }
 
 /**
- * DigiBot'a mesaj gönderir ve AI yanıtı alır
+ * DigiBot'a mesaj gönderir ve AI yanıtı alır (non-streaming fallback)
  */
 export async function sendDigiBotMessage(
   reportId: string,
@@ -55,6 +55,87 @@ export async function sendDigiBotMessage(
       success: false, 
       error: 'Bağlantı hatası. Lütfen tekrar deneyin.' 
     };
+  }
+}
+
+/**
+ * DigiBot Streaming - karakter karakter yanıt alır
+ */
+export async function sendDigiBotMessageStream(
+  reportId: string,
+  sessionId: string,
+  message: string,
+  reportContext: string,
+  onChunk: (chunk: string) => void,
+  onComplete: () => void,
+  onError: (error: string) => void,
+  viewerId?: string
+): Promise<void> {
+  try {
+    console.log('[DigiBot] Starting streaming message...');
+    
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/digibot-stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        reportId,
+        sessionId,
+        message,
+        reportContext,
+        viewerId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('[DigiBot] Stream error:', response.status, errorData);
+      onError(errorData.error || `HTTP ${response.status}`);
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      onError('Stream reader not available');
+      return;
+    }
+
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') {
+            console.log('[DigiBot] Stream complete');
+            onComplete();
+            return;
+          }
+
+          try {
+            const json = JSON.parse(data);
+            if (json.content) {
+              onChunk(json.content);
+            }
+          } catch (e) {
+            // Skip invalid JSON
+          }
+        }
+      }
+    }
+
+    onComplete();
+  } catch (error) {
+    console.error('[DigiBot] Stream network error:', error);
+    onError('Bağlantı hatası. Lütfen tekrar deneyin.');
   }
 }
 

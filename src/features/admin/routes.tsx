@@ -16,6 +16,7 @@ const ProjectRequestDetailPage = lazy(() => import('./project-requests/pages/Pro
 const TranslationManager = lazy(() => import('./translations/pages/TranslationManager'));
 const CookieStatsPage = lazy(() => import('./pages/CookieStatsPage'));
 const DigitalAnalysisPage = lazy(() => import('./digital-analysis/pages/DigitalAnalysisPage'));
+const AIConfigPage = lazy(() => import('./ai-config/pages/AIConfigPage'));
 
 const AdminRoutes = () => {
   return (
@@ -51,6 +52,9 @@ const AdminRoutes = () => {
 
       {/* Digital Analysis routes */}
       <Route path="/digital-analysis" element={<DigitalAnalysisPage />} />
+
+      {/* AI Config routes */}
+      <Route path="/ai-config" element={<AIConfigPage />} />
 
       {/* Cookie Stats routes */}
       <Route path="/cookie-stats" element={<CookieStatsPage />} />
