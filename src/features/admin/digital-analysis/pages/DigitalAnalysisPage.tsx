@@ -26,7 +26,7 @@ import {
 import type { DigitalAnalysisReport, AnalysisFilters } from '../../types';
 import { AnalysisRequestForm } from '../components/AnalysisRequestForm';
 import { AnalysisReportViewer } from '../components/AnalysisReportViewer';
-import { exportToCSV, exportToExcel, exportToPDF } from '../../utils/exportUtils';
+import { exportToCSV, exportToExcel, exportToPDF } from '../../../../lib/utils/export';
 
 export function DigitalAnalysisPage() {
   const { t } = useTranslation();
