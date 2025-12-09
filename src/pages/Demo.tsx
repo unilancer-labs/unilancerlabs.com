@@ -34,12 +34,10 @@ import {
   Sun,
   Moon,
   X,
-  Minus,
   RefreshCw,
   Copy,
   Check,
-  Clock,
-  Trash2
+  Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateDigiBotResponse } from '../data/unilancerKnowledge';
@@ -221,7 +219,6 @@ const Demo = () => {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [chatSessionId] = useState(() => crypto.randomUUID());
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -271,13 +268,6 @@ const Demo = () => {
     } catch (error) {
       toast.error('Kopyalama başarısız');
     }
-  };
-
-  // Clear chat history
-  const handleClearHistory = () => {
-    setChatMessages([]);
-    localStorage.removeItem(CHAT_HISTORY_KEY);
-    toast.success('Sohbet geçmişi temizlendi');
   };
 
   // Dynamic suggestions based on report
@@ -1078,12 +1068,12 @@ ${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}]
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsChatOpen(true)}
-                    className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-primary via-primary to-primary-dark text-white rounded-full shadow-xl shadow-primary/40 flex items-center justify-center z-50 group ring-4 ring-primary/20"
+                    className="fixed bottom-6 right-6 w-16 h-16 bg-white dark:bg-slate-800 rounded-full shadow-xl shadow-slate-900/20 flex items-center justify-center z-50 group ring-2 ring-slate-200 dark:ring-slate-700"
                   >
                     <img 
                       src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" 
                       alt="DigiBot" 
-                      className="w-10 h-10 object-contain group-hover:scale-110 transition-transform drop-shadow-lg" 
+                      className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" 
                     />
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow-md">
                       <span className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" />
@@ -1104,87 +1094,48 @@ ${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}]
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 20, scale: 0.95 }}
                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    className={`fixed bottom-6 right-6 z-50 bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 overflow-hidden ${
-                      isChatMinimized ? 'w-80' : 'w-[380px] sm:w-[420px]'
-                    }`}
+                    className="fixed bottom-6 right-6 z-50 bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 overflow-hidden w-[380px] sm:w-[420px]"
                   >
-                    {/* Chat Header - Modern Design */}
-                    <div className="p-4 bg-gradient-to-r from-primary via-primary to-primary-dark flex items-center justify-between relative overflow-hidden">
-                      {/* Background decoration */}
-                      <div className="absolute inset-0 opacity-20">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.15),transparent_50%)]" />
-                      </div>
+                    {/* Chat Header - Clean White Design */}
+                    <div className="px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                      {/* Logo - no frame */}
+                      <img 
+                        src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotkucuk.webp" 
+                        alt="DigiBot" 
+                        className="w-10 h-10 object-contain"
+                      />
                       
-                      <div className="flex items-center gap-3 relative z-10">
-                        <div className="relative">
-                          <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg ring-2 ring-white/30">
-                            <img 
-                              src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotkucuk.webp" 
-                              alt="DigiBot" 
-                              className="w-9 h-9 object-contain drop-shadow-md"
-                            />
-                          </div>
-                          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white shadow-sm" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold text-base">DigiBot</h3>
-                          <p className="text-white/70 text-xs flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                            Çevrimiçi • AI Asistan
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-1 relative z-10">
-                        {chatMessages.length > 0 && (
-                          <button 
-                            onClick={handleClearHistory}
-                            className="p-2.5 hover:bg-white/15 rounded-xl transition-colors"
-                            title="Sohbet geçmişini temizle"
-                          >
-                            <Trash2 className="w-4 h-4 text-white/80" />
-                          </button>
-                        )}
-                        <button 
-                          onClick={() => setIsChatMinimized(!isChatMinimized)}
-                          className="p-2.5 hover:bg-white/15 rounded-xl transition-colors"
-                        >
-                          <Minus className="w-4 h-4 text-white/80" />
-                        </button>
-                        <button 
-                          onClick={() => setIsChatOpen(false)}
-                          className="p-2.5 hover:bg-white/15 rounded-xl transition-colors"
-                        >
-                          <X className="w-4 h-4 text-white/80" />
-                        </button>
-                      </div>
+                      {/* Close button only */}
+                      <button 
+                        onClick={() => setIsChatOpen(false)}
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                      >
+                        <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                      </button>
                     </div>
 
-                    {!isChatMinimized && (
-                      <>
-                        {/* Messages - Enhanced with avatar design */}
-                        <div className="h-[340px] overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900/80 dark:to-slate-900/50">
-                          {chatMessages.map((msg) => (
-                            <motion.div
-                              key={msg.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className={`flex gap-3 group ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-                            >
-                              {/* Avatar */}
-                              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ${
+                    {/* Messages */}
+                    <div className="h-[340px] overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/80">
+                      {chatMessages.map((msg) => (
+                        <motion.div
+                          key={msg.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`flex gap-3 group ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                        >
+                          {/* Avatar */}
+                              <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
                                 msg.role === 'user' 
-                                  ? 'bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700' 
-                                  : 'bg-gradient-to-br from-primary/90 to-primary-dark'
+                                  ? 'bg-slate-100 dark:bg-slate-700' 
+                                  : 'bg-white dark:bg-slate-800'
                               }`}>
                                 {msg.role === 'user' ? (
-                                  <User className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                                  <User className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                                 ) : (
                                   <img 
                                     src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" 
                                     alt="DigiBot" 
-                                    className="w-6 h-6 object-contain drop-shadow-sm" 
+                                    className="w-7 h-7 object-contain" 
                                   />
                                 )}
                               </div>
@@ -1193,8 +1144,8 @@ ${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}]
                               <div className="flex flex-col max-w-[75%]">
                                 <div className={`px-4 py-3 text-sm leading-relaxed ${
                                   msg.role === 'user' 
-                                    ? 'bg-gradient-to-br from-primary to-primary-dark text-white rounded-2xl rounded-br-md shadow-md shadow-primary/20' 
-                                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-2xl rounded-bl-md shadow-md border border-slate-100 dark:border-slate-700'
+                                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl rounded-br-md' 
+                                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-2xl rounded-bl-md shadow-sm border border-slate-100 dark:border-slate-700'
                                 }`}>
                                   <div 
                                     className="whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none
@@ -1241,18 +1192,18 @@ ${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}]
                               animate={{ opacity: 1 }}
                               className="flex gap-3"
                             >
-                              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/90 to-primary-dark flex items-center justify-center shadow-sm">
+                              <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center">
                                 <img 
                                   src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" 
                                   alt="DigiBot" 
-                                  className="w-6 h-6 object-contain animate-pulse" 
+                                  className="w-7 h-7 object-contain animate-pulse" 
                                 />
                               </div>
-                              <div className="bg-white dark:bg-slate-800 px-4 py-3 rounded-2xl rounded-bl-md shadow-md border border-slate-100 dark:border-slate-700">
+                              <div className="bg-white dark:bg-slate-800 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border border-slate-100 dark:border-slate-700">
                                 <div className="flex gap-1.5 items-center">
-                                  <span className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                                  <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                  <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
+                                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                                   <span className="text-xs text-slate-400 ml-2">Yazıyor...</span>
                                 </div>
                               </div>
@@ -1273,7 +1224,7 @@ ${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}]
                                   setTimeout(() => handleSendMessage(), 100);
                                 }}
                                 disabled={isChatLoading}
-                                className="px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-gradient-to-r hover:from-primary hover:to-primary-dark hover:text-white rounded-xl whitespace-nowrap transition-all flex items-center gap-2 border border-slate-200 dark:border-slate-700 hover:border-transparent hover:shadow-md hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl whitespace-nowrap transition-all flex items-center gap-2 border border-slate-200 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <span className="text-base">{action.icon}</span>
                                 {action.text}
@@ -1282,7 +1233,7 @@ ${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}]
                           </div>
                         </div>
 
-                        {/* Input - Modern design */}
+                        {/* Input - Clean design */}
                         <div className="p-4 bg-white dark:bg-dark-card border-t border-slate-100 dark:border-slate-800">
                           <div className="flex gap-3 items-end">
                             <div className="flex-1 relative">
@@ -1292,26 +1243,24 @@ ${result.recommendations.slice(0, 5).map(r => `• [${r.priority.toUpperCase()}]
                                 onChange={(e) => setChatInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
                                 placeholder="Mesajınızı yazın..."
-                                className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-white dark:focus:bg-slate-700 transition-all border border-transparent focus:border-primary/30"
+                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-600 focus:bg-white dark:focus:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
                               />
                             </div>
                             <button
                               onClick={handleSendMessage}
                               disabled={isChatLoading || !chatInput.trim()}
-                              className="p-3 bg-gradient-to-r from-primary to-primary-dark hover:shadow-lg hover:shadow-primary/30 text-white rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none hover:scale-105 active:scale-95"
+                              className="p-3 bg-slate-800 dark:bg-slate-600 hover:bg-slate-700 dark:hover:bg-slate-500 text-white rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
                             >
                               <Send className="w-5 h-5" />
                             </button>
                           </div>
                           <div className="flex items-center justify-center gap-2 mt-3">
-                            <Sparkles className="w-3 h-3 text-primary/60" />
+                            <Sparkles className="w-3 h-3 text-slate-400" />
                             <p className="text-[10px] text-slate-400">
                               Powered by OpenAI GPT-4 • Unilancer Labs
                             </p>
                           </div>
                         </div>
-                      </>
-                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
