@@ -197,6 +197,12 @@ function App() {
                     <Route path="/join" element={<Navigate to="/tr/basvuru" replace />} />
                     <Route path="/project-request" element={<Navigate to="/tr/proje-talebi" replace />} />
                     <Route path="/contact" element={<Navigate to="/tr/iletisim" replace />} />
+                    
+                    {/* Redirect old demo URLs to protected demo page */}
+                    <Route path="/tr/dijital-analiz" element={<Navigate to="/demo" replace />} />
+                    <Route path="/tr/demo" element={<Navigate to="/demo" replace />} />
+                    <Route path="/en/digital-analysis" element={<Navigate to="/demo" replace />} />
+                    <Route path="/en/demo" element={<Navigate to="/demo" replace />} />
 
                     {/* Root redirect to Turkish */}
                     <Route path="/" element={<Navigate to="/tr" replace />} />
