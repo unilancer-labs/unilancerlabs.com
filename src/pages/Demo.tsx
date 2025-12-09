@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Brain, 
@@ -36,10 +37,16 @@ import {
   MapPin,
   Clock,
   Award,
-  AlertCircle
+  AlertCircle,
+  LogOut,
+  LayoutDashboard,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateDigiBotResponse, unilancerKnowledge } from '../data/unilancerKnowledge';
+import { signOut } from '../lib/auth';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Types
 interface AnalysisResult {
@@ -185,6 +192,9 @@ SEO çalışması yapılmamış, Google Ads veya sosyal medya reklamları aktif 
 type TabType = 'overview' | 'details' | 'recommendations' | 'chat';
 
 const Demo = () => {
+  const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+  
   // Form state
   const [formData, setFormData] = useState({
     company_name: '',
@@ -202,6 +212,17 @@ const Demo = () => {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Çıkış yapılırken hata oluştu');
+    }
+  };
 
   // Auto-scroll chat
   useEffect(() => {
@@ -362,11 +383,63 @@ const Demo = () => {
   return (
     <>
       <Helmet>
-        <title>Ücretsiz Dijital Analiz | Unilancer Labs</title>
+        <title>Dijital Analiz Platformu | Unilancer Labs</title>
         <meta name="description" content="İşletmenizin dijital varlığını AI destekli analiz ile değerlendirin. Web sitesi, sosyal medya, marka kimliği ve dijital pazarlama skorlarınızı öğrenin." />
       </Helmet>
       
       <div className="min-h-screen bg-slate-50 dark:bg-[#0a0a0f] transition-colors duration-300">
+        {/* Admin Header */}
+        <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              {/* Logo & Title */}
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+                  <Brain className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Dijital Analiz Platformu
+                  </h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Unilancer Labs Admin
+                  </p>
+                </div>
+              </div>
+
+              {/* Nav Actions */}
+              <div className="flex items-center gap-2">
+                {/* Admin Panel Link */}
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span className="hidden sm:inline">Admin Panel</span>
+                </button>
+
+                {/* Theme Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  aria-label="Tema değiştir"
+                >
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Çıkış</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
         <AnimatePresence mode="wait">
           {/* Step 1: Form */}
           {currentStep === 'form' && (

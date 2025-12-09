@@ -113,8 +113,6 @@ function App() {
                       <Route path="/tr/ekibimiz" element={<Team />} />
                       <Route path="/tr/universiteliler" element={<Universities />} />
                       <Route path="/tr/digibot" element={<DigibotPage />} />
-                      <Route path="/tr/dijital-analiz" element={<Demo />} />
-                      <Route path="/tr/demo" element={<Demo />} />
 
                       {/* English routes */}
                       <Route path="/en" element={<Home />} />
@@ -138,8 +136,6 @@ function App() {
                       <Route path="/en/team" element={<Team />} />
                       <Route path="/en/universities" element={<Universities />} />
                       <Route path="/en/digibot" element={<DigibotPage />} />
-                      <Route path="/en/digital-analysis" element={<Demo />} />
-                      <Route path="/en/demo" element={<Demo />} />
                     </Route>
 
                     {/* Form routes without navbar/footer */}
@@ -150,7 +146,33 @@ function App() {
 
                     {/* Admin routes - language independent */}
                     <Route path="/login" element={<Login />} />
-                    <Route path="/demo" element={<Demo />} />
+                    
+                    {/* Protected Demo/Digital Analysis Routes */}
+                    <Route
+                      path="/demo"
+                      element={
+                        <PrivateRoute>
+                          <Demo />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/dijital-analiz"
+                      element={
+                        <PrivateRoute>
+                          <Demo />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/digital-analysis"
+                      element={
+                        <PrivateRoute>
+                          <Demo />
+                        </PrivateRoute>
+                      }
+                    />
+                    
                     <Route
                       path="/admin/*"
                       element={
