@@ -68,11 +68,14 @@ serve(async (req) => {
     // Build messages array
     const messages: ChatMessage[] = [];
 
-    // System prompt - use custom JSON or default
+    // System prompt - HER ZAMAN default prompt kullan (rapor context'i dahil)
+    // Custom JSON prompt varsa, onu da rapor context ile birleştir
     let systemPrompt: string;
     if (config.systemPrompt) {
-      // Custom prompt - parse if JSON format
-      systemPrompt = parseJsonSystemPrompt(config.systemPrompt, reportContext);
+      // Custom prompt varsa, rapor context'i ekleyerek kullan
+      const customPart = parseJsonSystemPrompt(config.systemPrompt, '');
+      const defaultPart = buildDefaultSystemPrompt(reportContext);
+      systemPrompt = customPart + '\n\n' + defaultPart;
     } else {
       systemPrompt = buildDefaultSystemPrompt(reportContext);
     }
