@@ -1483,19 +1483,16 @@ DigiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                     className="fixed bottom-6 right-6 z-50 bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 overflow-hidden w-[420px] sm:w-[500px]"
                   >
                     {/* Chat Header - Clean White Design with Centered Logo */}
-                    <div className="px-4 py-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <div className="px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                       {/* Empty space for balance */}
                       <div className="w-10"></div>
                       
-                      {/* Centered Logo with Text */}
-                      <div className="flex items-center gap-2">
-                        <img 
-                          src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotkucuk.webp" 
-                          alt="DigiBot" 
-                          className="w-12 h-12 object-contain"
-                        />
-                        <span className="text-lg font-semibold text-slate-700 dark:text-slate-200">digiBot</span>
-                      </div>
+                      {/* Centered Logo */}
+                      <img 
+                        src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotkucuk.webp" 
+                        alt="DigiBot" 
+                        className="w-20 h-20 object-contain"
+                      />
                       
                       {/* Close button */}
                       <button 
