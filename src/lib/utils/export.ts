@@ -740,20 +740,13 @@ export function exportAnalysisReportToPDF(
     `;
   }
 
-  // Build UI/UX Review Section
+  // Build UI/UX Review Section - Sadeleştirilmiş
   let uiuxHtml = '';
   if (analysisResult.ui_ux_review) {
     const ux = analysisResult.ui_ux_review;
-    const categories = [
-      { key: 'visual_design', label: 'Görsel Tasarım', icon: '🎨' },
-      { key: 'navigation', label: 'Navigasyon', icon: '🧭' },
-      { key: 'mobile_experience', label: 'Mobil Deneyim', icon: '📱' },
-      { key: 'accessibility', label: 'Erişilebilirlik', icon: '♿' },
-      { key: 'cta_effectiveness', label: 'CTA Etkinliği', icon: '🎯' }
-    ];
     
     uiuxHtml = `
-      <div class="section page-break">
+      <div class="section">
         <div class="section-header">
           <span class="section-icon">🖼️</span>
           <h2 class="section-title">UI/UX İnceleme</h2>
@@ -768,72 +761,77 @@ export function exportAnalysisReportToPDF(
               <div class="uiux-overall-icon">👁️</div>
               <div class="uiux-overall-content">
                 <div class="uiux-overall-title">Genel Değerlendirme</div>
-                <div class="uiux-overall-text">${escapeHtml(ux.overall_assessment)}</div>
+                <div class="uiux-overall-text">${escapeHtml(ux.overall_assessment || '')}</div>
               </div>
             </div>
             
-            <!-- Score Cards -->
-            <div class="uiux-scores">
-              ${categories.map(cat => {
-                const data = ux[cat.key as keyof typeof ux] as { score: number; feedback: string };
-                if (!data || typeof data !== 'object') return '';
-                const colors = getScoreColor(data.score);
-                return `
-                  <div class="uiux-score-card" style="background: ${colors.bg}; border-color: ${colors.border};">
-                    <div class="uiux-score-header">
-                      <span class="uiux-score-icon">${cat.icon}</span>
-                      <span class="uiux-score-label">${cat.label}</span>
-                    </div>
-                    <div class="uiux-score-value" style="color: ${colors.text};">${data.score}<span>/100</span></div>
-                    <div class="uiux-score-bar">
-                      <div class="uiux-score-bar-fill" style="width: ${data.score}%; background: ${colors.ring};"></div>
-                    </div>
-                    <div class="uiux-score-feedback">${escapeHtml(data.feedback)}</div>
+            <!-- Highlights -->
+            ${ux.highlights && ux.highlights.length > 0 ? `
+              <div class="uiux-highlights">
+                <div class="uiux-highlights-title">⚠️ Önemli Bulgular</div>
+                ${ux.highlights.map((h: string, i: number) => `
+                  <div class="uiux-highlight-item">
+                    <span class="uiux-highlight-num">${i + 1}</span>
+                    <span class="uiux-highlight-text">${escapeHtml(h)}</span>
                   </div>
-                `;
-              }).join('')}
-            </div>
+                `).join('')}
+              </div>
+            ` : ''}
+            
+            <!-- Suggestions -->
+            ${ux.suggestions && ux.suggestions.length > 0 ? `
+              <div class="uiux-suggestions-inline">
+                <div class="uiux-suggestions-title">💡 İyileştirme Önerileri</div>
+                ${ux.suggestions.map((s: string, i: number) => `
+                  <div class="uiux-suggestion-item-inline">
+                    <span class="uiux-suggestion-num">${i + 1}</span>
+                    <span class="uiux-suggestion-text">${escapeHtml(s)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
           
-          <!-- Right: Screenshot -->
-          <div class="uiux-screenshot">
-            <div class="browser-frame">
-              <div class="browser-header">
-                <div class="browser-dots">
-                  <span class="dot red"></span>
-                  <span class="dot yellow"></span>
-                  <span class="dot green"></span>
+          <!-- Right: Screenshots -->
+          <div class="uiux-screenshots">
+            <!-- Desktop -->
+            <div class="screenshot-container desktop">
+              <div class="screenshot-label">🖥️ Masaüstü Görünüm</div>
+              <div class="browser-frame">
+                <div class="browser-header">
+                  <div class="browser-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                  </div>
+                  <div class="browser-url">${escapeHtml(websiteUrl)}</div>
                 </div>
-                <div class="browser-url">${escapeHtml(websiteUrl)}</div>
+                <div class="browser-content">
+                  ${ux.desktop_screenshot_url ? `<img src="${escapeHtml(ux.desktop_screenshot_url)}" alt="Masaüstü Görünüm" onerror="this.style.display='none'" />` : ''}
+                  <div class="screenshot-placeholder">
+                    <span>🖥️</span>
+                    <p>Masaüstü</p>
+                  </div>
+                </div>
               </div>
-              <div class="browser-content">
-                ${ux.screenshot_url ? `<img src="${escapeHtml(ux.screenshot_url)}" alt="Website Screenshot" onerror="this.style.display='none'" />` : ''}
-                <div class="screenshot-placeholder">
-                  <span>🌐</span>
-                  <p>Ekran Görüntüsü</p>
+            </div>
+            
+            <!-- Mobile -->
+            <div class="screenshot-container mobile">
+              <div class="screenshot-label">📱 Mobil Görünüm</div>
+              <div class="phone-frame">
+                <div class="phone-notch"></div>
+                <div class="phone-content">
+                  ${ux.mobile_screenshot_url ? `<img src="${escapeHtml(ux.mobile_screenshot_url)}" alt="Mobil Görünüm" onerror="this.style.display='none'" />` : ''}
+                  <div class="screenshot-placeholder">
+                    <span>📱</span>
+                    <p>Mobil</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
-        <!-- Improvement Suggestions -->
-        ${ux.improvement_suggestions && ux.improvement_suggestions.length > 0 ? `
-          <div class="uiux-suggestions">
-            <div class="uiux-suggestions-header">
-              <span>💡</span>
-              <span>İyileştirme Önerileri</span>
-            </div>
-            <div class="uiux-suggestions-grid">
-              ${ux.improvement_suggestions.map((s: string, i: number) => `
-                <div class="uiux-suggestion-item">
-                  <span class="uiux-suggestion-num">${i + 1}</span>
-                  <span class="uiux-suggestion-text">${escapeHtml(s)}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        ` : ''}
       </div>
     `;
   }
