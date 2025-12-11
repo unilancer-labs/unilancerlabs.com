@@ -2,6 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
+/* NEXTGEN Button Border Animation */
+@keyframes border-rotate {
+  0% {
+    --border-angle: 0deg;
+  }
+  100% {
+    --border-angle: 360deg;
+  }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.nextgen-button {
+  --border-angle: 0deg;
+  position: relative;
+  isolation: isolate;
+}
+
+.nextgen-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 10px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0%,
+    transparent 25%,
+    #5FC8DA 50%,
+    transparent 75%,
+    transparent 100%
+  );
+  animation: border-rotate 3s linear infinite;
+  z-index: -1;
+}
+
+.nextgen-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  z-index: -1;
+}
+
+.nextgen-button::after {
+  background: #e2e8f0;
+}
+
+.dark .nextgen-button::after {
+  background: #121212;
+}
+
 /* Blog card animation */
 @keyframes fadeInUp {
   from {
