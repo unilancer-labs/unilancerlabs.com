@@ -108,6 +108,15 @@ const Navbar = () => {
 
   const digitAllServices = getDigitAllServices(t, language);
 
+  // Helper function to close all menus
+  const closeAllMenus = useCallback(() => {
+    setIsOpen(false);
+    setIsServicesOpen(false);
+    setIsCorporateOpen(false);
+    setMobileServicesOpen(false);
+    setMobileCorporateOpen(false);
+  }, []);
+
   const handleScroll = useCallback(() => {
     const scrolled = window.scrollY > 50;
     if (scrolled !== isScrolled) {
@@ -122,13 +131,10 @@ const Navbar = () => {
     };
   }, [handleScroll]);
 
+  // Close all menus when route changes
   useEffect(() => {
-    setIsOpen(false);
-    setIsServicesOpen(false);
-    setIsCorporateOpen(false);
-    setMobileServicesOpen(false);
-    setMobileCorporateOpen(false);
-  }, [location]);
+    closeAllMenus();
+  }, [location.pathname, location.key, closeAllMenus]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -311,21 +317,21 @@ const Navbar = () => {
                         <Link
                           to={getRouteForLanguage('/about', language)}
                           className="block px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
-                          onClick={() => { setIsCorporateOpen(false); scrollToTop(); }}
+                          onClick={() => { closeAllMenus(); scrollToTop(); }}
                         >
                           {t('nav.about')}
                         </Link>
                         <Link
                           to={getRouteForLanguage('/team', language)}
                           className="block px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
-                          onClick={() => { setIsCorporateOpen(false); scrollToTop(); }}
+                          onClick={() => { closeAllMenus(); scrollToTop(); }}
                         >
                           {t('nav.team', 'Ekibimiz')}
                         </Link>
                         <Link
                           to={getRouteForLanguage('/contact', language)}
                           className="block px-4 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
-                          onClick={() => { setIsCorporateOpen(false); scrollToTop(); }}
+                          onClick={() => { closeAllMenus(); scrollToTop(); }}
                         >
                           {t('nav.contact')}
                         </Link>
@@ -382,7 +388,7 @@ const Navbar = () => {
                           <Link 
                             to="/services" 
                             className="text-sm font-medium text-primary hover:text-primary-dark flex items-center gap-1 group transition-colors"
-                            onClick={() => setIsServicesOpen(false)}
+                            onClick={() => { closeAllMenus(); scrollToTop(); }}
                           >
                             {t('nav.viewAll', 'Tümünü Gör')}
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -396,7 +402,7 @@ const Navbar = () => {
                               to={service.path}
                               className="group flex items-start gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-all duration-200 border border-transparent hover:border-slate-200 dark:hover:border-white/5"
                               onClick={() => {
-                                setIsServicesOpen(false);
+                                closeAllMenus();
                                 scrollToTop();
                               }}
                             >
@@ -601,7 +607,7 @@ const Navbar = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center px-4 py-3.5 min-h-[52px] bg-primary text-white rounded-xl active:scale-[0.98] transition-all font-semibold mb-3"
-                onClick={() => setIsOpen(false)}
+                onClick={closeAllMenus}
                 style={{
                   boxShadow: '0 0 20px rgba(95, 200, 218, 0.6), 0 0 40px rgba(95, 200, 218, 0.4)'
                 }}
@@ -628,7 +634,7 @@ const Navbar = () => {
                 <Link
                   to={getRouteForLanguage('/basvuru', language as 'tr' | 'en')}
                   className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white rounded-xl active:scale-[0.98] transition-all font-semibold"
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeAllMenus}
                 >
                   <Users className="w-5 h-5" />
                   <span>{t('nav.joinUs')}</span>
@@ -636,7 +642,7 @@ const Navbar = () => {
                 <Link
                   to={getRouteForLanguage('/proje-talebi', language as 'tr' | 'en')}
                   className="flex items-center justify-center gap-2 px-4 py-3.5 min-h-[52px] bg-primary text-white rounded-xl active:scale-[0.98] transition-all font-semibold shadow-lg shadow-primary/25"
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeAllMenus}
                 >
                   <Rocket className="w-5 h-5" />
                   <span>{t('nav.getQuote')}</span>
@@ -670,10 +676,7 @@ const Navbar = () => {
                         key={index}
                         to={service.path}
                         className="flex items-center gap-2.5 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
-                        onClick={() => {
-                          setIsOpen(false);
-                          setMobileServicesOpen(false);
-                        }}
+                        onClick={closeAllMenus}
                       >
                         <service.icon className="w-4 h-4 text-primary flex-shrink-0" />
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{service.label}</span>
@@ -687,7 +690,7 @@ const Navbar = () => {
               <Link
                 to={getRouteForLanguage('/universities', language)}
                 className="flex items-center justify-between px-4 py-4 min-h-[56px] rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5"
-                onClick={() => setIsOpen(false)}
+                onClick={closeAllMenus}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
@@ -702,7 +705,7 @@ const Navbar = () => {
               <Link
                 to={getRouteForLanguage('/digibot', language)}
                 className="flex items-center justify-between px-4 py-4 min-h-[56px] rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5"
-                onClick={() => setIsOpen(false)}
+                onClick={closeAllMenus}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
@@ -732,7 +735,7 @@ const Navbar = () => {
                     <Link
                       to={getRouteForLanguage('/about', language)}
                       className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
-                      onClick={() => setIsOpen(false)}
+                      onClick={closeAllMenus}
                     >
                       <FileText className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.about')}</span>
@@ -740,7 +743,7 @@ const Navbar = () => {
                     <Link
                       to={getRouteForLanguage('/team', language)}
                       className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
-                      onClick={() => setIsOpen(false)}
+                      onClick={closeAllMenus}
                     >
                       <Users className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.team')}</span>
@@ -748,7 +751,7 @@ const Navbar = () => {
                     <Link
                       to={getRouteForLanguage('/portfolio', language)}
                       className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
-                      onClick={() => setIsOpen(false)}
+                      onClick={closeAllMenus}
                     >
                       <Palette className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.portfolio')}</span>
@@ -756,7 +759,7 @@ const Navbar = () => {
                     <Link
                       to={getRouteForLanguage('/contact', language)}
                       className="flex items-center gap-3 p-3 min-h-[48px] bg-white dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5"
-                      onClick={() => setIsOpen(false)}
+                      onClick={closeAllMenus}
                     >
                       <MessageSquare className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('nav.contact')}</span>
@@ -769,7 +772,7 @@ const Navbar = () => {
               <Link
                 to={getRouteForLanguage('/blog', language)}
                 className="flex items-center justify-between px-4 py-4 min-h-[56px] rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5"
-                onClick={() => setIsOpen(false)}
+                onClick={closeAllMenus}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
