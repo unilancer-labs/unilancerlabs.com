@@ -122,12 +122,12 @@ export const DigibotHero = ({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="mb-4 sm:mb-6 flex justify-center lg:justify-start"
+              className="mb-2 sm:mb-3 flex justify-center lg:justify-start"
             >
               <img 
                 src={logoSrc} 
                 alt="digiBot" 
-                className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 object-contain drop-shadow-lg"
+                className="h-32 w-32 sm:h-40 sm:w-40 lg:h-48 lg:w-48 object-contain drop-shadow-lg"
               />
             </motion.div>
           )}
