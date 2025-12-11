@@ -122,7 +122,7 @@ export const DigibotHero = ({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="-mb-2 flex justify-center lg:justify-start"
+              className="-mb-6 sm:-mb-8 lg:-mb-10 flex justify-center lg:justify-start"
             >
               <img 
                 src={logoSrc} 
@@ -195,8 +195,40 @@ export const DigibotHero = ({
           className="z-30 order-3 mt-6 flex items-center justify-center text-center lg:mt-0 lg:justify-end lg:text-right"
         >
           <h1 className="text-4xl font-extrabold leading-[0.85] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
-            <span className="block text-slate-900 dark:text-white">{overlayText.part1}</span>
-            <span className="block text-slate-900 dark:text-white">{overlayText.part2}</span>
+            <motion.span 
+              className="block text-primary"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 1.2 }}
+            >
+              {overlayText.part1.split('').map((char, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.1, delay: 1.3 + index * 0.08 }}
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </motion.span>
+            <motion.span 
+              className="block text-primary"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 1.8 }}
+            >
+              {overlayText.part2.split('').map((char, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.1, delay: 1.9 + index * 0.08 }}
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </motion.span>
           </h1>
         </motion.div>
       </div>
