@@ -4,11 +4,14 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Target, Eye, Sparkles, Rocket, Globe2, Heart, Briefcase } from 'lucide-react';
 import TeamSection from '../components/ui/TeamSection';
+import { useTranslation } from '@/hooks/useTranslation';
+import { getRouteForLanguage } from '@/contexts/LanguageContext';
 
 const About = () => {
+  const { t, language } = useTranslation();
   
   // SEO meta data
-  const currentLang = window.location.pathname.startsWith('/en') ? 'en' : 'tr';
+  const currentLang = language;
   const seoTitle = currentLang === 'tr' 
     ? 'Hakkımızda | Unilancer - Türkiye\'nin Genç Yetenek Platformu'
     : 'About Us | Unilancer - Turkey\'s Young Talent Platform';
@@ -132,16 +135,16 @@ const About = () => {
                   >
                       <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 text-primary font-semibold text-sm mb-8 backdrop-blur-sm">
                         <Sparkles className="w-4 h-4" />
-                        <span>Vizyon 2026</span>
+                        <span>{t('about.hero.badge', 'Vizyon 2026')}</span>
                       </div>
                       
                       <h1 className="max-w-4xl mx-auto text-balance text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight text-white mb-8">
-                          Beyin Göçü Yerine <br/>
-                          <span className="text-primary">Hizmet İhracatı</span>
+                          {t('about.hero.title', 'Beyin Göçü Yerine')} <br/>
+                          <span className="text-primary">{t('about.hero.titleHighlight', 'Hizmet İhracatı')}</span>
                       </h1>
                       
                       <p className="mt-8 max-w-3xl mx-auto text-balance text-lg md:text-xl text-slate-200 leading-relaxed">
-                          Unilancer, Türkiye'nin üniversiteli freelancerlarından oluşan seçili ekiplerle işletmelere yönetilen dijital hizmetler sunan bir ekosistemdir.
+                          {t('about.hero.description', "Unilancer, Türkiye'nin üniversiteli freelancerlarından oluşan seçili ekiplerle işletmelere yönetilen dijital hizmetler sunan bir ekosistemdir.")}
                       </p>
                       
                       {/* Social Media Links */}
@@ -226,10 +229,10 @@ const About = () => {
                 >
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white/90 text-sm font-medium mb-4">
                     <Heart className="w-4 h-4" />
-                    <span>Hikayemiz</span>
+                    <span>{t('about.story.badge', 'Hikayemiz')}</span>
                   </div>
                   <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white max-w-2xl">
-                    Bir Üniversite Sırasından <span className="text-primary">Doğan Vizyon</span>
+                    {t('about.story.title', 'Bir Üniversite Sırasından')} <span className="text-primary">{t('about.story.titleHighlight', 'Doğan Vizyon')}</span>
                   </h2>
                 </motion.div>
               </div>
@@ -245,25 +248,25 @@ const About = () => {
             className="space-y-6 text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-16"
           >
               <p className="text-xl font-medium text-slate-900 dark:text-white">
-                Unilancer, <span className="text-primary font-bold">2021 yılında</span>, henüz üniversite sıralarındayken hem okuyup hem üretmek isteyen bir grup öğrencinin ortak sancısıyla kuruldu.
+                {t('about.story.paragraph1', 'Unilancer, 2021 yılında, henüz üniversite sıralarındayken hem okuyup hem üretmek isteyen bir grup öğrencinin ortak sancısıyla kuruldu.')}
               </p>
               
               <p>
-                O günlerde yaşadığımız maddi zorluklar ve <span className="font-semibold text-slate-900 dark:text-white">"henüz tecrübesizsiniz"</span> denilerek reddedilen iş başvuruları, bizi sadece şikayet etmekten öteye, kendi çözümümüzü üretmeye itti.
+                {t('about.story.paragraph2', 'O günlerde yaşadığımız maddi zorluklar ve "henüz tecrübesizsiniz" denilerek reddedilen iş başvuruları, bizi sadece şikayet etmekten öteye, kendi çözümümüzü üretmeye itti.')}
               </p>
               
               <p>
-                Sektörde genç yeteneklerin "tecrübesizlik" bariyerine takıldığını, işverenlerin ise "güven" sorunu yaşadığını gördük.
+                {t('about.story.paragraph3', 'Sektörde genç yeteneklerin "tecrübesizlik" bariyerine takıldığını, işverenlerin ise "güven" sorunu yaşadığını gördük.')}
               </p>
 
               <div className="bg-primary/5 dark:bg-primary/10 border-l-4 border-primary p-6 rounded-r-xl">
                 <p className="text-lg font-semibold text-slate-900 dark:text-white italic">
-                  "Öyle bir sistem kuralım ki; öğrenciler okuluna devam ederken gerçek projelerle deneyim kazansın, firmalar ise kurumsal güvenceyle hizmet alsın"
+                  "{t('about.story.quote', 'Öyle bir sistem kuralım ki; öğrenciler okuluna devam ederken gerçek projelerle deneyim kazansın, firmalar ise kurumsal güvenceyle hizmet alsın')}"
                 </p>
               </div>
 
               <p className="text-lg">
-                O gün kurduğumuz hayal, bugün <span className="font-bold text-primary">15 kişilik çekirdek ekibi</span> ve <span className="font-bold text-primary">200 kişilik</span> dev bir hizmet ağına sahip, <span className="font-semibold text-slate-900 dark:text-white">Teknopark İstanbul'da</span> teknoloji geliştiren bir anonim şirkete dönüştü.
+                {t('about.story.paragraph4', 'O gün kurduğumuz hayal, bugün 15 kişilik çekirdek ekibi ve 200 kişilik dev bir hizmet ağına sahip, Teknopark İstanbul\'da teknoloji geliştiren bir anonim şirkete dönüştü.')}
               </p>
           </motion.div>
 
@@ -288,24 +291,24 @@ const About = () => {
                     <Target className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Misyonumuz</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Neden buradayız?</p>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{t('about.mission.title', 'Misyonumuz')}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{t('about.mission.subtitle', 'Neden buradayız?')}</p>
                   </div>
                 </div>
                 <div className="text-base text-slate-600 dark:text-slate-300 leading-relaxed space-y-4">
-                  <p className="font-medium text-slate-800 dark:text-slate-200">Türkiye'deki üniversiteli yeteneklerin potansiyelini açığa çıkararak:</p>
+                  <p className="font-medium text-slate-800 dark:text-slate-200">{t('about.mission.description', "Türkiye'deki üniversiteli yeteneklerin potansiyelini açığa çıkararak:")}</p>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3">
                       <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <span>Beyin göçü yerine hizmet ihracatını güçlendirmek</span>
+                      <span>{t('about.mission.point1', 'Beyin göçü yerine hizmet ihracatını güçlendirmek')}</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <span>KOBİ'lere erişilebilir bütçelerle kurumsal kalite sunmak</span>
+                      <span>{t('about.mission.point2', "KOBİ'lere erişilebilir bütçelerle kurumsal kalite sunmak")}</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <span>Gençlerin "tecrübe yok" duvarını ilk günden yıkacak projelerle kariyerlerine başlamalarını sağlamak</span>
+                      <span>{t('about.mission.point3', 'Gençlerin "tecrübe yok" duvarını ilk günden yıkacak projelerle kariyerlerine başlamalarını sağlamak')}</span>
                     </li>
                   </ul>
                 </div>
@@ -324,20 +327,20 @@ const About = () => {
                     <Eye className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Vizyonumuz</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Nereye gidiyoruz?</p>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{t('about.vision.title', 'Vizyonumuz')}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{t('about.vision.subtitle', 'Nereye gidiyoruz?')}</p>
                   </div>
                 </div>
                 <div className="text-base text-slate-600 dark:text-slate-300 leading-relaxed space-y-4">
-                  <p className="font-medium text-slate-800 dark:text-slate-200">İşletmelerin dijital dönüşümünde, ajans ve freelancer pazar yerlerine alternatif, "üniversiteli freelancer temelli global bir hizmet markası" olmak.</p>
+                  <p className="font-medium text-slate-800 dark:text-slate-200">{t('about.vision.description', 'İşletmelerin dijital dönüşümünde, ajans ve freelancer pazar yerlerine alternatif, "üniversiteli freelancer temelli global bir hizmet markası" olmak.')}</p>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3">
                       <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0" />
-                      <span>Türkiye'nin önde gelen üniversitelerinde fiziksel Freelance Merkezleri kurmak</span>
+                      <span>{t('about.vision.point1', "Türkiye'nin önde gelen üniversitelerinde fiziksel Freelance Merkezleri kurmak")}</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0" />
-                      <span>On binlerce üniversiteli genci gerçek projelerle buluşturmak</span>
+                      <span>{t('about.vision.point2', 'On binlerce üniversiteli genci gerçek projelerle buluşturmak')}</span>
                     </li>
                   </ul>
                 </div>
@@ -377,7 +380,7 @@ const About = () => {
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium">
                     <Globe2 className="w-4 h-4" />
-                    <span>Manifesto</span>
+                    <span>{t('about.manifesto.badge', 'Manifesto')}</span>
                   </div>
                 </div>
               </div>
@@ -394,25 +397,25 @@ const About = () => {
               className="space-y-6"
             >
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
-                Beyin Göçü Yerine <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-purple-600">Hizmet İhracatı</span>
+                {t('about.hero.title', 'Beyin Göçü Yerine')} <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-purple-600">{t('about.hero.titleHighlight', 'Hizmet İhracatı')}</span>
               </h2>
 
               <p className="text-xl font-medium text-slate-900 dark:text-white">
-                Bizim için Unilancer sadece bir iş modeli değil, <span className="text-primary font-bold">bir eko-sosyal kalkınma hareketidir.</span>
+                {t('about.manifesto.intro', 'Bizim için Unilancer sadece bir iş modeli değil, bir eko-sosyal kalkınma hareketidir.')}
               </p>
 
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Türkiye'nin parlak gençlerinin, yeteneklerini sergilemek için <span className="font-semibold text-slate-900 dark:text-white">ülkelerini terk etmek zorunda olmadıklarına</span> inanıyoruz.
+                {t('about.manifesto.paragraph1', "Türkiye'nin parlak gençlerinin, yeteneklerini sergilemek için ülkelerini terk etmek zorunda olmadıklarına inanıyoruz.")}
               </p>
 
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Unilancer modeliyle; genç yetenekleri <span className="font-semibold text-slate-900 dark:text-white">fiziksel olarak burada tutup</span>, ürettikleri <span className="font-bold text-primary">dijital değeri dünyaya satmayı</span> hedefliyoruz.
+                {t('about.manifesto.paragraph2', 'Unilancer modeliyle; genç yetenekleri fiziksel olarak burada tutup, ürettikleri dijital değeri dünyaya satmayı hedefliyoruz.')}
               </p>
 
               <div className="bg-primary/5 dark:bg-primary/10 border-l-4 border-primary p-6 rounded-r-xl mt-8">
                 <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Hindistan ve Bangladeş gibi ülkelerin domine ettiği küresel freelance pazarında, <span className="text-primary">Türk gençlerinin kalitesiyle</span> yeni ve güçlü bir alternatif oluşturmak.
+                  {t('about.manifesto.quote', 'Hindistan ve Bangladeş gibi ülkelerin domine ettiği küresel freelance pazarında, Türk gençlerinin kalitesiyle yeni ve güçlü bir alternatif oluşturmak.')}
                 </p>
               </div>
             </motion.div>
@@ -434,38 +437,37 @@ const About = () => {
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-semibold text-sm">
                 <Briefcase className="w-4 h-4" />
-                <span>İş Modelimiz</span>
+                <span>{t('about.businessModel.badge', 'İş Modelimiz')}</span>
               </div>
 
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight">
-                Ajans Disiplini, <br/>
-                <span className="text-primary">Freelance Esnekliği</span>
+                {t('about.businessModel.titleLine1', 'Ajans Disiplini,')} <br/>
+                <span className="text-primary">{t('about.businessModel.titleLine2', 'Freelance Esnekliği')}</span>
               </h2>
 
               <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Unilancer, alışılagelmiş freelance sitelerinden veya hantal ajans yapılarından farklıdır. 
-                Biz, <span className="text-primary font-bold">Yönetilen Freelance Ekosistemi (Managed Freelance)</span> modelini uyguluyoruz.
+                {t('about.businessModel.description', 'Unilancer, alışılagelmiş freelance sitelerinden veya hantal ajans yapılarından farklıdır. Biz, Yönetilen Freelance Ekosistemi (Managed Freelance) modelini uyguluyoruz.')}
               </p>
 
               <div className="space-y-4">
                 <div className="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-950/20 rounded-xl border border-red-200 dark:border-red-800/30">
                   <span className="text-xl">❌</span>
                   <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">Ne Değiliz?</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">Sizi yüzlerce ilan arasında yalnız bırakan bir pazar yeri değiliz.</p>
+                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">{t('about.businessModel.notWhat', 'Ne Değiliz?')}</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{t('about.businessModel.notDesc', 'Sizi yüzlerce ilan arasında yalnız bırakan bir pazar yeri değiliz.')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-xl border border-green-200 dark:border-green-800/30">
                   <span className="text-xl">✅</span>
                   <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">Neyiz?</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">PM rehberliğinde, seçilmiş üniversiteli ekiplerle çalışan çözüm ortağınızız.</p>
+                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">{t('about.businessModel.what', 'Neyiz?')}</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{t('about.businessModel.whatDesc', 'PM rehberliğinde, seçilmiş üniversiteli ekiplerle çalışan çözüm ortağınızız.')}</p>
                   </div>
                 </div>
               </div>
 
               <p className="text-base text-slate-600 dark:text-slate-300 italic">
-                Siz işinize odaklanın, biz dijital süreçlerinizi yönetelim.
+                {t('about.businessModel.tagline', 'Siz işinize odaklanın, biz dijital süreçlerinizi yönetelim.')}
               </p>
             </motion.div>
 
@@ -487,7 +489,7 @@ const About = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <p className="text-white text-lg font-medium">
-                    Tek muhatap, tek fatura, <span className="text-primary">kalite garantisi</span>
+                    {t('about.businessModel.imageCaption', 'Tek muhatap, tek fatura, kalite garantisi')}
                   </p>
                 </div>
               </div>
@@ -508,27 +510,26 @@ const About = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-8 leading-tight">
-              Geleceği <span className="text-primary">Birlikte Tasarlayalım</span>
+              {t('about.cta.titleLine1', 'Geleceği')} <span className="text-primary">{t('about.cta.titleLine2', 'Birlikte Tasarlayalım')}</span>
             </h2>
             
             <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-              İster dijitalleşmek isteyen bir KOBİ olun, ister dünyaya açılmak isteyen bir yetenek... 
-              <span className="font-semibold text-slate-900 dark:text-white"> Unilancer Labs</span>, Web 3.0 çağına ve geleceğin iş modellerine giden köprünüzdür.
+              {t('about.cta.description', 'İster dijitalleşmek isteyen bir KOBİ olun, ister dünyaya açılmak isteyen bir yetenek... Unilancer Labs, Web 3.0 çağına ve geleceğin iş modellerine giden köprünüzdür.')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button asChild size="lg" className="h-16 rounded-full px-10 text-lg shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105 group">
-                <Link to="/tr/proje-talebi" className="flex items-center gap-2">
+                <Link to={getRouteForLanguage('/proje-talebi', language)} className="flex items-center gap-2">
                   <Briefcase className="w-5 h-5" />
-                  <span>Hizmet Almak İstiyorum</span>
+                  <span>{t('about.cta.getService', 'Hizmet Almak İstiyorum')}</span>
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
               
               <Button asChild size="lg" variant="outline" className="h-16 rounded-full px-10 text-lg border-2 hover:bg-slate-50 dark:hover:bg-white/5 group">
-                <Link to="/tr/basvuru" className="flex items-center gap-2">
+                <Link to={getRouteForLanguage('/basvuru', language)} className="flex items-center gap-2">
                   <Rocket className="w-5 h-5" />
-                  <span>Freelancer Olarak Katıl</span>
+                  <span>{t('about.cta.joinAsFreelancer', 'Freelancer Olarak Katıl')}</span>
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>

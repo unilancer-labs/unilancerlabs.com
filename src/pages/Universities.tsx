@@ -14,6 +14,8 @@ import {
   LucideIcon
 } from 'lucide-react';
 import AuroraBackground from '../components/ui/effects/aurora-background';
+import { useTranslation } from '../hooks/useTranslation';
+import { getRouteForLanguage } from '../contexts/LanguageContext';
 
 interface TabItem {
   id: number;
@@ -29,13 +31,14 @@ interface TabItem {
 
 const Universities = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const { t, language } = useTranslation();
 
   // Memoize tab items to prevent recreation on each render
   const tabItems: TabItem[] = useMemo(() => [
     {
       id: 1,
-      title: 'İş & Gelir',
-      description: 'Gerçek müşteri projelerinde yer alarak profesyonel deneyim kazan ve gelir elde etmeye hemen başla.',
+      title: t('universities.tab.work.title', 'İş & Gelir'),
+      description: t('universities.tab.work.description', 'Gerçek müşteri projelerinde yer alarak profesyonel deneyim kazan ve gelir elde etmeye hemen başla.'),
       icon: Briefcase,
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
@@ -45,8 +48,8 @@ const Universities = () => {
     },
     {
       id: 2,
-      title: 'Kulüpler',
-      description: 'Kampüsündeki Freelancer Merkezleri ve kulüplerde sosyalleş, takım arkadaşları bul.',
+      title: t('universities.tab.clubs.title', 'Kulüpler'),
+      description: t('universities.tab.clubs.description', 'Kampüsündeki Freelancer Merkezleri ve kulüplerde sosyalleş, takım arkadaşları bul.'),
       icon: Users,
       color: 'text-purple-600 dark:text-purple-400',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
@@ -56,8 +59,8 @@ const Universities = () => {
     },
     {
       id: 3,
-      title: 'Ayrıcalıklar',
-      description: 'En sevdiğin markalarda ve teknoloji ürünlerinde üniversitelilere özel indirimler.',
+      title: t('universities.tab.perks.title', 'Ayrıcalıklar'),
+      description: t('universities.tab.perks.description', 'En sevdiğin markalarda ve teknoloji ürünlerinde üniversitelilere özel indirimler.'),
       icon: Tag,
       color: 'text-pink-600 dark:text-pink-400',
       bgColor: 'bg-pink-50 dark:bg-pink-900/20',
@@ -67,8 +70,8 @@ const Universities = () => {
     },
     {
       id: 4,
-      title: 'Kariyer',
-      description: 'Sektör liderlerinden eğitimler al ve partner şirketlerimizde staj yap.',
+      title: t('universities.tab.career.title', 'Kariyer'),
+      description: t('universities.tab.career.description', 'Sektör liderlerinden eğitimler al ve partner şirketlerimizde staj yap.'),
       icon: GraduationCap,
       color: 'text-yellow-600 dark:text-yellow-400',
       bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -76,7 +79,7 @@ const Universities = () => {
       status: 'coming-soon',
       image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80'
     }
-  ], []);
+  ], [t]);
 
   // Memoize tab change handler
   const handleTabChange = useCallback((index: number) => {
@@ -152,7 +155,7 @@ const Universities = () => {
               className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white mb-6 shadow-sm"
             >
               <Zap className="w-4 h-4 mr-2 text-yellow-500 fill-yellow-500" />
-              <span className="font-bold tracking-wide text-xs">YENİ NESİL EKOSİSTEM</span>
+              <span className="font-bold tracking-wide text-xs">{t('universities.badge', 'YENİ NESİL EKOSİSTEM')}</span>
             </motion.div>
 
             <motion.div 
@@ -162,9 +165,9 @@ const Universities = () => {
               className="mb-6"
             >
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-                Üniversiteli <br />
+                {t('universities.title', 'Üniversiteli')} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-400 dark:to-blue-500">
-                  Ekosistemi
+                  {t('universities.titleHighlight', 'Ekosistemi')}
                 </span>
               </h1>
             </motion.div>
@@ -175,7 +178,7 @@ const Universities = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-md leading-relaxed font-medium"
             >
-              Sadece bir çalışma platformu değil; deneyim kazandığın, sosyalleştiğin ve kariyerini inşa ettiğin dev bir kampüs.
+              {t('universities.description', 'Sadece bir çalışma platformu değil; deneyim kazandığın, sosyalleştiğin ve kariyerini inşa ettiğin dev bir kampüs.')}
             </motion.p>
 
             {/* Navigation Tabs */}
@@ -185,7 +188,7 @@ const Universities = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-wrap gap-3 mb-8"
               role="tablist"
-              aria-label="Ekosistem özellikleri"
+              aria-label={t('universities.ariaLabel', 'Ekosistem özellikleri')}
             >
               {tabItems.map((item, index) => {
                 const isActive = activeTab === index;
@@ -219,11 +222,11 @@ const Universities = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <Link
-                to="/tr/basvuru"
+                to={getRouteForLanguage('/basvuru', language)}
                 className="inline-flex items-center px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] hover:-translate-y-1 border-2 border-transparent"
               >
                 <Zap className="w-5 h-5 mr-2 fill-current" />
-                Aramıza Katıl
+                {t('universities.joinUs', 'Aramıza Katıl')}
               </Link>
             </motion.div>
           </div>
@@ -314,12 +317,12 @@ const Universities = () => {
                       {tabItems[activeTab].status === 'active' ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-green-100 text-green-800 border-2 border-green-200">
                           <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse"/>
-                          AKTİF
+                          {t('universities.status.active', 'AKTİF')}
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-600 border-2 border-slate-200">
                           <Clock className="w-3 h-3 mr-1.5"/>
-                          YAKINDA
+                          {t('universities.status.comingSoon', 'YAKINDA')}
                         </span>
                       )}
                       

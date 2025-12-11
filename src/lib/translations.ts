@@ -153,6 +153,81 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
     tr: 'Teklif Alın',
     en: 'Get a Quote'
   },
+  'cta.title': {
+    tr: 'Projenizi Hayata Geçirmek İçin',
+    en: 'To Bring Your Project to Life'
+  },
+  'cta.titleHighlight': {
+    tr: 'Doğru Zaman Şimdi!',
+    en: 'The Right Time is Now!'
+  },
+  'cta.description': {
+    tr: "Türkiye'nin en yetenekli üniversiteli ekipleriyle çalışın. Web sitesinden mobil uygulamaya, tasarımdan pazarlamaya kadar tüm dijital ihtiyaçlarınız için profesyonel destek alın.",
+    en: "Work with Turkey's most talented university teams. Get professional support for all your digital needs, from websites to mobile apps, design to marketing."
+  },
+  'cta.startProject': {
+    tr: 'Projeni Başlat',
+    en: 'Start Your Project'
+  },
+  'cta.joinUs': {
+    tr: 'Bize Katıl',
+    en: 'Join Us'
+  },
+  
+  // Bento Services
+  'services.bento.web.title': {
+    tr: 'Web Geliştirme',
+    en: 'Web Development'
+  },
+  'services.bento.web.desc': {
+    tr: 'Modern ve performanslı web siteleri, platformlar ve uygulamalar.',
+    en: 'Modern and high-performance websites, platforms, and applications.'
+  },
+  'services.bento.design.title': {
+    tr: 'UI/UX Tasarım',
+    en: 'UI/UX Design'
+  },
+  'services.bento.design.desc': {
+    tr: 'Kullanıcı odaklı, estetik ve sezgisel arayüz tasarımları.',
+    en: 'User-centered, aesthetic, and intuitive interface designs.'
+  },
+  'services.bento.mobile.title': {
+    tr: 'Mobil Uygulamalar',
+    en: 'Mobile Apps'
+  },
+  'services.bento.mobile.desc': {
+    tr: 'iOS ve Android için native ve cross-platform çözümler.',
+    en: 'Native and cross-platform solutions for iOS and Android.'
+  },
+  'services.bento.ai.title': {
+    tr: 'Yapay Zeka Çözümleri',
+    en: 'AI Solutions'
+  },
+  'services.bento.ai.desc': {
+    tr: 'İşletmenizi geleceğe taşıyan akıllı otomasyon ve AI entegrasyonları.',
+    en: 'Smart automation and AI integrations that take your business to the future.'
+  },
+  'services.bento.seo.title': {
+    tr: 'SEO & Pazarlama',
+    en: 'SEO & Marketing'
+  },
+  'services.bento.seo.desc': {
+    tr: 'Arama motorlarında ve dijital kanallarda görünürlüğünüzü artırın.',
+    en: 'Increase your visibility on search engines and digital channels.'
+  },
+  'services.bento.saas.title': {
+    tr: 'SaaS Çözümleri',
+    en: 'SaaS Solutions'
+  },
+  'services.bento.saas.desc': {
+    tr: 'İş süreçlerinizi otomatize eden bulut tabanlı yazılım hizmetleri.',
+    en: 'Cloud-based software services that automate your business processes.'
+  },
+  'services.bento.cta': {
+    tr: 'Detayları Gör',
+    en: 'See Details'
+  },
+
   'footer.about.title': {
     tr: 'Hakkımızda',
     en: 'About'
@@ -3096,6 +3171,346 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
   'nav.scheduleNow': {
     tr: 'Hemen Randevu Oluştur',
     en: 'Schedule Appointment Now'
+  },
+
+  // Universities Page
+  'universities.badge': {
+    tr: 'YENİ NESİL EKOSİSTEM',
+    en: 'NEXT-GEN ECOSYSTEM'
+  },
+  'universities.title': {
+    tr: 'Üniversiteli',
+    en: 'University'
+  },
+  'universities.titleHighlight': {
+    tr: 'Ekosistemi',
+    en: 'Ecosystem'
+  },
+  'universities.description': {
+    tr: 'Sadece bir çalışma platformu değil; deneyim kazandığın, sosyalleştiğin ve kariyerini inşa ettiğin dev bir kampüs.',
+    en: 'Not just a work platform; a huge campus where you gain experience, socialize, and build your career.'
+  },
+  'universities.joinUs': {
+    tr: 'Aramıza Katıl',
+    en: 'Join Us'
+  },
+  'universities.tab.work.title': {
+    tr: 'İş & Gelir',
+    en: 'Work & Income'
+  },
+  'universities.tab.work.description': {
+    tr: 'Gerçek müşteri projelerinde yer alarak profesyonel deneyim kazan ve gelir elde etmeye hemen başla.',
+    en: 'Gain professional experience by participating in real client projects and start earning income right away.'
+  },
+  'universities.tab.clubs.title': {
+    tr: 'Kulüpler',
+    en: 'Clubs'
+  },
+  'universities.tab.clubs.description': {
+    tr: 'Kampüsündeki Freelancer Merkezleri ve kulüplerde sosyalleş, takım arkadaşları bul.',
+    en: 'Socialize at Freelancer Centers and clubs on your campus, find teammates.'
+  },
+  'universities.tab.perks.title': {
+    tr: 'Ayrıcalıklar',
+    en: 'Perks'
+  },
+  'universities.tab.perks.description': {
+    tr: 'En sevdiğin markalarda ve teknoloji ürünlerinde üniversitelilere özel indirimler.',
+    en: 'Exclusive discounts for university students on your favorite brands and tech products.'
+  },
+  'universities.tab.career.title': {
+    tr: 'Kariyer',
+    en: 'Career'
+  },
+  'universities.tab.career.description': {
+    tr: 'Sektör liderlerinden eğitimler al ve partner şirketlerimizde staj yap.',
+    en: 'Get training from industry leaders and intern at our partner companies.'
+  },
+  'universities.status.active': {
+    tr: 'AKTİF',
+    en: 'ACTIVE'
+  },
+  'universities.status.comingSoon': {
+    tr: 'YAKINDA',
+    en: 'COMING SOON'
+  },
+  'universities.ariaLabel': {
+    tr: 'Ekosistem özellikleri',
+    en: 'Ecosystem features'
+  },
+
+  // Team Page
+  'team.header': {
+    tr: "Unilancer'a yön veren insanları yakından tanıyın.",
+    en: "Meet the people who drive Unilancer."
+  },
+  'team.viewAll': {
+    tr: 'Tüm Ekibi Gör',
+    en: 'View Full Team'
+  },
+  'team.role.ceoCofounder': {
+    tr: 'CEO & Kurucu Ortak',
+    en: 'CEO & Co-Founder'
+  },
+  'team.role.cooCofounder': {
+    tr: 'COO & Kurucu Ortak',
+    en: 'COO & Co-Founder'
+  },
+  'team.role.programManager': {
+    tr: 'Program Yöneticisi & Kurucu Ortak',
+    en: 'Program Manager & Co-Founder'
+  },
+  'team.role.cmo': {
+    tr: 'CMO',
+    en: 'CMO'
+  },
+  'team.role.fashionGraphicDesigner': {
+    tr: 'Moda ve Grafik Tasarımcı',
+    en: 'Fashion & Graphic Designer'
+  },
+  'team.role.contentCommunication': {
+    tr: 'İçerik ve İletişim Uzmanı',
+    en: 'Content & Communication Specialist'
+  },
+  'team.role.businessDevelopment': {
+    tr: 'İş Geliştirme Uzmanı',
+    en: 'Business Development Specialist'
+  },
+  'team.role.salesRepresentative': {
+    tr: 'Satış Sorumlusu',
+    en: 'Sales Representative'
+  },
+  'team.role.webDeveloper': {
+    tr: 'Web Geliştirici',
+    en: 'Web Developer'
+  },
+  'team.role.aiAutomationEngineer': {
+    tr: 'Yapay Zeka ve Otomasyon Mühendisi',
+    en: 'AI & Automation Engineer'
+  },
+  'team.role.aiAutomationDeveloper': {
+    tr: 'Yapay Zeka ve Otomasyon Geliştirici',
+    en: 'AI & Automation Developer'
+  },
+  'team.role.socialMediaSpecialist': {
+    tr: 'Sosyal Medya Uzmanı',
+    en: 'Social Media Specialist'
+  },
+
+  // About Page
+  'about.hero.badge': {
+    tr: 'Vizyon 2026',
+    en: 'Vision 2026'
+  },
+  'about.hero.title': {
+    tr: 'Beyin Göçü Yerine',
+    en: 'Instead of Brain Drain'
+  },
+  'about.hero.titleHighlight': {
+    tr: 'Hizmet İhracatı',
+    en: 'Service Export'
+  },
+  'about.hero.description': {
+    tr: "Unilancer, Türkiye'nin üniversiteli freelancerlarından oluşan seçili ekiplerle işletmelere yönetilen dijital hizmetler sunan bir ekosistemdir.",
+    en: "Unilancer is an ecosystem that provides managed digital services to businesses with selected teams of university freelancers from Turkey."
+  },
+  'about.story.badge': {
+    tr: 'Hikayemiz',
+    en: 'Our Story'
+  },
+  'about.story.title': {
+    tr: 'Bir Üniversite Sırasından',
+    en: 'A Vision Born from'
+  },
+  'about.story.titleHighlight': {
+    tr: 'Doğan Vizyon',
+    en: 'University Days'
+  },
+  'about.story.paragraph1': {
+    tr: 'Unilancer, 2021 yılında, henüz üniversite sıralarındayken hem okuyup hem üretmek isteyen bir grup öğrencinin ortak sancısıyla kuruldu.',
+    en: 'Unilancer was founded in 2021 by a group of students who wanted to study and produce at the same time while still in university.'
+  },
+  'about.mission.title': {
+    tr: 'Misyonumuz',
+    en: 'Our Mission'
+  },
+  'about.mission.subtitle': {
+    tr: 'Neden buradayız?',
+    en: 'Why are we here?'
+  },
+  'about.vision.title': {
+    tr: 'Vizyonumuz',
+    en: 'Our Vision'
+  },
+  'about.vision.subtitle': {
+    tr: 'Nereye gidiyoruz?',
+    en: 'Where are we going?'
+  },
+  'about.manifesto.badge': {
+    tr: 'Manifesto',
+    en: 'Manifesto'
+  },
+  'about.businessModel.badge': {
+    tr: 'İş Modelimiz',
+    en: 'Our Business Model'
+  },
+  'about.businessModel.title': {
+    tr: 'Yönetilen Freelance Hizmeti',
+    en: 'Managed Freelance Service'
+  },
+  'about.businessModel.notWhat': {
+    tr: 'Ne Değiliz?',
+    en: 'What We Are Not'
+  },
+  'about.businessModel.what': {
+    tr: 'Neyiz?',
+    en: 'What We Are'
+  },
+  'about.businessModel.notDesc': {
+    tr: 'Freelancer pazaryeri veya serbest çalışan bulma platformu değiliz.',
+    en: 'We are not a freelancer marketplace or a platform for finding freelancers.'
+  },
+  'about.businessModel.whatDesc': {
+    tr: 'Biz, projeniz için uygun ekibi oluşturur, deneyimli proje yöneticileriyle uçtan uca yönetir ve sonucu teslim ederiz.',
+    en: 'We build the right team for your project, manage it end-to-end with experienced project managers, and deliver results.'
+  },
+  'about.businessModel.imageCaption': {
+    tr: 'Tek muhatap, tek fatura, kalite garantisi',
+    en: 'Single point of contact, single invoice, quality guarantee'
+  },
+  'about.story.paragraph2': {
+    tr: 'O günlerde yaşadığımız maddi zorluklar ve "henüz tecrübesizsiniz" denilerek reddedilen iş başvuruları, bizi sadece şikayet etmekten öteye, kendi çözümümüzü üretmeye itti.',
+    en: 'The financial difficulties we experienced in those days and job applications rejected with "you are still inexperienced" pushed us beyond just complaining to producing our own solution.'
+  },
+  'about.story.paragraph3': {
+    tr: 'Sektörde genç yeteneklerin "tecrübesizlik" bariyerine takıldığını, işverenlerin ise "güven" sorunu yaşadığını gördük.',
+    en: 'We saw that young talents in the industry were stuck at the "inexperience" barrier, while employers were experiencing "trust" issues.'
+  },
+  'about.story.quote': {
+    tr: 'Öyle bir sistem kuralım ki; öğrenciler okuluna devam ederken gerçek projelerle deneyim kazansın, firmalar ise kurumsal güvenceyle hizmet alsın',
+    en: 'Let\'s build a system where students gain experience with real projects while continuing their education, and companies receive services with corporate assurance'
+  },
+  'about.story.paragraph4': {
+    tr: 'O gün kurduğumuz hayal, bugün 15 kişilik çekirdek ekibi ve 200 kişilik dev bir hizmet ağına sahip, Teknopark İstanbul\'da teknoloji geliştiren bir anonim şirkete dönüştü.',
+    en: 'The dream we built that day has turned into a corporation developing technology in Teknopark Istanbul, with a core team of 15 and a massive service network of 200 people.'
+  },
+  'about.mission.description': {
+    tr: "Türkiye'deki üniversiteli yeteneklerin potansiyelini açığa çıkararak:",
+    en: "By unlocking the potential of university talents in Turkey:"
+  },
+  'about.mission.point1': {
+    tr: 'Beyin göçü yerine hizmet ihracatını güçlendirmek',
+    en: 'Strengthen service exports instead of brain drain'
+  },
+  'about.mission.point2': {
+    tr: "KOBİ'lere erişilebilir bütçelerle kurumsal kalite sunmak",
+    en: "Provide corporate quality to SMEs with accessible budgets"
+  },
+  'about.mission.point3': {
+    tr: 'Gençlerin "tecrübe yok" duvarını ilk günden yıkacak projelerle kariyerlerine başlamalarını sağlamak',
+    en: 'Enable young people to start their careers with projects that break down the "no experience" barrier from day one'
+  },
+  'about.vision.description': {
+    tr: 'İşletmelerin dijital dönüşümünde, ajans ve freelancer pazar yerlerine alternatif, "üniversiteli freelancer temelli global bir hizmet markası" olmak.',
+    en: 'To become a "global service brand based on university freelancers" as an alternative to agencies and freelancer marketplaces in digital transformation of businesses.'
+  },
+  'about.vision.point1': {
+    tr: "Türkiye'nin önde gelen üniversitelerinde fiziksel Freelance Merkezleri kurmak",
+    en: "Establish physical Freelance Centers in Turkey's leading universities"
+  },
+  'about.vision.point2': {
+    tr: 'On binlerce üniversiteli genci gerçek projelerle buluşturmak',
+    en: 'Connect tens of thousands of university students with real projects'
+  },
+  'about.manifesto.intro': {
+    tr: 'Bizim için Unilancer sadece bir iş modeli değil, bir eko-sosyal kalkınma hareketidir.',
+    en: 'For us, Unilancer is not just a business model, but an eco-social development movement.'
+  },
+  'about.manifesto.paragraph1': {
+    tr: "Türkiye'nin parlak gençlerinin, yeteneklerini sergilemek için ülkelerini terk etmek zorunda olmadıklarına inanıyoruz.",
+    en: "We believe that Turkey's bright young people don't have to leave their country to showcase their talents."
+  },
+  'about.manifesto.paragraph2': {
+    tr: 'Unilancer modeliyle; genç yetenekleri fiziksel olarak burada tutup, ürettikleri dijital değeri dünyaya satmayı hedefliyoruz.',
+    en: 'With the Unilancer model, we aim to keep young talents physically here and sell the digital value they produce to the world.'
+  },
+  'about.manifesto.quote': {
+    tr: 'Hindistan ve Bangladeş gibi ülkelerin domine ettiği küresel freelance pazarında, Türk gençlerinin kalitesiyle yeni ve güçlü bir alternatif oluşturmak.',
+    en: 'Creating a new and strong alternative with the quality of Turkish youth in the global freelance market dominated by countries like India and Bangladesh.'
+  },
+  'about.businessModel.titleLine1': {
+    tr: 'Ajans Disiplini,',
+    en: 'Agency Discipline,'
+  },
+  'about.businessModel.titleLine2': {
+    tr: 'Freelance Esnekliği',
+    en: 'Freelance Flexibility'
+  },
+  'about.businessModel.description': {
+    tr: 'Unilancer, alışılagelmiş freelance sitelerinden veya hantal ajans yapılarından farklıdır. Biz, Yönetilen Freelance Ekosistemi (Managed Freelance) modelini uyguluyoruz.',
+    en: 'Unilancer is different from conventional freelance sites or cumbersome agency structures. We implement the Managed Freelance Ecosystem model.'
+  },
+  'about.businessModel.tagline': {
+    tr: 'Siz işinize odaklanın, biz dijital süreçlerinizi yönetelim.',
+    en: 'Focus on your business, let us manage your digital processes.'
+  },
+  'about.cta.titleLine1': {
+    tr: 'Geleceği',
+    en: 'The Future'
+  },
+  'about.cta.titleLine2': {
+    tr: 'Birlikte Tasarlayalım',
+    en: "Let's Design Together"
+  },
+  'about.cta.title': {
+    tr: 'Geleceği Birlikte Tasarlayalım',
+    en: "Let's Design the Future Together"
+  },
+  'about.cta.description': {
+    tr: 'İster dijitalleşmek isteyen bir KOBİ olun, ister dünyaya açılmak isteyen bir yetenek... Unilancer Labs, Web 3.0 çağına ve geleceğin iş modellerine giden köprünüzdür.',
+    en: "Whether you're an SME wanting to digitize or a talent wanting to reach the world... Unilancer Labs is your bridge to the Web 3.0 era and future business models."
+  },
+  'about.cta.getService': {
+    tr: 'Hizmet Almak İstiyorum',
+    en: 'I Want to Get Service'
+  },
+  'about.cta.joinAsFreelancer': {
+    tr: 'Freelancer Olarak Katıl',
+    en: 'Join as a Freelancer'
+  },
+
+  // Testimonials
+  'testimonials.1.quote': {
+    tr: 'Unilancer ekibiyle çalışmak harika bir deneyimdi. Web sitemizi modern ve kullanıcı dostu bir şekilde yeniden tasarladılar.',
+    en: 'Working with the Unilancer team was a great experience. They redesigned our website in a modern and user-friendly way.'
+  },
+  'testimonials.1.designation': {
+    tr: 'CEO, TechStart',
+    en: 'CEO, TechStart'
+  },
+  'testimonials.2.quote': {
+    tr: 'E-ticaret projemizi zamanında ve bütçe dahilinde teslim ettiler. Satışlarımız %150 arttı!',
+    en: 'They delivered our e-commerce project on time and within budget. Our sales increased by 150%!'
+  },
+  'testimonials.2.designation': {
+    tr: 'Kurucu, ModaStore',
+    en: 'Founder, ModaStore'
+  },
+  'testimonials.3.quote': {
+    tr: 'Yapay zeka chatbot çözümleri müşteri hizmetlerimizi tamamen dönüştürdü. Müşteri memnuniyetimiz %40 arttı.',
+    en: 'AI chatbot solutions completely transformed our customer service. Our customer satisfaction increased by 40%.'
+  },
+  'testimonials.3.designation': {
+    tr: 'CTO, FinTech Solutions',
+    en: 'CTO, FinTech Solutions'
+  },
+  'testimonials.4.quote': {
+    tr: '3D ve AR deneyimleri ile ürün kataloğumuzu hayata geçirdik. Müşterilerimiz artık ürünleri evlerinde deneyimleyebiliyor.',
+    en: 'We brought our product catalog to life with 3D and AR experiences. Our customers can now experience products in their homes.'
+  },
+  'testimonials.4.designation': {
+    tr: 'Pazarlama Direktörü, MobilyaPlus',
+    en: 'Marketing Director, MobilyaPlus'
   },
 
   // Home - Testimonials Section

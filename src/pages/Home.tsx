@@ -28,29 +28,29 @@ import { WhyUsSection } from "../components/ui/sections/why-us";
 import { AnimatedTestimonials } from "../components/ui/animated-testimonials";
 import { trackCTAClick } from "../lib/analytics";
 
-const getTestimonials = () => [
+const getTestimonials = (t: (key: string, fallback?: string) => string) => [
   {
-    quote: "Unilancer ekibiyle çalışmak harika bir deneyimdi. Web sitemizi modern ve kullanıcı dostu bir şekilde yeniden tasarladılar.",
+    quote: t('testimonials.1.quote', "Unilancer ekibiyle çalışmak harika bir deneyimdi. Web sitemizi modern ve kullanıcı dostu bir şekilde yeniden tasarladılar."),
     name: "Mehmet Yılmaz",
-    designation: "CEO, TechStart",
+    designation: t('testimonials.1.designation', "CEO, TechStart"),
     src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=500&auto=format&fit=crop",
   },
   {
-    quote: "E-ticaret projemizi zamanında ve bütçe dahilinde teslim ettiler. Satışlarımız %150 arttı!",
+    quote: t('testimonials.2.quote', "E-ticaret projemizi zamanında ve bütçe dahilinde teslim ettiler. Satışlarımız %150 arttı!"),
     name: "Ayşe Kaya",
-    designation: "Kurucu, ModaStore",
+    designation: t('testimonials.2.designation', "Kurucu, ModaStore"),
     src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=500&auto=format&fit=crop",
   },
   {
-    quote: "Yapay zeka chatbot çözümleri müşteri hizmetlerimizi tamamen dönüştürdü. Müşteri memnuniyetimiz %40 arttı.",
+    quote: t('testimonials.3.quote', "Yapay zeka chatbot çözümleri müşteri hizmetlerimizi tamamen dönüştürdü. Müşteri memnuniyetimiz %40 arttı."),
     name: "Can Özdemir",
-    designation: "CTO, FinTech Solutions",
+    designation: t('testimonials.3.designation', "CTO, FinTech Solutions"),
     src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=500&auto=format&fit=crop",
   },
   {
-    quote: "3D ve AR deneyimleri ile ürün kataloğumuzu hayata geçirdik. Müşterilerimiz artık ürünleri evlerinde deneyimleyebiliyor.",
+    quote: t('testimonials.4.quote', "3D ve AR deneyimleri ile ürün kataloğumuzu hayata geçirdik. Müşterilerimiz artık ürünleri evlerinde deneyimleyebiliyor."),
     name: "Zeynep Demir",
-    designation: "Pazarlama Direktörü, MobilyaPlus",
+    designation: t('testimonials.4.designation', "Pazarlama Direktörü, MobilyaPlus"),
     src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=500&auto=format&fit=crop",
   },
 ];
@@ -88,7 +88,7 @@ const getAudience = () => [
 const Home = () => {
   const { t } = useTranslation();
   const audience = getAudience();
-  const testimonials = getTestimonials();
+  const testimonials = getTestimonials(t);
   const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
   
   // Analytics: Track scroll depth

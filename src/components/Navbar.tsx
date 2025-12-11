@@ -693,7 +693,7 @@ const Navbar = () => {
                   <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
                     <Users className="w-5 h-5 text-purple-500" />
                   </div>
-                  <span className="font-semibold text-slate-900 dark:text-white">Üniversiteliler</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{t('nav.universities', 'Üniversiteliler')}</span>
                 </div>
                 <ArrowRight className="w-5 h-5 text-slate-400" />
               </Link>
@@ -723,7 +723,7 @@ const Navbar = () => {
                     <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
                       <Users className="w-5 h-5 text-amber-500" />
                     </div>
-                    <span className="font-semibold text-slate-900 dark:text-white">Kurumsal</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">{t('nav.corporate', 'Kurumsal')}</span>
                   </div>
                   <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${mobileCorporateOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -802,7 +802,7 @@ const Navbar = () => {
                     <Moon className="w-5 h-5 text-slate-700" />
                   )}
                   <span className="font-semibold text-slate-900 dark:text-white">
-                    {theme === 'dark' ? 'Aydınlık Tema' : 'Karanlık Tema'}
+                    {theme === 'dark' ? t('nav.lightTheme', 'Aydınlık Tema') : t('nav.darkTheme', 'Karanlık Tema')}
                   </span>
                 </button>
               </div>

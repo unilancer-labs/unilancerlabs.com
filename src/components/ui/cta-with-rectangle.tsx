@@ -3,8 +3,12 @@ import { Rocket } from "lucide-react";
 import { motion } from "framer-motion";
 import { trackCTAClick } from "@/lib/analytics";
 import { trackCTAClick as gtmTrackCTA } from "@/lib/gtm";
+import { useTranslation } from "@/hooks/useTranslation";
+import { getRouteForLanguage } from "@/contexts/LanguageContext";
 
 function CTASection() {
+  const { t, language } = useTranslation();
+  
   return (
     <section className="w-full py-12 md:py-16 bg-transparent relative overflow-hidden">
       {/* Ambient Lighting Effects - Simplified for Performance */}
@@ -26,9 +30,9 @@ function CTASection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight max-w-5xl text-foreground leading-tight"
           >
-            <span className="block sm:inline">Projenizi Hayata Geçirmek İçin</span>{' '}
+            <span className="block sm:inline">{t('cta.title', 'Projenizi Hayata Geçirmek İçin')}</span>{' '}
             <span className="text-primary">
-              Doğru Zaman Şimdi!
+              {t('cta.titleHighlight', 'Doğru Zaman Şimdi!')}
             </span>
           </motion.h2>
 
@@ -40,8 +44,7 @@ function CTASection() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed px-2"
           >
-            Türkiye'nin en yetenekli üniversiteli ekipleriyle çalışın. 
-            Web sitesinden mobil uygulamaya, tasarımdan pazarlamaya kadar tüm dijital ihtiyaçlarınız için profesyonel destek alın.
+            {t('cta.description', "Türkiye'nin en yetenekli üniversiteli ekipleriyle çalışın. Web sitesinden mobil uygulamaya, tasarımdan pazarlamaya kadar tüm dijital ihtiyaçlarınız için profesyonel destek alın.")}
           </motion.p>
 
           {/* Buttons */}
@@ -57,12 +60,12 @@ function CTASection() {
               className="bg-primary hover:bg-primary-dark text-white w-full sm:w-auto sm:min-w-[180px] h-12 sm:h-14 text-base sm:text-lg shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 rounded-xl"
               onClick={() => {
                 trackCTAClick('start_project', 'cta_section', '/project-request');
-                gtmTrackCTA('start_project', 'Projeni Başlat', 'cta_section');
-                window.location.href = '/project-request';
+                gtmTrackCTA('start_project', t('cta.startProject', 'Projeni Başlat'), 'cta_section');
+                window.location.href = getRouteForLanguage('/proje-talebi', language);
               }}
             >
               <Rocket className="mr-2 h-5 w-5" />
-              Projeni Başlat
+              {t('cta.startProject', 'Projeni Başlat')}
             </Button>
             
             <Button 
@@ -70,12 +73,12 @@ function CTASection() {
               className="text-white w-full sm:w-auto sm:min-w-[180px] h-12 sm:h-14 text-base sm:text-lg shadow-lg transition-all duration-300 rounded-xl hover:opacity-90"
               style={{ backgroundColor: '#b370ab' }}
               onClick={() => {
-              trackCTAClick('join_us', 'cta_section', '/tr/basvuru');
-              gtmTrackCTA('join_us', 'Bize Katıl', 'cta_section');
-              window.location.href = '/tr/basvuru';
+              trackCTAClick('join_us', 'cta_section', '/basvuru');
+              gtmTrackCTA('join_us', t('cta.joinUs', 'Bize Katıl'), 'cta_section');
+              window.location.href = getRouteForLanguage('/basvuru', language);
               }}
             >
-              Bize Katıl
+              {t('cta.joinUs', 'Bize Katıl')}
             </Button>
           </motion.div>
         </div>

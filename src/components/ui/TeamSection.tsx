@@ -80,34 +80,34 @@ const MemberCard = memo(({ member, index }: { member: { name: string; role: stri
 ));
 
 export default function TeamSection({ limit }: { limit?: number }) {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
 
     const members = [
         // Co-Founders
         {
             name: 'Emrah Er',
-            role: 'CEO & Kurucu Ortak',
+            role: t('team.role.ceoCofounder', 'CEO & Kurucu Ortak'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/emrah-er.webp',
             linkedin: 'https://www.linkedin.com/in/emrah-er-550b52228/',
             email: 'emrah@unilancerlabs.com',
         },
         {
             name: 'Taha Karahüseyinoğlu',
-            role: 'COO & Kurucu Ortak',
+            role: t('team.role.cooCofounder', 'COO & Kurucu Ortak'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/taha-karahuseyinoglu.webp',
             linkedin: 'https://www.linkedin.com/in/taha-karahüseyinoğlu-324924214/',
             email: 'taha@unilancerlabs.com',
         },
         {
             name: 'Koray Andırınlı',
-            role: 'Program Yöneticisi & Kurucu Ortak',
+            role: t('team.role.programManager', 'Program Yöneticisi & Kurucu Ortak'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/koray-andirinli.webp',
             linkedin: 'https://www.linkedin.com/in/koray-a-9aaa6822a/',
             email: 'koray@unilancerlabs.com',
         },
         {
             name: 'Selvinaz Deniz Koca',
-            role: 'CMO',
+            role: t('team.role.cmo', 'CMO'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/selvinaz-deniz-koca.webp',
             linkedin: 'https://www.linkedin.com/in/selvinaz-deniz-koca/',
             email: 'deniz@unilancerlabs.com',
@@ -115,68 +115,68 @@ export default function TeamSection({ limit }: { limit?: number }) {
         // Team Members
         {
             name: 'Berna Kalyon',
-            role: 'Moda ve Grafik Tasarımcı',
+            role: t('team.role.fashionGraphicDesigner', 'Moda ve Grafik Tasarımcı'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/berna-kalyon.webp',
             linkedin: 'https://www.linkedin.com/in/berna-kalyon-120bb6386/',
         },
         {
             name: 'Deniz Aytekin',
-            role: 'İçerik ve İletişim Uzmanı',
+            role: t('team.role.contentCommunication', 'İçerik ve İletişim Uzmanı'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/deniz-aytekin.webp',
             linkedin: 'https://www.linkedin.com/in/deniz-aytekin-283469216/',
             email: 'denizaytekin@unilancerlabs.com',
         },
         {
             name: 'Dudunur Özdamar',
-            role: 'İş Geliştirme Uzmanı',
+            role: t('team.role.businessDevelopment', 'İş Geliştirme Uzmanı'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/dudunur-ozdamar.webp',
             linkedin: 'https://www.linkedin.com/in/dudunur-özdamar-6348a122b/',
             email: 'dudu@unilancerlabs.com',
         },
         {
             name: 'Muhammed Berkhan Karlık',
-            role: 'Satış Sorumlusu',
+            role: t('team.role.salesRepresentative', 'Satış Sorumlusu'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/muhammed-berkhan-karlik.webp',
             linkedin: 'https://www.linkedin.com/in/muhammed-berkhan-karlık-191079327/',
             email: 'berkhamkarlik@unilancerlabs.com',
         },
         {
             name: 'Muhammed Sergen Çetintürk',
-            role: 'Web Geliştirici',
+            role: t('team.role.webDeveloper', 'Web Geliştirici'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/muhammed-sergen-cetinturk.webp',
             linkedin: 'https://www.linkedin.com/in/sergen-cetinturk-a774b136a/',
         },
         {
             name: 'Ömer Çetin',
-            role: 'Yapay Zeka ve Otomasyon Mühendisi',
+            role: t('team.role.aiAutomationEngineer', 'Yapay Zeka ve Otomasyon Mühendisi'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/omer-cetin.webp',
             linkedin: 'https://www.linkedin.com/in/ömer-çetin-77a864240/',
             email: 'omercetin@unilancerlabs.com',
         },
         {
             name: 'Rabia Fidan',
-            role: 'Web Geliştirici',
+            role: t('team.role.webDeveloper', 'Web Geliştirici'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/rabia-fidan.webp',
             linkedin: 'https://www.linkedin.com/in/rabia-fidan-695a3a275/',
             email: 'rabiafidan@unilancerlabs.com',
         },
         {
             name: 'Salih Cesur',
-            role: 'Web Geliştirici',
+            role: t('team.role.webDeveloper', 'Web Geliştirici'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/salih-cesur.webp',
             linkedin: 'https://www.linkedin.com/in/salih-cesur-461a14332/',
             email: 'salihcesur@unilancerlabs.com',
         },
         {
             name: 'Tanya Polat',
-            role: 'Yapay Zeka ve Otomasyon Geliştirici',
+            role: t('team.role.aiAutomationDeveloper', 'Yapay Zeka ve Otomasyon Geliştirici'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/tanya-polat.webp',
             linkedin: 'https://www.linkedin.com/in/tanya-polat-546a53321/',
             email: 'tanya@unilancerlabs.com',
         },
         {
             name: 'Yusuf Pehlivan',
-            role: 'Sosyal Medya Uzmanı',
+            role: t('team.role.socialMediaSpecialist', 'Sosyal Medya Uzmanı'),
             avatar: 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/ekip/yusuf-pehlivan%20(1).webp',
             linkedin: 'https://www.linkedin.com/in/ypehlivan/',
             email: 'yusufpehlivan@unilancerlabs.com',
@@ -198,14 +198,14 @@ export default function TeamSection({ limit }: { limit?: number }) {
                     viewport={{ once: true }}
                 >
                     <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
-                        <span className="text-primary">Unilancer'a</span> yön veren insanları yakından tanıyın.
+                        <span className="text-primary">Unilancer</span>{language === 'tr' ? "'a" : ''} {t('team.header', "yön veren insanları yakından tanıyın.")}
                     </h2>
                     {limit && (
                         <a 
-                            href="/tr/ekibimiz" 
+                            href={language === 'tr' ? '/tr/ekibimiz' : '/en/team'}
                             className="inline-flex items-center gap-2 px-6 py-3 text-base font-medium text-primary hover:text-white bg-primary/10 hover:bg-primary rounded-xl transition-all duration-300 group"
                         >
-                            <span>Tüm Ekibi Gör</span>
+                            <span>{t('team.viewAll', 'Tüm Ekibi Gör')}</span>
                             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
