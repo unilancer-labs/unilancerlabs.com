@@ -114,7 +114,7 @@ export const DigibotHero = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="z-30 order-2 mt-6 text-center lg:order-1 lg:mt-0 lg:text-left"
+          className="z-30 order-2 mt-6 text-center lg:order-1 lg:mt-0 lg:text-left rounded-2xl p-4 sm:p-0 bg-white/70 dark:bg-dark/70 backdrop-blur-md lg:bg-transparent lg:dark:bg-transparent lg:backdrop-blur-none"
         >
           {/* Logo above text */}
           {logoSrc && (
@@ -122,7 +122,7 @@ export const DigibotHero = ({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="mb-2 sm:mb-3 flex justify-center lg:justify-start"
+              className="mb-1 flex justify-center lg:justify-start"
             >
               <img 
                 src={logoSrc} 
@@ -131,7 +131,7 @@ export const DigibotHero = ({
               />
             </motion.div>
           )}
-          <p className="mx-auto max-w-xs sm:max-w-sm text-sm sm:text-base leading-relaxed text-slate-600 dark:text-gray-400 lg:mx-0">
+          <p className="mx-auto max-w-md sm:max-w-lg text-[15px] sm:text-[16.5px] md:text-[20px] leading-relaxed text-slate-600 dark:text-gray-300 lg:mx-0">
             {mainText}
           </p>
           {readMoreLink && (
