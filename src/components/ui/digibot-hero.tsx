@@ -77,7 +77,7 @@ export const DigibotHero = ({
 
       {/* Header - Optional */}
       {showHeader && (
-        <header className="relative z-30 flex w-full max-w-7xl items-center justify-between px-8 pt-8 md:px-12">
+        <header className="relative z-30 flex w-full max-w-[1340px] mx-auto items-center justify-between px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -108,13 +108,13 @@ export const DigibotHero = ({
       )}
 
       {/* Main Content Area */}
-      <div className="relative z-10 grid w-full max-w-[1600px] flex-grow grid-cols-1 items-center px-4 pt-24 pb-12 sm:px-6 lg:grid-cols-3 lg:px-12">
+      <div className="relative z-10 grid w-full max-w-[1340px] mx-auto flex-grow grid-cols-1 items-center px-4 pt-20 pb-8 sm:px-6 sm:pt-24 sm:pb-12 lg:grid-cols-3 lg:px-8">
         {/* Left Text Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="z-30 order-2 mt-8 text-center lg:order-1 lg:mt-0 lg:text-left"
+          className="z-30 order-2 mt-6 text-center lg:order-1 lg:mt-0 lg:text-left"
         >
           {/* Logo above text */}
           {logoSrc && (
@@ -122,16 +122,16 @@ export const DigibotHero = ({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="mb-6 flex justify-center lg:justify-start"
+              className="mb-4 sm:mb-6 flex justify-center lg:justify-start"
             >
               <img 
                 src={logoSrc} 
                 alt="digiBot" 
-                className="h-24 w-24 object-contain drop-shadow-lg"
+                className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 object-contain drop-shadow-lg"
               />
             </motion.div>
           )}
-          <p className="mx-auto max-w-sm text-base leading-relaxed text-slate-600 dark:text-gray-400 lg:mx-0">
+          <p className="mx-auto max-w-xs sm:max-w-sm text-sm sm:text-base leading-relaxed text-slate-600 dark:text-gray-400 lg:mx-0">
             {mainText}
           </p>
           {readMoreLink && (
@@ -161,20 +161,20 @@ export const DigibotHero = ({
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            className="absolute z-0 h-[320px] w-[320px] rounded-full bg-gradient-to-br from-primary/90 to-primary-light/80 md:h-[400px] md:w-[400px] lg:h-[480px] lg:w-[480px]"
+            className="absolute z-0 h-[220px] w-[220px] rounded-full bg-gradient-to-br from-primary/90 to-primary-light/80 sm:h-[280px] sm:w-[280px] md:h-[360px] md:w-[360px] lg:h-[420px] lg:w-[420px]"
           />
           {/* Decorative Ring - reduced by 20% */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 0.4 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-            className="absolute z-0 h-[352px] w-[352px] rounded-full border-2 border-primary/40 md:h-[432px] md:w-[432px] lg:h-[528px] lg:w-[528px]"
+            className="absolute z-0 h-[250px] w-[250px] rounded-full border-2 border-primary/40 sm:h-[320px] sm:w-[320px] md:h-[400px] md:w-[400px] lg:h-[460px] lg:w-[460px]"
           />
           
           <motion.img
             src={imageSrc}
             alt={imageAlt}
-            className="relative z-10 h-auto w-[385px] object-contain drop-shadow-2xl md:w-[495px] lg:w-[605px]"
+            className="relative z-10 h-auto w-[260px] object-contain drop-shadow-2xl sm:w-[340px] md:w-[440px] lg:w-[520px]"
             style={{ transform: 'translateY(10%)' }}
             initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: 1, y: 0 }}
@@ -192,9 +192,9 @@ export const DigibotHero = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
-          className="z-30 order-3 mt-8 flex items-center justify-center text-center lg:mt-0 lg:justify-start lg:text-left"
+          className="z-30 order-3 mt-6 flex items-center justify-center text-center lg:mt-0 lg:justify-end lg:text-right"
         >
-          <h1 className="text-6xl font-extrabold leading-[0.85] tracking-tight sm:text-7xl md:text-8xl lg:text-9xl">
+          <h1 className="text-4xl font-extrabold leading-[0.85] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
             <span className="block text-slate-900 dark:text-white">{overlayText.part1}</span>
             <span className="block text-slate-900 dark:text-white">{overlayText.part2}</span>
           </h1>
@@ -203,7 +203,7 @@ export const DigibotHero = ({
 
       {/* Footer Elements - Optional */}
       {showFooter && (
-        <footer className="relative z-30 flex w-full max-w-7xl items-center justify-between px-8 pb-8 md:px-12">
+        <footer className="relative z-30 flex w-full max-w-[1340px] mx-auto items-center justify-between px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

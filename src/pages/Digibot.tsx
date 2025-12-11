@@ -56,25 +56,25 @@ const Digibot = () => {
         locationText="Teknopark İstanbul"
       >
         {/* Waitlist Form */}
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <div className="relative flex-1 max-w-sm">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-6 h-6 object-contain" />
+              <div className="relative flex-1 max-w-xs sm:max-w-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                  <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
                 </div>
                 <input
                   type="email"
                   placeholder="E-posta adresiniz"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-dark-card border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm"
+                  className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 bg-white dark:bg-dark-card border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm"
                   required
                 />
               </div>
               <motion.button
                 type="submit"
-                className="inline-flex items-center justify-center px-6 py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 group"
+                className="inline-flex items-center justify-center px-5 sm:px-6 py-3 sm:py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 group"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -86,14 +86,14 @@ const Digibot = () => {
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-xl text-green-700 dark:text-green-400"
+              className="inline-flex items-center p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-xl text-green-700 dark:text-green-400"
             >
-              <CheckCircle2 className="w-5 h-5 mr-3 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 mr-2 sm:mr-3 flex-shrink-0" />
               <span className="font-medium text-sm">Kaydınız alındı! Yakında görüşmek üzere.</span>
             </motion.div>
           )}
           
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 justify-center lg:justify-start">
+          <p className="mt-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 justify-center lg:justify-start">
             <Users className="w-4 h-4" />
             <span className="font-medium text-slate-700 dark:text-white">2,000+</span> kişi bekleme listesinde
           </p>
