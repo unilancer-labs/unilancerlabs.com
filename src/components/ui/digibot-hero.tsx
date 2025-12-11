@@ -108,13 +108,32 @@ export const DigibotHero = ({
       )}
 
       {/* Main Content Area */}
-      <div className="relative z-10 grid w-full max-w-[1340px] mx-auto flex-grow grid-cols-1 items-center px-4 pt-20 pb-8 sm:px-6 sm:pt-24 sm:pb-12 lg:grid-cols-3 lg:px-8">
+      <div className="relative z-10 flex flex-col w-full max-w-[1340px] mx-auto flex-grow px-4 pt-20 pb-6 sm:px-6 sm:pt-24 sm:pb-12 lg:grid lg:grid-cols-3 lg:items-center lg:px-8">
+        
+        {/* Mobile: Image positioned absolutely behind content */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none lg:hidden" style={{ top: '10%' }}>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 0.3 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+            className="absolute z-0 h-[280px] w-[280px] rounded-full bg-gradient-to-br from-primary/60 to-primary-light/50 sm:h-[350px] sm:w-[350px]"
+          />
+          <motion.img
+            src={imageSrc}
+            alt={imageAlt}
+            className="relative z-10 h-auto w-[300px] object-contain opacity-40 sm:w-[380px]"
+            style={{ transform: 'translateY(5%)' }}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 0.4, y: 0 }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+          />
+        </div>
         {/* Left Text Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="z-30 order-2 mt-6 text-center lg:order-1 lg:mt-0 lg:text-left rounded-2xl p-4 sm:p-0 bg-white/70 dark:bg-dark/70 backdrop-blur-md lg:bg-transparent lg:dark:bg-transparent lg:backdrop-blur-none"
+          className="relative z-30 order-1 text-center lg:mt-0 lg:text-left rounded-2xl p-5 sm:p-6 bg-white/80 dark:bg-dark/80 backdrop-blur-lg shadow-lg border border-white/20 dark:border-white/5 lg:bg-transparent lg:dark:bg-transparent lg:backdrop-blur-none lg:shadow-none lg:border-0 lg:p-0"
         >
           {/* Logo above text */}
           {logoSrc && (
@@ -122,12 +141,12 @@ export const DigibotHero = ({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="-mb-6 sm:-mb-8 lg:-mb-10 flex justify-center lg:justify-start"
+              className="-mb-4 sm:-mb-6 lg:-mb-8 flex justify-center lg:justify-start"
             >
               <img 
                 src={logoSrc} 
                 alt="digiBot" 
-                className="h-32 w-32 sm:h-40 sm:w-40 lg:h-48 lg:w-48 object-contain drop-shadow-lg"
+                className="h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 object-contain drop-shadow-lg"
               />
             </motion.div>
           )}
@@ -154,8 +173,8 @@ export const DigibotHero = ({
           {children}
         </motion.div>
 
-        {/* Center Image with Gradient Circle */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none lg:relative lg:order-2">
+        {/* Center Image with Gradient Circle - Desktop Only */}
+        <div className="hidden lg:flex absolute inset-0 items-center justify-center pointer-events-none lg:relative lg:order-2">
           {/* Main Circle - Solid like original - reduced by 20% */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -192,9 +211,9 @@ export const DigibotHero = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
-          className="z-30 order-3 mt-6 flex items-center justify-center text-center lg:mt-0 lg:justify-end lg:text-right"
+          className="relative z-30 order-2 mt-6 flex items-center justify-center text-center lg:order-3 lg:mt-0 lg:justify-end lg:text-right"
         >
-          <h1 className="text-4xl font-extrabold leading-[0.85] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
+          <h1 className="text-3xl font-extrabold leading-[0.85] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
             <motion.span 
               className="block text-primary"
               initial={{ opacity: 0 }}
