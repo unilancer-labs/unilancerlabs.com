@@ -138,33 +138,33 @@ export const DigibotHero = ({
         </motion.div>
 
         {/* Center Image with Gradient Circle */}
-        <div className="relative order-1 flex h-full items-center justify-center lg:order-2">
+        <div className="relative order-1 flex h-full items-center justify-center lg:order-2 min-h-[400px] md:min-h-[500px]">
           {/* Glow Effect */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            className="absolute z-0 h-[280px] w-[280px] rounded-full bg-gradient-to-br from-primary/80 to-primary-dark/60 blur-sm md:h-[380px] md:w-[380px] lg:h-[450px] lg:w-[450px]"
+            className="absolute z-0 h-[300px] w-[300px] rounded-full bg-gradient-to-br from-primary/80 to-primary-dark/60 blur-sm md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px]"
           />
           {/* Inner Circle */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            className="absolute z-0 h-[260px] w-[260px] rounded-full bg-gradient-to-br from-primary to-primary-light md:h-[360px] md:w-[360px] lg:h-[430px] lg:w-[430px]"
+            className="absolute z-0 h-[280px] w-[280px] rounded-full bg-gradient-to-br from-primary to-primary-light md:h-[380px] md:w-[380px] lg:h-[480px] lg:w-[480px]"
           />
           {/* Decorative Ring */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 0.3 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-            className="absolute z-0 h-[320px] w-[320px] rounded-full border-2 border-primary/30 md:h-[420px] md:w-[420px] lg:h-[500px] lg:w-[500px]"
+            className="absolute z-0 h-[340px] w-[340px] rounded-full border-2 border-primary/30 md:h-[440px] md:w-[440px] lg:h-[540px] lg:w-[540px]"
           />
           
           <motion.img
             src={imageSrc}
             alt={imageAlt}
-            className="relative z-10 h-auto w-48 scale-[1.4] object-contain drop-shadow-2xl md:w-56 lg:w-64"
+            className="relative z-10 h-auto w-56 scale-150 object-contain drop-shadow-2xl md:w-64 lg:w-72"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
