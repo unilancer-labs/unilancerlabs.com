@@ -128,11 +128,13 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
 
   // DEBUG: Rapor verisini kontrol et
   console.log('=== REPORT DASHBOARD DEBUG ===');
-  console.log('Full report:', report);
-  console.log('analysis_result:', analysisResult);
+  console.log('report.id:', report.id);
+  console.log('analysis_result type:', typeof analysisResult);
+  console.log('analysis_result keys:', analysisResult ? Object.keys(analysisResult) : 'null');
   console.log('guclu_yonler:', analysisResult?.guclu_yonler);
+  console.log('guclu_yonler length:', analysisResult?.guclu_yonler?.length);
+  console.log('gelistirilmesi_gereken_alanlar:', analysisResult?.gelistirilmesi_gereken_alanlar);
   console.log('hizmet_paketleri:', analysisResult?.hizmet_paketleri);
-  console.log('firma_tanitimi:', analysisResult?.firma_tanitimi);
   console.log('===============================');
 
   const handlePdfDownload = async () => {
