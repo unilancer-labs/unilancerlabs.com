@@ -360,6 +360,9 @@ export interface DigiBotChatProps {
   reportId: string;
   reportContext: string;
   viewerId?: string;
+  analysisResult?: AnalysisResult;
+  digitalScore?: number;
+  companyName?: string;
 }
 
 export interface ScoreCardProps {

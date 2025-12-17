@@ -68,16 +68,18 @@ serve(async (req) => {
     // Build messages array
     const messages: ChatMessage[] = [];
 
-    // System prompt - HER ZAMAN default prompt kullan (rapor context'i dahil)
-    // Custom JSON prompt varsa, onu da rapor context ile birleştir
+    // System prompt - Token tasarruflu yapı:
+    // Admin JSON = Bilgi Tabanı (şirket, hizmetler, fiyatlar)
+    // Kod = Davranış Kuralları (nasıl cevap verecek) + Rapor Context
     let systemPrompt: string;
     if (config.systemPrompt) {
-      // Custom prompt varsa, rapor context'i ekleyerek kullan
-      const customPart = parseJsonSystemPrompt(config.systemPrompt, '');
-      const defaultPart = buildDefaultSystemPrompt(reportContext);
-      systemPrompt = customPart + '\n\n' + defaultPart;
+      // Admin'de prompt varsa: Bilgi tabanı + Davranış kuralları
+      const knowledgeBase = parseKnowledgeBase(config.systemPrompt);
+      const behaviorRules = buildBehaviorPrompt(reportContext);
+      systemPrompt = knowledgeBase + '\n\n' + behaviorRules;
     } else {
-      systemPrompt = buildDefaultSystemPrompt(reportContext);
+      // Admin'de prompt yoksa: Full default prompt
+      systemPrompt = buildFullDefaultPrompt(reportContext);
     }
     messages.push({ role: 'system', content: systemPrompt });
 
@@ -200,148 +202,201 @@ serve(async (req) => {
   }
 });
 
-// JSON formatındaki system prompt'u okunabilir formata dönüştür
-function parseJsonSystemPrompt(jsonPrompt: string, reportContext?: string): string {
+// ============================================================
+// PROMPT FONKSİYONLARI - Token Optimizasyonlu
+// ============================================================
+
+/**
+ * Admin panelindeki JSON'u BİLGİ TABANI olarak parse eder
+ * Sadece şirket bilgileri, hizmetler, fiyatlar - davranış kuralları YOK
+ */
+function parseKnowledgeBase(jsonPrompt: string): string {
   try {
-    const config = JSON.parse(jsonPrompt);
+    const data = JSON.parse(jsonPrompt);
+    const parts: string[] = [];
     
-    let prompt = '';
-    
-    // Identity
-    if (config.identity) {
-      prompt += `## KİMLİK\n`;
-      prompt += `- İsim: ${config.identity.name || 'DigiBot'}\n`;
-      prompt += `- Rol: ${config.identity.role || 'Dijital Asistan'}\n`;
-      prompt += `- Kişilik: ${config.identity.personality || 'Profesyonel'}\n\n`;
+    parts.push('## UNILANCER LABS BİLGİ TABANI\n');
+
+    // support_info array'ini işle
+    if (data.support_info && Array.isArray(data.support_info)) {
+      for (const section of data.support_info) {
+        if (!section.section) continue;
+        
+        const sectionName = section.section;
+        
+        // Şirket Kimliği
+        if (sectionName.includes('Şirket Kimliği') || sectionName.includes('İletişim')) {
+          if (section.legal) {
+            parts.push(`### Şirket: ${section.legal.full_legal_name || section.legal.brand_name}`);
+          }
+          if (section.phones?.length) {
+            parts.push(`📞 ${section.phones[0].number} (${section.phones[0].hours || 'Hafta içi 09:00-18:00'})`);
+          }
+          if (section.emails?.length) {
+            section.emails.forEach((e: any) => parts.push(`📧 ${e.type}: ${e.email}`));
+          }
+          if (section.officers?.length) {
+            parts.push('\n**Ekip:**');
+            section.officers.forEach((o: any) => parts.push(`• ${o.name} - ${o.title} (${o.email})`));
+          }
+        }
+        
+        // Hakkımızda
+        if (sectionName === 'Hakkımızda' || sectionName === 'Genel Tanıtım') {
+          if (section.details?.length) {
+            parts.push(`\n### ${sectionName}`);
+            section.details.slice(0, 4).forEach((d: string) => parts.push(`• ${d}`));
+          }
+        }
+        
+        // Hizmetler
+        if (sectionName === 'Hizmetler') {
+          if (section.items?.length) {
+            parts.push('\n### Hizmetler');
+            section.items.forEach((s: any) => {
+              parts.push(`• **${s.name}**: ${s.description || ''}`);
+            });
+          }
+        }
+        
+        // DigitAll Fiyatlandırma
+        if (sectionName.includes('DigitAll') || sectionName.includes('Katalog')) {
+          if (section.items?.length) {
+            parts.push('\n### Fiyat Aralıkları (KDV Hariç)');
+            section.items.forEach((item: any) => {
+              const min = item.price_range?.min_try || '';
+              const max = item.price_range?.max_try || '';
+              const period = item.price_range?.period ? ` (${item.price_range.period})` : '';
+              parts.push(`• **${item.name}**: ${min.toLocaleString('tr-TR')} - ${max.toLocaleString('tr-TR')}₺${period}`);
+            });
+          }
+        }
+        
+        // Süreçler
+        if (sectionName === 'Süreç' || sectionName === 'Süreçler') {
+          if (section.flow?.length) {
+            parts.push('\n### Çalışma Süreci');
+            section.flow.forEach((step: any, i: number) => {
+              parts.push(`${i + 1}. **${step.adım}**: ${step.açıklama}`);
+            });
+          }
+          if (section.processes?.length) {
+            parts.push('\n### Süreçler');
+            section.processes.forEach((p: any) => {
+              parts.push(`• **${p.name}**: ${p.steps?.join(' → ') || ''}`);
+            });
+          }
+        }
+        
+        // SSS - Müşteri
+        if (sectionName.includes('SSS') && sectionName.includes('Müşteri')) {
+          if (section.faqs?.length) {
+            parts.push('\n### SSS (Müşteri)');
+            section.faqs.slice(0, 5).forEach((faq: any) => {
+              parts.push(`**S:** ${faq.q}\n**C:** ${faq.a}`);
+            });
+          }
+        }
+        
+        // Politikalar
+        if (sectionName === 'Politikalar') {
+          if (section.policies) {
+            parts.push('\n### Politikalar');
+            const p = section.policies;
+            if (p.sla) parts.push(`• Yanıt süresi: ${p.sla.response_time_hours?.standart || 24} saat`);
+            if (p.revisions) parts.push(`• Revizyon: ${p.revisions.standard_rounds || 2} tur`);
+            if (p.payments) parts.push(`• Ödeme: ${p.payments.model || 'Milestone bazlı'}`);
+          }
+        }
+      }
     }
     
-    // Company
-    if (config.company) {
-      prompt += `## ŞİRKET\n`;
-      prompt += `- ${config.company.name}: ${config.company.description || ''}\n`;
-      if (config.company.website) prompt += `- Website: ${config.company.website}\n`;
-      if (config.company.contact?.email) prompt += `- Email: ${config.company.contact.email}\n`;
-      prompt += '\n';
-    }
-    
-    // Services
-    if (config.services && Array.isArray(config.services)) {
-      prompt += `## HİZMETLER\n`;
-      config.services.forEach((s: any) => {
-        prompt += `• ${s.name}: ${s.priceRange}${s.duration ? ` (${s.duration})` : ''}\n`;
-      });
-      prompt += '\n';
-    }
-    
-    // Tasks
-    if (config.tasks && Array.isArray(config.tasks)) {
-      prompt += `## GÖREVLER\n`;
-      config.tasks.forEach((t: string, i: number) => {
-        prompt += `${i + 1}. ${t}\n`;
-      });
-      prompt += '\n';
-    }
-    
-    // Response Rules
-    if (config.responseRules) {
-      const r = config.responseRules;
-      prompt += `## YANIT KURALLARI\n`;
-      if (r.language) prompt += `- Dil: ${r.language}\n`;
-      if (r.tone) prompt += `- Ton: ${r.tone}\n`;
-      if (r.maxLength) prompt += `- Max uzunluk: ${r.maxLength}\n`;
-      if (r.format) prompt += `- Format: ${r.format}\n`;
-      if (r.mustInclude?.length) prompt += `- İçermeli: ${r.mustInclude.join(', ')}\n`;
-      if (r.avoid?.length) prompt += `- Kaçınılacak: ${r.avoid.join(', ')}\n`;
-      prompt += '\n';
-    }
-    
-    // Context Instructions
-    if (config.contextInstructions) {
-      prompt += `## TALİMATLAR\n${config.contextInstructions}\n\n`;
-    }
-    
-    // Report Context
-    prompt += `## RAPOR BAĞLAMI\n${reportContext || 'Rapor bilgisi yüklenmedi.'}\n`;
-    
-    return prompt;
+    return parts.join('\n');
   } catch (e) {
-    // JSON parse başarısız olursa direkt kullan (eski format)
-    return jsonPrompt + `\n\n## RAPOR BAĞLAMI\n${reportContext || 'Rapor bilgisi yüklenmedi.'}`;
+    // JSON parse başarısız - metin olarak döndür
+    return `## BİLGİ TABANI\n${jsonPrompt.substring(0, 2000)}...`;
   }
 }
 
-function buildDefaultSystemPrompt(reportContext?: string): string {
-  return `Sen DigiBot'sun - Unilancer Labs'ın yapay zeka destekli dijital analiz asistanısın.
+/**
+ * DAVRANIŞ KURALLARI + RAPOR BAĞLAMI
+ * Admin JSON'dan bağımsız, sadece nasıl davranacağını belirler
+ * Token tasarruflu - sadece kritik kurallar
+ */
+function buildBehaviorPrompt(reportContext?: string): string {
+  return `## DİGİBOT DAVRANIŞ KURALLARI
 
-## KİMLİĞİN
-- İsim: DigiBot
-- Şirket: Unilancer Labs
-- Uzmanlık: Dijital pazarlama, web geliştirme, SEO, sosyal medya, e-ticaret
-- Kişilik: Profesyonel ama samimi, yardımsever, çözüm odaklı
-- Görev: Kullanıcıya dijital analiz raporu hakkında bilgi vermek ve Unilancer Labs hizmetlerini tanıtmak
+### Kim Sin?
+Sen DigiBot'sun - Unilancer Labs'ın dijital analiz asistanı. Profesyonel ama samimi, çözüm odaklı. Senli konuş.
 
-## UNILANCER LABS BİLGİLERİ
-UNILANCER LABS BİLİŞİM HİZMETLERİ ANONİM ŞİRKETİ
-- Kuruluş: 2025 (2021'den beri faaliyet)
-- Konum: Cube Beyoğlu ve Teknopark İstanbul
+### Görevlerin
+1. Rapordaki verileri yorumla ve açıkla
+2. Skorların ne anlama geldiğini anlat (70+ iyi, 40-70 orta, <40 düşük)
+3. Somut, uygulanabilir aksiyon öner
+4. Düşük skorlarda bile motive edici ol
+
+### Yanıt Formatı
+- Türkçe yaz, 2-4 paragraf
+- Markdown: **kalın**, • listeler
+- 2-3 emoji (📊 📈 ✅ 💡 🎯)
+- Her yanıt sonunda bir aksiyon öner
+- RAPOR BAĞLAMI'na referans ver
+
+### Yasaklar
+❌ Kesin fiyat verme - aralık ver, görüşme öner
+❌ "Bilmiyorum" deme
+❌ Çok uzun cevap
+❌ Türkçe dışı dil
+
+### Fiyat Soruları İçin
+Aralık ver + "Net fiyat için kapsam belirlenmeli" + İletişim bilgisi
+📞 +90 506 152 32 55 | 📧 sales@unilancerlabs.com
+
+## RAPOR BAĞLAMI (BU VERİLERE GÖRE CEVAP VER)
+${reportContext || 'Rapor bilgisi henüz yüklenmedi.'}`;
+}
+
+/**
+ * FULL DEFAULT PROMPT - Admin'de hiç prompt yoksa kullanılır
+ * Bilgi tabanı + Davranış kuralları birlikte
+ */
+function buildFullDefaultPrompt(reportContext?: string): string {
+  return `Sen DigiBot'sun - Unilancer Labs'ın dijital analiz asistanısın.
+
+## KİMLİK
+- Şirket: Unilancer Labs Bilişim Hizmetleri A.Ş.
 - Model: Üniversite tabanlı yönetilen freelance ekosistemi
 - Vizyon: "Beyin Göçü yerine Hizmet İhracatı"
-- Misyon: Üniversite öğrencileri ve genç freelancer'ları proje-bazlı üretim ve mentorlukla profesyonel hayata hazırlamak
+- Fark: Pazar yeri değil, PM liderliğinde teslim garantili yapı
 
-EKİP:
+## EKİP
 • Emrah Er - CEO (emrah@unilancerlabs.com)
 • Taha Karahüseyinoğlu - COO (taha@unilancerlabs.com)
-• Koray Andırınlı - Program Manager (koray@unilancerlabs.com)
-• Selvinaz Deniz Koca - Sales & Marketing Director (deniz@unilancerlabs.com)
+• Koray Andırınlı - Program Manager
+• Selvinaz Deniz Koca - Sales & Marketing Director
 
-HİZMETLER VE FİYATLAR (KDV hariç):
-• Kurumsal Tanıtım Sitesi: 20.000 - 60.000₺
-• Fonksiyonel Web Uygulaması: 50.000 - 1.000.000₺
-• E-ticaret Sitesi: 30.000 - 200.000₺ (yıllık lisans + kurulum)
-• Sosyal Medya Yönetimi: 10.000 - 80.000₺/ay
-• SEO & Dijital Pazarlama: 15.000 - 80.000₺/ay
-• CRM & Otomasyon: 25.000 - 200.000₺
-• AI ChatBot Entegrasyonları
-• Mobil Uygulama (iOS & Android)
-• 3D/AR/VR Projeleri: 40.000 - 300.000₺
-• Grafik Tasarım & İçerik Üretimi: 5.000 - 100.000₺
+## HİZMETLER (KDV Hariç)
+• Kurumsal Web: 20.000-60.000₺
+• E-Ticaret: 30.000-200.000₺
+• Web Uygulaması: 50.000-1.000.000₺
+• Sosyal Medya: 10.000-80.000₺/ay
+• SEO: 15.000-80.000₺/ay
+• CRM/Otomasyon: 25.000-200.000₺
+• 3D/AR/VR: 40.000-300.000₺
 
-ÇALIŞMA SÜRECİ:
-1. Brief - Kısa görüşme + Brief Sihirbazı ile ihtiyaçların toplanması
-2. Yedekleme & Kaynak Çıkarma - Var olan yapılar yedeklenir
-3. Milestone Planı - Çıktılar ve süre zarfları tanımlanır
-4. Demo - Prototip/demo çıkarılır ve müşteriyle istişare edilir
-5. Revizyon - Geri bildirimler uygulanır (standart 2 tur)
-6. Yayın - Onay sonrası canlıya alma
+## İLETİŞİM
+📞 +90 506 152 32 55
+📧 sales@unilancerlabs.com | info@unilancerlabs.com
+🌐 unilancerlabs.com
+⏰ Hafta içi 09:00-18:00
 
-İLETİŞİM:
-📞 Telefon: +90 506 152 32 55
-📧 Email: info@unilancerlabs.com | sales@unilancerlabs.com
-🌐 Web: unilancerlabs.com
-⏰ Çalışma Saatleri: Hafta içi 09:00–18:00 (UTC+3)
-
-SIK SORULAN SORULAR:
-- Pazar yeri değiliz, PM liderliğinde freelance ekiplerle yönetilen bir yapıyız
-- Sözleşmede tanımlı kapsam için teslim garantisi veriyoruz
-- Tek muhatabınız PM'dir, ekip seçimi Unilancer tarafından yapılır
-- Standart projelerde 2 revizyon turu dahildir
+## DAVRANIŞ
+- Türkçe, 2-4 paragraf, Markdown
+- Skorları yorumla (70+ iyi, 40-70 orta, <40 düşük)
+- Somut aksiyon öner
+- Kesin fiyat verme, aralık ver
+- Her yanıt sonunda aksiyon öner
 
 ## RAPOR BAĞLAMI
-${reportContext || 'Rapor bilgisi henüz yüklenmedi.'}
-
-## YANITLAMA KURALLARI
-1. Her zaman Türkçe yanıt ver
-2. Kısa ve öz tut (2-4 paragraf)
-3. Markdown formatı kullan (**kalın**, • listeler)
-4. Emoji kullan ama abartma (2-3 tane)
-5. Somut ve uygulanabilir öneriler sun
-6. Kesin fiyat vermekten kaçın, "görüşme" ve "kapsama göre değişir" de
-7. Rapor verileri varsa, onlara referans vererek yanıt ver
-8. Unilancer Labs hizmetlerini uygun yerlerde öner
-9. İletişim bilgilerini gerektiğinde paylaş
-
-## ÖNEMLİ
-- Eğer kullanıcı rapordaki bir skor veya metrik hakkında soru sorarsa, RAPOR BAĞLAMI bölümündeki verilere göre cevap ver
-- Eğer Unilancer Labs hizmetleri hakkında soru sorarsa, yukarıdaki bilgilere göre cevap ver
-- Her iki konu hakkında da bilgi sahibisin, raporla ilgili soruları da, şirketle ilgili soruları da cevaplayabilirsin`;
+${reportContext || 'Rapor bilgisi henüz yüklenmedi.'}`;
 }

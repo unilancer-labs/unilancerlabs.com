@@ -1,11 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { DigiBotChatProps, ChatMessage } from '../types';
+import type { DigiBotChatProps, ChatMessage, AnalysisResult, CategoryScore } from '../types';
 import { sendChatMessage, getChatHistory } from '../api/reportApi';
 
 const DIGIBOT_LOGO = 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/digibot-logo-02%20(1).webp';
 
-const DigiBotChat: React.FC<DigiBotChatProps> = ({ reportId, reportContext, viewerId }) => {
+const DigiBotChat: React.FC<DigiBotChatProps> = ({ 
+  reportId, 
+  reportContext, 
+  viewerId,
+  analysisResult,
+  digitalScore,
+  companyName
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -14,19 +21,115 @@ const DigiBotChat: React.FC<DigiBotChatProps> = ({ reportId, reportContext, view
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initial greeting
+  // Dinamik soru önerileri oluştur
+  const suggestedQuestions = useMemo(() => {
+    const questions: string[] = [];
+    
+    // Skor bazlı sorular
+    if (digitalScore !== undefined) {
+      if (digitalScore < 40) {
+        questions.push('Skorumu hızlıca nasıl artırabilirim?');
+      } else if (digitalScore < 70) {
+        questions.push('70+ skora ulaşmak için ne yapmalıyım?');
+      } else {
+        questions.push('Skoru daha da artırmak için öneriler');
+      }
+    }
+
+    // En düşük skorlu kategori
+    if (analysisResult?.scores) {
+      const scores = Object.entries(analysisResult.scores)
+        .filter(([key]) => key !== 'overall')
+        .map(([key, value]) => {
+          if (typeof value === 'number') {
+            return { key, score: value, maxScore: 100, label: key };
+          } else if (value && typeof value === 'object') {
+            const scoreObj = value as CategoryScore;
+            return { 
+              key, 
+              score: scoreObj.score || 0, 
+              maxScore: scoreObj.maxScore || 100, 
+              label: scoreObj.label || key 
+            };
+          }
+          return null;
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+        .sort((a, b) => (a.score / a.maxScore) - (b.score / b.maxScore));
+      
+      if (scores.length > 0) {
+        const lowest = scores[0];
+        const categoryLabels: Record<string, string> = {
+          'website': 'Web sitesi',
+          'seo': 'SEO',
+          'social_media': 'Sosyal medya',
+          'content': 'İçerik',
+          'branding': 'Marka',
+          'analytics': 'Analitik',
+          'mobile_optimization': 'Mobil',
+          'performance': 'Performans',
+          'security': 'Güvenlik'
+        };
+        const label = categoryLabels[lowest.key] || lowest.label;
+        questions.push(`${label} skorumu nasıl artırırım?`);
+      }
+    }
+
+    // Geliştirme alanları bazlı
+    if (analysisResult?.gelistirilmesi_gereken_alanlar?.length) {
+      const kritik = analysisResult.gelistirilmesi_gereken_alanlar.find(a => a.oncelik === 'kritik');
+      if (kritik) {
+        const baslik = kritik.baslik.length > 25 ? kritik.baslik.substring(0, 25) + '...' : kritik.baslik;
+        questions.push(`"${baslik}" için ne önerirsin?`);
+      }
+    }
+
+    // Hizmet paketleri varsa
+    if (analysisResult?.hizmet_paketleri?.length) {
+      questions.push('Hangi hizmet paketini önerirsin?');
+    }
+
+    // Sektör bazlı soru
+    if (analysisResult?.sektor) {
+      questions.push(`${analysisResult.sektor} sektöründe öne çıkmak için ne yapmalıyım?`);
+    }
+
+    // Varsayılan sorular ekle (eğer yeterli soru yoksa)
+    const defaults = [
+      'En acil yapılması gereken ne?',
+      'Rakiplerimden nasıl öne çıkarım?',
+      'Bütçem sınırlı, nereden başlamalıyım?',
+      'Web sitem için ne önerirsin?',
+    ];
+
+    // Toplam 4 soru olacak şekilde tamamla
+    while (questions.length < 4 && defaults.length > 0) {
+      const q = defaults.shift()!;
+      if (!questions.includes(q)) {
+        questions.push(q);
+      }
+    }
+
+    return questions.slice(0, 4);
+  }, [analysisResult, digitalScore]);
+
+  // Initial greeting with company name
   useEffect(() => {
     if (messages.length === 0) {
+      const greeting = companyName 
+        ? `Merhaba! 👋 Ben DigiBot, ${companyName} için hazırlanan dijital analiz raporunuzun asistanıyım. Raporunuz hakkında sorularınızı yanıtlamak için buradayım. Size nasıl yardımcı olabilirim?`
+        : 'Merhaba! 👋 Ben DigiBot, dijital analiz asistanınız. Raporunuz hakkında sorularınızı yanıtlamak için buradayım. Size nasıl yardımcı olabilirim?';
+      
       setMessages([
         {
           id: 'welcome',
           role: 'assistant',
-          content: 'Merhaba! 👋 Ben DigiBot, dijital analiz asistanınız. Raporunuz hakkında sorularınızı yanıtlamak için buradayım. Size nasıl yardımcı olabilirim?',
+          content: greeting,
           timestamp: new Date(),
         },
       ]);
     }
-  }, []);
+  }, [companyName]);
 
   // Load chat history on open
   useEffect(() => {
@@ -142,13 +245,6 @@ const DigiBotChat: React.FC<DigiBotChatProps> = ({ reportId, reportContext, view
       handleSend();
     }
   };
-
-  const suggestedQuestions = [
-    'Web sitem için ne önerirsin?',
-    'SEO skorumu nasıl artırabilirim?',
-    'En acil yapılması gereken ne?',
-    'Rakiplerimden nasıl öne çıkarım?',
-  ];
 
   return (
     <>

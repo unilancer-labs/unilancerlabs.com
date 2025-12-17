@@ -332,49 +332,218 @@ export function convertToReportData(parsed: ParsedReport): ReportData {
 }
 
 /**
- * Generates a text summary of the report for AI context
+ * Generates a comprehensive text summary of the report for AI context
+ * Bu fonksiyon DigiBot'un rapor hakkında akıllı yanıtlar verebilmesi için kritik
  */
 export function generateReportContext(report: {
   company_name: string;
+  company_website?: string;
   digital_score?: number;
   analysis_result?: AnalysisResult;
+  industry?: string;
+  created_at?: string;
 }): string {
   const parts: string[] = [];
 
+  // Temel Bilgiler
+  parts.push(`## RAPOR BİLGİLERİ`);
   parts.push(`Şirket: ${report.company_name}`);
+  if (report.company_website) parts.push(`Website: ${report.company_website}`);
+  if (report.industry) parts.push(`Sektör: ${report.industry}`);
+  if (report.created_at) parts.push(`Rapor Tarihi: ${new Date(report.created_at).toLocaleDateString('tr-TR')}`);
   
-  if (report.digital_score) {
-    parts.push(`Genel Dijital Skor: ${report.digital_score}/100`);
+  if (report.digital_score !== undefined) {
+    const scoreLabel = report.digital_score >= 70 ? '🟢 İyi' : report.digital_score >= 40 ? '🟡 Orta' : '🔴 Düşük';
+    parts.push(`Genel Dijital Skor: ${report.digital_score}/100 (${scoreLabel})`);
   }
 
-  if (report.analysis_result) {
-    const result = report.analysis_result;
-    
-    parts.push('\nKategori Skorları:');
-    if (result.scores) {
-      for (const [_key, value] of Object.entries(result.scores)) {
-        if (value && typeof value === 'object') {
-          parts.push(`- ${value.label}: ${value.score}/${value.maxScore}`);
+  if (!report.analysis_result) {
+    return parts.join('\n');
+  }
+
+  const result = report.analysis_result;
+
+  // Firma Tanıtımı
+  if (result.firma_tanitimi) {
+    parts.push(`\n## FİRMA TANITIMI`);
+    parts.push(result.firma_tanitimi);
+  }
+
+  // Sektör bilgisi
+  if (result.sektor) {
+    parts.push(`\n## SEKTÖR: ${result.sektor}`);
+    if (result.musteri_kitlesi) parts.push(`Müşteri Kitlesi: ${result.musteri_kitlesi}`);
+    if (result.pazar_boyutu) parts.push(`Pazar Boyutu: ${result.pazar_boyutu}`);
+  }
+
+  // Kategori Skorları (detaylı)
+  if (result.scores) {
+    parts.push('\n## KATEGORİ SKORLARI');
+    for (const [key, value] of Object.entries(result.scores)) {
+      if (key === 'overall') continue;
+      if (typeof value === 'number') {
+        const status = value >= 70 ? '✅' : value >= 40 ? '⚠️' : '❌';
+        parts.push(`- ${key}: ${value}/100 ${status}`);
+      } else if (value && typeof value === 'object') {
+        const percentage = Math.round((value.score / value.maxScore) * 100);
+        const status = percentage >= 70 ? '✅' : percentage >= 40 ? '⚠️' : '❌';
+        parts.push(`- ${value.label}: ${value.score}/${value.maxScore} (${percentage}%) ${status}`);
+        if (value.description) {
+          parts.push(`  → ${value.description}`);
         }
       }
     }
+  }
 
-    if (result.strengths && result.strengths.length > 0) {
-      parts.push('\nGüçlü Yönler:');
-      result.strengths.forEach(s => parts.push(`- ${s}`));
-    }
+  // Güçlü Yönler (yeni format)
+  if (result.guclu_yonler && result.guclu_yonler.length > 0) {
+    parts.push('\n## GÜÇLÜ YÖNLER');
+    result.guclu_yonler.forEach((item, i) => {
+      parts.push(`${i + 1}. **${item.baslik}**`);
+      parts.push(`   ${item.aciklama}`);
+      if (item.oneri) parts.push(`   💡 Öneri: ${item.oneri}`);
+    });
+  } else if (result.strengths && result.strengths.length > 0) {
+    parts.push('\n## GÜÇLÜ YÖNLER');
+    result.strengths.forEach(s => parts.push(`- ${s}`));
+  }
 
-    if (result.weaknesses && result.weaknesses.length > 0) {
-      parts.push('\nGeliştirme Alanları:');
-      result.weaknesses.forEach(w => parts.push(`- ${w}`));
-    }
+  // Geliştirilmesi Gereken Alanlar (yeni format - detaylı)
+  if (result.gelistirilmesi_gereken_alanlar && result.gelistirilmesi_gereken_alanlar.length > 0) {
+    parts.push('\n## GELİŞTİRİLMESİ GEREKEN ALANLAR');
+    result.gelistirilmesi_gereken_alanlar.forEach((alan, i) => {
+      parts.push(`${i + 1}. **${alan.baslik}** [${alan.oncelik?.toUpperCase() || 'ORTA'}]`);
+      parts.push(`   Mevcut Durum: ${alan.mevcut_durum}`);
+      if (alan.neden_onemli) parts.push(`   Neden Önemli: ${alan.neden_onemli}`);
+      parts.push(`   Çözüm: ${alan.cozum_onerisi}`);
+      parts.push(`   Süre: ${alan.tahmini_sure} | Etki: ${alan.beklenen_etki || 'Belirtilmedi'}`);
+    });
+  } else if (result.weaknesses && result.weaknesses.length > 0) {
+    parts.push('\n## GELİŞTİRME ALANLARI');
+    result.weaknesses.forEach(w => parts.push(`- ${w}`));
+  }
 
-    if (result.recommendations && result.recommendations.length > 0) {
-      parts.push('\nÖncelikli Öneriler:');
-      result.recommendations.slice(0, 5).forEach(r => {
-        parts.push(`- [${r.priority.toUpperCase()}] ${r.title}`);
-      });
+  // Önemli Tespitler
+  if (result.onemli_tespitler && result.onemli_tespitler.length > 0) {
+    parts.push('\n## ÖNEMLİ TESPİTLER');
+    result.onemli_tespitler.forEach(tespit => {
+      const icon = tespit.tip === 'pozitif' ? '✅' : tespit.tip === 'uyari' ? '⚠️' : tespit.tip === 'firsat' ? '💡' : '🚨';
+      parts.push(`${icon} ${tespit.tespit}: ${tespit.detay}`);
+    });
+  }
+
+  // Teknik Durum
+  if (result.technical_status) {
+    parts.push('\n## TEKNİK DURUM');
+    const ts = result.technical_status;
+    if (ts.mobile_score) parts.push(`- Mobil Performans: ${ts.mobile_score}/100`);
+    if (ts.desktop_score) parts.push(`- Masaüstü Performans: ${ts.desktop_score}/100`);
+    if (ts.ssl_grade) parts.push(`- SSL Notu: ${ts.ssl_grade}`);
+    if (ts.lcp_mobile) parts.push(`- Mobil LCP: ${ts.lcp_mobile}`);
+    if (ts.teknik_ozet) parts.push(`Teknik Özet: ${ts.teknik_ozet}`);
+  }
+
+  // Yasal Uyumluluk
+  if (result.legal_compliance) {
+    parts.push('\n## YASAL UYUMLULUK');
+    const lc = result.legal_compliance;
+    if (lc.kvkk) parts.push(`- KVKK: ${lc.kvkk.status} - ${lc.kvkk.aciklama}`);
+    if (lc.cookie_policy) parts.push(`- Çerez Politikası: ${lc.cookie_policy.status} - ${lc.cookie_policy.aciklama}`);
+    if (lc.etbis) parts.push(`- ETBİS: ${lc.etbis.status} - ${lc.etbis.aciklama}`);
+  }
+
+  // Sosyal Medya
+  if (result.social_media) {
+    parts.push('\n## SOSYAL MEDYA DURUMU');
+    const sm = result.social_media;
+    if (sm.linkedin?.url) parts.push(`- LinkedIn: ${sm.linkedin.url} (${sm.linkedin.status || 'Aktif'})`);
+    if (sm.instagram?.url) parts.push(`- Instagram: ${sm.instagram.url} (${sm.instagram.status || 'Aktif'})`);
+    if (sm.facebook?.url) parts.push(`- Facebook: ${sm.facebook.url} (${sm.facebook.status || 'Aktif'})`);
+    if (sm.overall_assessment) parts.push(`Genel Değerlendirme: ${sm.overall_assessment}`);
+  }
+
+  // UI/UX Değerlendirmesi
+  if (result.ui_ux_degerlendirmesi) {
+    parts.push('\n## UI/UX DEĞERLENDİRMESİ');
+    parts.push(result.ui_ux_degerlendirmesi);
+  }
+
+  // Rekabet Analizi
+  if (result.rekabet_analizi) {
+    parts.push('\n## REKABET ANALİZİ');
+    const ra = result.rekabet_analizi;
+    if (ra.genel_degerlendirme) parts.push(ra.genel_degerlendirme);
+    if (ra.avantajlar?.length) {
+      parts.push('Avantajlar:');
+      ra.avantajlar.forEach(a => parts.push(`  ✅ ${a}`));
     }
+    if (ra.dezavantajlar?.length) {
+      parts.push('Dezavantajlar:');
+      ra.dezavantajlar.forEach(d => parts.push(`  ❌ ${d}`));
+    }
+    if (ra.firsat_alanlari) parts.push(`Fırsat Alanları: ${ra.firsat_alanlari}`);
+  }
+
+  // Stratejik Yol Haritası
+  if (result.stratejik_yol_haritasi) {
+    parts.push('\n## STRATEJİK YOL HARİTASI');
+    const syh = result.stratejik_yol_haritasi;
+    if (syh.vizyon) parts.push(`Vizyon: ${syh.vizyon}`);
+    if (syh.ilk_30_gun?.length) {
+      parts.push('İlk 30 Gün (Acil):');
+      syh.ilk_30_gun.forEach(a => parts.push(`  🔴 ${a.aksiyon} - ${a.neden}`));
+    }
+    if (syh['30_90_gun']?.length) {
+      parts.push('30-90 Gün (Orta Vadeli):');
+      syh['30_90_gun'].forEach(a => parts.push(`  🟡 ${a.aksiyon} - ${a.neden}`));
+    }
+    if (syh['90_365_gun']?.length) {
+      parts.push('90-365 Gün (Uzun Vadeli):');
+      syh['90_365_gun'].forEach(a => parts.push(`  🟢 ${a.aksiyon} - ${a.neden}`));
+    }
+  }
+
+  // Sektöre Özel Öneriler
+  if (result.sektor_ozel_oneriler && result.sektor_ozel_oneriler.length > 0) {
+    parts.push(`\n## SEKTÖRE ÖZEL ÖNERİLER (${result.sektor || 'Genel'})`);
+    result.sektor_ozel_oneriler.forEach(oneri => {
+      parts.push(`- **${oneri.baslik}**: ${oneri.aciklama}`);
+      if (oneri.ornek) parts.push(`  Örnek: ${oneri.ornek}`);
+    });
+  }
+
+  // Hizmet Paketleri
+  if (result.hizmet_paketleri && result.hizmet_paketleri.length > 0) {
+    parts.push('\n## ÖNERİLEN HİZMET PAKETLERİ');
+    result.hizmet_paketleri.forEach((paket, i) => {
+      const isFirst = i === 0 ? ' ⭐ ÖNCELİKLİ' : '';
+      parts.push(`${i + 1}. **${paket.paket_adi}**${isFirst}`);
+      if (paket.aciklama) parts.push(`   ${paket.aciklama}`);
+      parts.push(`   Kapsam: ${paket.kapsam.join(', ')}`);
+      if (paket.tahmini_sure) parts.push(`   Süre: ${paket.tahmini_sure}`);
+      if (paket.beklenen_sonuc) parts.push(`   Beklenen Sonuç: ${paket.beklenen_sonuc}`);
+    });
+  }
+
+  // Eski format öneriler
+  if (result.recommendations && result.recommendations.length > 0 && !result.hizmet_paketleri?.length) {
+    parts.push('\n## ÖNCELİKLİ ÖNERİLER');
+    result.recommendations.slice(0, 10).forEach(r => {
+      parts.push(`- [${r.priority.toUpperCase()}] ${r.title}: ${r.description || ''}`);
+    });
+  }
+
+  // Sonraki Adım
+  if (result.sonraki_adim) {
+    parts.push('\n## SONRAKI ADIM');
+    if (result.sonraki_adim.cta_mesaji) parts.push(result.sonraki_adim.cta_mesaji);
+    if (result.sonraki_adim.iletisim_bilgisi) parts.push(`İletişim: ${result.sonraki_adim.iletisim_bilgisi}`);
+  }
+
+  // Executive Summary
+  if (result.executive_summary) {
+    parts.push('\n## ÖZET DEĞERLENDİRME');
+    parts.push(result.executive_summary);
   }
 
   return parts.join('\n');

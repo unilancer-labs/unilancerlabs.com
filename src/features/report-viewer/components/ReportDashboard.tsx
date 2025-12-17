@@ -7,7 +7,6 @@ import OverallScore from './OverallScore';
 import ScoreCard from './ScoreCard';
 import { RecommendationsList } from './RecommendationCard';
 import DigiBotChat from './DigiBotChat';
-import InlineChatPanel from './InlineChatPanel';
 
 interface ReportDashboardProps {
   report: DigitalAnalysisReport;
@@ -107,7 +106,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'details' | 'recommendations' | 'chat'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'details' | 'recommendations'>('overview');
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailTo, setEmailTo] = useState('');
   const [emailName, setEmailName] = useState('');
@@ -126,17 +125,6 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
 
   const analysisResult = report.analysis_result;
   const reportContext = generateReportContext(report);
-
-  // DEBUG: Rapor verisini kontrol et
-  console.log('=== REPORT DASHBOARD DEBUG ===');
-  console.log('report.id:', report.id);
-  console.log('analysis_result type:', typeof analysisResult);
-  console.log('analysis_result keys:', analysisResult ? Object.keys(analysisResult) : 'null');
-  console.log('guclu_yonler:', analysisResult?.guclu_yonler);
-  console.log('guclu_yonler length:', analysisResult?.guclu_yonler?.length);
-  console.log('gelistirilmesi_gereken_alanlar:', analysisResult?.gelistirilmesi_gereken_alanlar);
-  console.log('hizmet_paketleri:', analysisResult?.hizmet_paketleri);
-  console.log('===============================');
 
   const handlePdfDownload = async () => {
     await logAnalyticsEvent(report.id, 'pdf_download');
@@ -274,7 +262,6 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
               { key: 'overview', label: 'Genel Bakış', icon: '📊' },
               { key: 'details', label: 'Detaylar', icon: '📋' },
               { key: 'recommendations', label: 'Öneriler', icon: '💡' },
-              { key: 'chat', label: 'Sohbet', icon: '💬' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -905,52 +892,16 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
             )}
           </motion.div>
         )}
-
-        {/* Chat Tab - Sohbet Sekmesi */}
-        {activeTab === 'chat' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Chat Header */}
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                💬 DigiBot ile Sohbet
-              </h2>
-              <p className="text-gray-500 dark:text-gray-400">
-                Raporunuz hakkında sorularınızı sorun, anında yanıt alın
-              </p>
-            </div>
-
-            {/* Inline Chat Panel */}
-            <InlineChatPanel
-              reportId={report.id}
-              reportContext={reportContext}
-            />
-
-            {/* Chat Tips */}
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
-              <h4 className="font-medium text-emerald-800 dark:text-emerald-300 mb-2 flex items-center gap-2">
-                <span>💡</span> İpucu
-              </h4>
-              <p className="text-sm text-emerald-700 dark:text-emerald-400">
-                DigiBot raporunuzdaki tüm verilere erişebilir. Skorlarınız, öneriler, 
-                stratejik yol haritası ve hizmet paketleri hakkında detaylı sorular sorabilirsiniz. 
-                Örneğin: "SEO skorumu nasıl 80'in üzerine çıkarabilirim?" veya "Öncelikli yapılması gereken 3 şey nedir?"
-              </p>
-            </div>
-          </motion.div>
-        )}
       </main>
 
-      {/* DigiBot Chat - Sohbet sekmesinde gizle */}
-      {activeTab !== 'chat' && (
-        <DigiBotChat
-          reportId={report.id}
-          reportContext={reportContext}
-        />
-      )}
+      {/* DigiBot Chat */}
+      <DigiBotChat
+        reportId={report.id}
+        reportContext={reportContext}
+        analysisResult={analysisResult}
+        digitalScore={report.digital_score}
+        companyName={report.company_name}
+      />
 
       {/* Email Dialog */}
       {emailDialogOpen && (

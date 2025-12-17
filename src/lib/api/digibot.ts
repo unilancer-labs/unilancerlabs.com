@@ -140,43 +140,151 @@ export async function sendDigiBotMessageStream(
 }
 
 /**
- * Rapor verilerinden bağlam oluşturur (AI için)
+ * Rapor verilerinden zengin bağlam oluşturur (AI için)
+ * Tüm rapor detaylarını yapılandırılmış şekilde gönderir
  */
 export function buildReportContext(analysisResult: any): string {
   if (!analysisResult) return '';
 
   const { 
     company_name, 
+    website_url,
+    email,
+    sector,
+    location,
     digital_score, 
+    crm_readiness_score,
     scores, 
     strengths, 
     weaknesses, 
     recommendations,
-    summary 
+    summary,
+    executive_summary,
+    sector_summary,
+    technical_status,
+    social_media,
+    compliance,
+    pain_points,
+    roadmap,
+    ui_ux_review,
+    // Turkish fields
+    guclu_yonler,
+    gelistirilmesi_gereken_alanlar,
+    onemli_tespitler,
+    sektor_ozel_oneriler
   } = analysisResult;
 
+  // Helper to safely get string value
+  const safeString = (val: any) => {
+    if (typeof val === 'string') return val;
+    if (val && typeof val === 'object') return val.url || JSON.stringify(val);
+    return 'N/A';
+  };
+
+  // Build technical status section
+  const technicalSection = technical_status ? `
+TEKNİK DURUM:
+- SSL Sertifikası: ${technical_status.ssl_enabled || technical_status.ssl ? 'Aktif ✓' : 'Yok ✗'}
+- Mobil Performans: ${technical_status.mobile_score || 'N/A'}/100
+- Masaüstü Performans: ${technical_status.desktop_score || 'N/A'}/100
+- LCP (Yüklenme): Mobil ${technical_status.lcp_mobile || 'N/A'}s, Masaüstü ${technical_status.lcp_desktop || 'N/A'}s
+- Tasarım Skoru: ${technical_status.design_score || 'N/A'}/10
+` : '';
+
+  // Build social media section
+  const socialSection = social_media ? `
+SOSYAL MEDYA:
+- Website: ${safeString(social_media.website)}
+- LinkedIn: ${safeString(social_media.linkedin)}
+- Instagram: ${safeString(social_media.instagram)}
+- Facebook: ${safeString(social_media.facebook)}
+- Twitter/X: ${safeString(social_media.twitter)}
+- YouTube: ${safeString(social_media.youtube)}
+- AI Analizi: ${social_media.ai_analysis || 'Analiz mevcut değil'}
+` : '';
+
+  // Build compliance section
+  const complianceSection = compliance ? `
+YASAL UYUMLULUK:
+- KVKK Aydınlatma Metni: ${compliance.kvkk ? 'Var ✓' : 'Yok ✗ (KRİTİK!)'}
+- Çerez Politikası: ${compliance.cookie_policy ? 'Var ✓' : 'Yok ✗'}
+- ETBİS Kaydı: ${compliance.etbis ? 'Var ✓' : 'Yok ✗'}
+` : '';
+
+  // Build pain points section
+  const painPointsSection = pain_points && pain_points.length > 0 ? `
+TESPİT EDİLEN SORUNLAR VE ÇÖZÜMLER:
+${pain_points.map((p: any, i: number) => `${i + 1}. SORUN: ${p.issue || ''}
+   ÇÖZÜM: ${p.solution || ''}
+   HİZMET: ${p.service || ''}`).join('\n')}
+` : '';
+
+  // Build roadmap section
+  const roadmapSection = roadmap && roadmap.length > 0 ? `
+DİJİTAL DÖNÜŞÜM YOL HARİTASI:
+${roadmap.map((r: any) => `- [${r.category?.toUpperCase() || 'GENEL'}] ${r.title}: ${r.description}`).join('\n')}
+` : '';
+
+  // Build UI/UX section
+  const uiuxSection = ui_ux_review ? `
+UI/UX DEĞERLENDİRMESİ:
+- Genel Skor: ${ui_ux_review.overall_score || 'N/A'}/100
+- Tasarım: ${ui_ux_review.design_score || 'N/A'}/100
+- Kullanılabilirlik: ${ui_ux_review.usability_score || 'N/A'}/100
+- Mobil: ${ui_ux_review.mobile_score || 'N/A'}/100
+- Performans: ${ui_ux_review.performance_score || 'N/A'}/100
+- Değerlendirme: ${ui_ux_review.overall_assessment || 'N/A'}
+` : '';
+
+  // Combine strengths from multiple sources
+  const allStrengths = [...(strengths || []), ...(guclu_yonler || [])];
+  const allWeaknesses = [...(weaknesses || []), ...(gelistirilmesi_gereken_alanlar || [])];
+
   return `
-ŞİRKET: ${company_name}
-GENEL DİJİTAL SKOR: ${digital_score}/100
+══════════════════════════════════════════════════════════════════
+DİJİTAL ANALİZ RAPORU - ${company_name || 'Bilinmiyor'}
+══════════════════════════════════════════════════════════════════
 
-DETAYLI SKORLAR:
-- Web Varlığı: ${scores?.web_presence || 'N/A'}/100
-- Sosyal Medya: ${scores?.social_media || 'N/A'}/100
-- Marka Kimliği: ${scores?.brand_identity || 'N/A'}/100
-- Dijital Pazarlama: ${scores?.digital_marketing || 'N/A'}/100
-- Kullanıcı Deneyimi: ${scores?.user_experience || 'N/A'}/100
+FİRMA BİLGİLERİ:
+- Şirket: ${company_name || 'N/A'}
+- Website: ${website_url || 'N/A'}
+- E-posta: ${email || 'N/A'}
+- Sektör: ${sector || 'Genel'}
+- Lokasyon: ${location || 'Türkiye'}
 
-ÖZET:
-${summary || 'Özet mevcut değil.'}
+SKORLAR:
+- Genel Dijital Skor: ${digital_score || 0}/100
+- CRM Hazırlık: ${crm_readiness_score || 'N/A'}/5
+- Web Varlığı: ${scores?.web_presence ?? scores?.website ?? 'N/A'}/100
+- Sosyal Medya: ${scores?.social_media ?? 'N/A'}/100
+- Marka Kimliği: ${scores?.brand_identity ?? 'N/A'}/100
+- Dijital Pazarlama: ${scores?.digital_marketing ?? scores?.seo ?? 'N/A'}/100
+- Kullanıcı Deneyimi: ${scores?.user_experience ?? 'N/A'}/100
 
+YÖNETİCİ ÖZETİ:
+${executive_summary || summary || 'Mevcut değil.'}
+
+SEKTÖR ANALİZİ:
+${sector_summary || sektor_ozel_oneriler?.join(' ') || 'Sektör analizi mevcut değil.'}
+${technicalSection}${socialSection}${complianceSection}
 GÜÇLÜ YÖNLER:
-${strengths?.map((s: string) => `• ${s}`).join('\n') || '• Bilgi mevcut değil'}
+${allStrengths.length > 0 ? allStrengths.map((s: string) => `✓ ${s}`).join('\n') : '• Bilgi mevcut değil'}
 
-ZAYIF YÖNLER:
-${weaknesses?.map((w: string) => `• ${w}`).join('\n') || '• Bilgi mevcut değil'}
+ZAYIF YÖNLER / GELİŞTİRİLMESİ GEREKENLER:
+${allWeaknesses.length > 0 ? allWeaknesses.map((w: string) => `✗ ${w}`).join('\n') : '• Bilgi mevcut değil'}
 
+ÖNEMLİ TESPİTLER:
+${onemli_tespitler && onemli_tespitler.length > 0 ? onemli_tespitler.map((t: string) => `• ${t}`).join('\n') : 'Tespit mevcut değil.'}
+${painPointsSection}${roadmapSection}${uiuxSection}
 ÖNCELİKLİ ÖNERİLER:
-${recommendations?.slice(0, 5).map((r: any) => `• [${r.priority?.toUpperCase() || 'ORTA'}] ${r.title}: ${r.description}`).join('\n') || '• Öneri mevcut değil'}
+${recommendations && recommendations.length > 0 ? recommendations.map((r: any, i: number) => `${i + 1}. [${(r.priority || 'ORTA').toUpperCase()}] ${r.title || ''}
+   ${r.description || ''}
+   Kategori: ${r.category || 'Genel'}`).join('\n\n') : '• Öneri mevcut değil'}
+
+══════════════════════════════════════════════════════════════════
+NOT: Bu rapor ${company_name || 'firma'} için hazırlanmış dijital analiz raporudur.
+DigiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
+══════════════════════════════════════════════════════════════════
 `.trim();
 }
 

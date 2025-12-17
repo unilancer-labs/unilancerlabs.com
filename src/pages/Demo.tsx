@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Brain, 
   Globe, 
   Mail, 
   Building2, 
@@ -53,34 +52,42 @@ import {
   Download,
   History,
   Layout,
-  Eye
+  Eye,
+  Minimize2,
+  Pin,
+  Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateDigiBotResponse } from '../data/unilancerKnowledge';
-import { sendDigiBotMessageStream } from '../lib/api/digibot';
 import { signOut } from '../lib/auth';
 import { useTheme } from '../contexts/ThemeContext';
 import { exportAnalysisReportToPDF } from '../lib/utils/export';
 import { supabase } from '../lib/config/supabase';
 import { createDigitalAnalysisReport, triggerAnalysisWebhook, getDigitalAnalysisReportById } from '../lib/api/digitalAnalysis';
+import InlineChatPanel from '../features/report-viewer/components/InlineChatPanel';
+import { generateReportContext } from '../features/report-viewer/utils/reportParser';
+import { ChatProvider, useChat, DIGIBOT_LOGO } from '../features/report-viewer/contexts/ChatContext';
 
 // Types
 interface TechnicalStatus {
-  design_score: number;
-  mobile_score: number;
-  desktop_score: number;
-  lcp_mobile: number;
-  lcp_desktop: number;
-  cls_mobile: number;
-  cls_desktop: number;
-  ssl_status: boolean;
+  design_score?: number;
+  mobile_score?: number;
+  desktop_score?: number;
+  lcp_mobile?: number | string;
+  lcp_desktop?: number | string;
+  cls_mobile?: number;
+  cls_desktop?: number;
+  ssl_status?: boolean;
+  ssl_enabled?: boolean;
   ssl_note?: string;
+  ssl_grade?: string;
+  teknik_ozet?: string;
+  design_age?: string;
 }
 
 interface Compliance {
-  kvkk: boolean;
-  cookie_policy: boolean;
-  etbis: boolean;
+  kvkk: boolean | { durum?: boolean; aciklama?: string };
+  cookie_policy: boolean | { durum?: boolean; aciklama?: string };
+  etbis: boolean | { durum?: boolean; aciklama?: string };
 }
 
 interface SocialMedia {
@@ -240,6 +247,22 @@ interface SavedReport {
   created_at: string;
   analysis_result: AnalysisResult;
 }
+
+// Helper function to safely extract social media URL as string
+const getSocialMediaString = (value: unknown): string => {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    return (obj.url as string) || '';
+  }
+  return '';
+};
+
+// Helper to check if social media value contains a specific text
+const socialMediaIncludes = (value: unknown, searchText: string): boolean => {
+  const str = getSocialMediaString(value);
+  return str.toLowerCase().includes(searchText.toLowerCase());
+};
 
 // Mock data generator - İnşaat Sektörü Örneği (Sayılı Beton Benzeri)
 const generateMockAnalysis = (companyName: string, websiteUrl: string, email: string): AnalysisResult => {
@@ -605,9 +628,6 @@ ${companyName || "Örnek İnşaat A.Ş."} dijital dönüşüm için acil adımla
 // Tab types
 type TabType = 'overview' | 'details' | 'recommendations' | 'chat';
 
-// LocalStorage key
-const CHAT_HISTORY_KEY = 'digibot_chat_history';
-
 // Format timestamp
 const formatTime = (date: Date): string => {
   return new Intl.DateTimeFormat('tr-TR', {
@@ -627,7 +647,7 @@ const Demo = () => {
     email: ''
   });
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [currentStep, setCurrentStep] = useState<'form' | 'analyzing' | 'results'>('form');
+  const [currentStep, setCurrentStep] = useState<'form' | 'analyzing' | 'results' | 'history'>('form');
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -642,6 +662,7 @@ const Demo = () => {
   
   // Report history & email states
   const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
+  const [lastActiveReport, setLastActiveReport] = useState<{ result: AnalysisResult; reportId: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailTo, setEmailTo] = useState('');
@@ -652,32 +673,38 @@ const Demo = () => {
   const [analysisStatus, setAnalysisStatus] = useState<string>('');
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Chat state
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  // Chat state - using shared context
+  const { messages: chatMessages, isLoading: isChatLoading, sendMessage: sendChatMessage, clearChat, setMessages: setChatMessages, setReportId } = useChat();
   const [chatInput, setChatInput] = useState('');
-  const [isChatLoading, setIsChatLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatSessionId] = useState(() => crypto.randomUUID());
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [isChatPinned, setIsChatPinned] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
-
-  // Load chat history from localStorage
+  
+  // Track if initial animations have played
+  const [hasAnimated, setHasAnimated] = useState(false);
+  
+  // Update chat context when report changes
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(CHAT_HISTORY_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Convert timestamp strings back to Date objects
-        const messages = parsed.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }));
-        setChatMessages(messages);
-      }
-    } catch (error) {
-      console.error('Failed to load chat history:', error);
+    const reportId = currentReportId || analysisResult?.id || 'guest';
+    setReportId(reportId);
+  }, [currentReportId, analysisResult?.id, setReportId]);
+  
+  // Set hasAnimated after first render of results
+  useEffect(() => {
+    if (currentStep === 'results' && analysisResult && !hasAnimated) {
+      const timer = setTimeout(() => setHasAnimated(true), 2000);
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [currentStep, analysisResult, hasAnimated]);
+  
+  // Reset hasAnimated when switching to a different report
+  useEffect(() => {
+    if (currentReportId) {
+      setHasAnimated(false);
+    }
+  }, [currentReportId]);
 
   // Cleanup polling interval on unmount
   useEffect(() => {
@@ -688,17 +715,6 @@ const Demo = () => {
       }
     };
   }, []);
-
-  // Save chat history to localStorage
-  useEffect(() => {
-    if (chatMessages.length > 0) {
-      try {
-        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatMessages));
-      } catch (error) {
-        console.error('Failed to save chat history:', error);
-      }
-    }
-  }, [chatMessages]);
 
   // Copy message to clipboard
   const handleCopyMessage = async (messageId: string, content: string) => {
@@ -825,21 +841,23 @@ const Demo = () => {
       const pollInterval = setInterval(async () => {
         attempts++;
         
-        // Update progress bar (slower progress for longer timeout)
-        const progressPercent = Math.min(95, (attempts / maxAttempts) * 100);
+        // Update progress bar - 3 minute simulation (180 seconds / 5s interval = 36 attempts for 100%)
+        // But polling can go longer, so we cap visual progress at 95% until complete
+        const targetAttempts = 36; // 3 minutes at 5s intervals
+        const progressPercent = Math.min(95, (attempts / targetAttempts) * 100);
         setAnalysisProgress(progressPercent);
         
-        // Update status message based on progress
-        if (attempts < 12) {
+        // Update status message based on progress (aligned with 5 stages)
+        if (progressPercent < 20) {
           setAnalysisStatus('Web sitesi taranıyor...');
-        } else if (attempts < 30) {
-          setAnalysisStatus('Sosyal medya analiz ediliyor...');
-        } else if (attempts < 60) {
-          setAnalysisStatus('AI analizi yapılıyor...');
-        } else if (attempts < 90) {
-          setAnalysisStatus('Rapor hazırlanıyor...');
+        } else if (progressPercent < 40) {
+          setAnalysisStatus('Sosyal medya hesapları analiz ediliyor...');
+        } else if (progressPercent < 60) {
+          setAnalysisStatus('SEO ve performans kontrol ediliyor...');
+        } else if (progressPercent < 80) {
+          setAnalysisStatus('Marka değerlendirmesi yapılıyor...');
         } else {
-          setAnalysisStatus('Analiz devam ediyor, lütfen bekleyin...');
+          setAnalysisStatus('AI raporu hazırlanıyor...');
         }
         
         try {
@@ -1068,15 +1086,273 @@ const Demo = () => {
     try {
       const { data, error } = await supabase
         .from('digital_analysis_reports')
-        .select('id, company_name, website_url, digital_score, created_at, analysis_result')
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .select('id, company_name, website_url, digital_score, created_at, analysis_result, requested_by, status')
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       setSavedReports(data || []);
     } catch (error) {
       console.error('Error loading reports:', error);
     }
+  };
+
+  // Load a saved report with all necessary state - normalize data like polling does
+  const loadSavedReport = (report: SavedReport) => {
+    // Save current report before loading new one
+    if (analysisResult && currentReportId) {
+      setLastActiveReport({ result: analysisResult, reportId: currentReportId });
+    }
+    
+    // Transform analysis_result to match AnalysisResult type (same as polling)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const analysisData: any = report.analysis_result || {};
+    const scores = analysisData.scores || {};
+    const socialMedia = analysisData.social_media || {};
+    
+    // n8n sosyal medya yapısını düzelt (nested object -> string)
+    const extractSocialUrl = (platform: any): string => {
+      if (typeof platform === 'string') return platform;
+      if (platform && typeof platform === 'object') return platform.url || '';
+      return '';
+    };
+
+    // Helper: Extract string from object (guclu_yonler, gelistirilmesi_gereken_alanlar are object arrays)
+    const extractStringsFromObjectArray = (arr: any[]): string[] => {
+      if (!arr || arr.length === 0) return [];
+      return arr.map((item: any) => {
+        if (typeof item === 'string') return item;
+        // n8n format: {baslik: "...", aciklama: "..."} or {alan: "...", oneri: "..."}
+        return item.baslik || item.alan || item.title || item.aciklama || item.description || JSON.stringify(item);
+      });
+    };
+
+    // Helper: Convert stratejik_yol_haritasi object to roadmap array
+    const convertRoadmapFromObject = (roadmapObj: any): any[] => {
+      if (!roadmapObj) return [];
+      if (Array.isArray(roadmapObj)) return roadmapObj;
+      
+      const result: any[] = [];
+      // Object format: {vizyon, ilk_30_gun: [], 30_90_gun: [], 90_365_gun: []}
+      if (roadmapObj.ilk_30_gun) {
+        roadmapObj.ilk_30_gun.forEach((item: any) => {
+          result.push({
+            category: 'Acil (0-30 Gün)',
+            title: typeof item === 'string' ? item : item.baslik || item.title || '',
+            description: typeof item === 'string' ? '' : item.aciklama || item.description || ''
+          });
+        });
+      }
+      if (roadmapObj['30_90_gun']) {
+        roadmapObj['30_90_gun'].forEach((item: any) => {
+          result.push({
+            category: 'Kısa Vade (1-3 Ay)',
+            title: typeof item === 'string' ? item : item.baslik || item.title || '',
+            description: typeof item === 'string' ? '' : item.aciklama || item.description || ''
+          });
+        });
+      }
+      if (roadmapObj['90_365_gun']) {
+        roadmapObj['90_365_gun'].forEach((item: any) => {
+          result.push({
+            category: 'Uzun Vade (3-12 Ay)',
+            title: typeof item === 'string' ? item : item.baslik || item.title || '',
+            description: typeof item === 'string' ? '' : item.aciklama || item.description || ''
+          });
+        });
+      }
+      return result;
+    };
+
+    // Helper: Convert sektor_ozel_oneriler (object array) to string
+    const extractSectorSummary = (arr: any[]): string => {
+      if (!arr || arr.length === 0) return '';
+      return arr.map((item: any) => {
+        if (typeof item === 'string') return item;
+        return item.oneri || item.baslik || item.description || '';
+      }).filter(Boolean).join(' ');
+    };
+
+    // Helper: Convert hizmet_paketleri to recommendations format
+    const convertHizmetPaketleriToRecommendations = (paketler: any[]): any[] => {
+      if (!paketler || paketler.length === 0) return [];
+      return paketler.map((paket: any) => ({
+        title: paket.paket_adi || paket.baslik || paket.title || '',
+        description: paket.aciklama || paket.description || paket.icerik || '',
+        priority: paket.oncelik || paket.priority || 'medium',
+        category: paket.kategori || paket.category || 'Genel'
+      }));
+    };
+
+    // Helper: Convert hizmet_paketleri to pain_points format
+    const convertToPainPoints = (data: any): any[] => {
+      // Direct pain_points
+      if (data.pain_points && data.pain_points.length > 0) return data.pain_points;
+      
+      // From onemli_tespitler (important findings)
+      if (data.onemli_tespitler && data.onemli_tespitler.length > 0) {
+        return data.onemli_tespitler.map((tespit: any) => ({
+          issue: typeof tespit === 'string' ? tespit : tespit.tespit || tespit.baslik || '',
+          solution: typeof tespit === 'string' ? '' : tespit.cozum || tespit.oneri || '',
+          service: typeof tespit === 'string' ? '' : tespit.hizmet || ''
+        })).filter((p: any) => p.issue);
+      }
+      
+      // From gelistirilmesi_gereken_alanlar
+      if (data.gelistirilmesi_gereken_alanlar && data.gelistirilmesi_gereken_alanlar.length > 0) {
+        return data.gelistirilmesi_gereken_alanlar.map((alan: any) => ({
+          issue: typeof alan === 'string' ? alan : alan.alan || alan.baslik || '',
+          solution: typeof alan === 'string' ? '' : alan.oneri || alan.cozum || '',
+          service: ''
+        })).filter((p: any) => p.issue);
+      }
+      
+      return [];
+    };
+
+    const normalizedResult: AnalysisResult = {
+      id: report.id,
+      company_name: report.company_name || analysisData.firma_adi || '',
+      website_url: report.website_url || analysisData.website_url || '',
+      email: analysisData.email || analysisData.requested_by || '',
+      digital_score: report.digital_score || analysisData.digital_score || scores.overall || 0,
+      sector: analysisData.sektor || analysisData.sector || 'Genel',
+      location: analysisData.location || analysisData.ulke || 'Türkiye',
+      crm_readiness_score: analysisData.crm_readiness?.score,
+      scores: {
+        web_presence: scores.web_presence ?? scores.website ?? 0,
+        social_media: scores.social_media ?? 0,
+        brand_identity: scores.brand_identity ?? scores.security ?? 0,
+        digital_marketing: scores.digital_marketing ?? scores.seo ?? 0,
+        user_experience: scores.user_experience ?? scores.mobile_optimization ?? 0,
+        website: scores.website ?? scores.web_presence ?? 0,
+        seo: scores.seo ?? scores.digital_marketing ?? 0,
+        mobile_optimization: scores.mobile_optimization ?? 0,
+        performance: scores.performance ?? 0,
+        security: scores.security ?? 0,
+        overall: scores.overall ?? report.digital_score ?? 0
+      },
+      // strengths: n8n sends guclu_yonler as object array, convert to string array
+      strengths: analysisData.strengths?.length > 0 
+        ? analysisData.strengths 
+        : extractStringsFromObjectArray(analysisData.guclu_yonler),
+      // weaknesses: n8n sends gelistirilmesi_gereken_alanlar as object array
+      weaknesses: analysisData.weaknesses?.length > 0 
+        ? analysisData.weaknesses 
+        : extractStringsFromObjectArray(analysisData.gelistirilmesi_gereken_alanlar),
+      // recommendations: n8n sends hizmet_paketleri with different structure
+      recommendations: analysisData.recommendations?.length > 0 
+        ? analysisData.recommendations.map((rec: any) => ({
+            title: rec.title || rec.baslik || '',
+            description: rec.description || rec.aciklama || '',
+            priority: rec.priority || rec.oncelik || 'medium',
+            category: rec.category || rec.service || rec.kategori || 'Genel',
+            impact: rec.impact,
+            effort: rec.effort
+          }))
+        : convertHizmetPaketleriToRecommendations(analysisData.hizmet_paketleri),
+      summary: analysisData.executive_summary || analysisData.summary || analysisData.firma_tanitimi || '',
+      detailed_report: analysisData.detailed_report || analysisData.plain_text_report || '',
+      executive_summary: analysisData.executive_summary || analysisData.firma_tanitimi,
+      // sector_summary: n8n sends sektor_ozel_oneriler as object array, not string array
+      sector_summary: analysisData.sector_summary || extractSectorSummary(analysisData.sektor_ozel_oneriler),
+      technical_status: analysisData.technical_status || (analysisData.website_analysis ? {
+        design_age: analysisData.design_analysis?.design_age,
+        design_score: analysisData.design_analysis?.design_score,
+        mobile_score: analysisData.website_analysis?.page_speed_score_mobile,
+        desktop_score: analysisData.website_analysis?.page_speed_score_desktop,
+        ssl_enabled: analysisData.website_analysis?.ssl_enabled,
+        ssl_grade: analysisData.website_analysis?.ssl_grade,
+        lcp_mobile: analysisData.website_analysis?.lcp_mobile,
+        lcp_desktop: analysisData.website_analysis?.lcp_desktop
+      } : undefined),
+      compliance: analysisData.compliance || analysisData.legal_compliance,
+      social_media: Object.keys(socialMedia).length > 0 ? {
+        website: socialMedia.website || report.website_url,
+        linkedin: extractSocialUrl(socialMedia.linkedin),
+        instagram: extractSocialUrl(socialMedia.instagram),
+        facebook: extractSocialUrl(socialMedia.facebook),
+        twitter: extractSocialUrl(socialMedia.twitter),
+        youtube: extractSocialUrl(socialMedia.youtube),
+        ai_analysis: socialMedia.overall_assessment || socialMedia.ai_analysis || socialMedia.genel_strateji ||
+          (typeof socialMedia.linkedin === 'object' ? socialMedia.linkedin.analysis : '') || ''
+      } : analysisData.social_media,
+      // pain_points: Use convertToPainPoints helper which tries multiple sources
+      pain_points: convertToPainPoints(analysisData),
+      // roadmap: n8n sends stratejik_yol_haritasi as object, not array
+      roadmap: Array.isArray(analysisData.roadmap) 
+        ? analysisData.roadmap 
+        : convertRoadmapFromObject(analysisData.stratejik_yol_haritasi),
+      // ui_ux_review: n8n sends ui_ux_degerlendirmesi as string
+      ui_ux_review: analysisData.design_analysis ? {
+        overall_score: analysisData.design_analysis.design_score || 0,
+        design_score: analysisData.design_analysis.design_score || 0,
+        usability_score: analysisData.design_analysis.usability_score || 0,
+        mobile_score: analysisData.website_analysis?.page_speed_score_mobile || 0,
+        performance_score: analysisData.website_analysis?.page_speed_score_desktop || 0,
+        design_age: analysisData.design_analysis.design_age,
+        overall_assessment: analysisData.design_analysis.ux_assessment || analysisData.ui_ux_degerlendirmesi,
+        strengths: analysisData.design_analysis.strengths || [],
+        weaknesses: analysisData.design_analysis.weaknesses || []
+      } : (typeof analysisData.ui_ux_degerlendirmesi === 'string' ? {
+        overall_assessment: analysisData.ui_ux_degerlendirmesi,
+        overall_score: scores.user_experience || 0,
+        design_score: 0,
+        usability_score: 0,
+        mobile_score: analysisData.technical_status?.mobile_score || 0,
+        performance_score: analysisData.technical_status?.desktop_score || 0,
+        strengths: [],
+        weaknesses: []
+      } : analysisData.ui_ux_review),
+      // Turkish fields
+      firma_adi: analysisData.firma_adi,
+      sektor: analysisData.sektor,
+      guclu_yonler: analysisData.guclu_yonler || [],
+      gelistirilmesi_gereken_alanlar: analysisData.gelistirilmesi_gereken_alanlar || [],
+      onemli_tespitler: analysisData.onemli_tespitler || []
+    };
+    
+    // Debug: Log raw and normalized data
+    console.log('[loadSavedReport] Raw analysis_result:', report.analysis_result);
+    console.log('[loadSavedReport] Normalized result:', normalizedResult);
+    console.log('[loadSavedReport] Key fields:', {
+      pain_points: normalizedResult.pain_points?.length,
+      roadmap: normalizedResult.roadmap,
+      recommendations: normalizedResult.recommendations?.length,
+      strengths: normalizedResult.strengths?.length,
+      weaknesses: normalizedResult.weaknesses?.length,
+      technical_status: normalizedResult.technical_status,
+      compliance: normalizedResult.compliance,
+      social_media: normalizedResult.social_media,
+      ui_ux_review: normalizedResult.ui_ux_review
+    });
+    
+    // Set the normalized result
+    setAnalysisResult(normalizedResult);
+    setCurrentReportId(report.id);
+    
+    // Update form data to reflect loaded report
+    setFormData({
+      company_name: report.company_name || '',
+      website_url: report.website_url || '',
+      email: report.analysis_result?.email || ''
+    });
+    
+    // Initialize chat with welcome message for this report
+    setChatMessages([{
+      id: `welcome-${Date.now()}`,
+      role: 'assistant',
+      content: `Merhaba! 👋 Ben digiBot, Unilancer Labs'ın dijital asistanıyım.\n\n**${report.company_name}** için hazırlanan dijital analiz raporunu inceliyorsunuz. Genel dijital skor **${report.digital_score}/100** olarak hesaplanmış.\n\nRapor hakkında sorularınızı yanıtlayabilir, önerileri açıklayabilir veya Unilancer Labs hizmetleri konusunda bilgi verebilirim.\n\nNasıl yardımcı olabilirim?`,
+      timestamp: new Date()
+    }]);
+    
+    // Reset active tab to overview
+    setActiveTab('overview');
+    
+    // Navigate to results
+    setCurrentStep('results');
+    
+    toast.success(`${report.company_name} raporu yüklendi`);
   };
 
   // Save report to database
@@ -1202,17 +1478,17 @@ YASAL UYUMLULUK:
 ` : '';
 
     // Ağrı noktaları
-    const painPointsInfo = result.pain_points ? `
+    const painPointsInfo = result.pain_points && result.pain_points.length > 0 ? `
 AĞRI NOKTALARI:
-${result.pain_points.map(p => `• SORUN: ${p.issue}
-  ÇÖZÜM: ${p.solution}
-  HİZMET: ${p.service}`).join('\n\n')}
+${result.pain_points.map(p => `• SORUN: ${p.issue || ''}
+  ÇÖZÜM: ${p.solution || ''}
+  HİZMET: ${p.service || ''}`).join('\n\n')}
 ` : '';
 
     // Yol haritası
-    const roadmapInfo = result.roadmap ? `
+    const roadmapInfo = result.roadmap && result.roadmap.length > 0 ? `
 DİJİTAL DÖNÜŞÜM YOL HARİTASI:
-${result.roadmap.map(r => `• [${r.category}] ${r.title}: ${r.description}`).join('\n')}
+${result.roadmap.map(r => `• [${r.category || 'Genel'}] ${r.title || ''}: ${r.description || ''}`).join('\n')}
 ` : '';
 
     return `
@@ -1258,12 +1534,12 @@ ${complianceInfo}
 ═══════════════════════════════════════════════════════════════
 GÜÇLÜ YÖNLER
 ═══════════════════════════════════════════════════════════════
-${result.strengths.map(s => `✓ ${s}`).join('\n')}
+${(result.strengths || []).map(s => `✓ ${s}`).join('\n') || 'Güçlü yön bilgisi mevcut değil.'}
 
 ═══════════════════════════════════════════════════════════════
 ZAYIF YÖNLER
 ═══════════════════════════════════════════════════════════════
-${result.weaknesses.map(w => `✗ ${w}`).join('\n')}
+${(result.weaknesses || []).map(w => `✗ ${w}`).join('\n') || 'Zayıf yön bilgisi mevcut değil.'}
 
 ${painPointsInfo}
 ${roadmapInfo}
@@ -1271,9 +1547,9 @@ ${roadmapInfo}
 ═══════════════════════════════════════════════════════════════
 ÖNERİLER
 ═══════════════════════════════════════════════════════════════
-${result.recommendations.map(r => `• [${r.priority.toUpperCase()}] ${r.title}
-  ${r.description}
-  Kategori: ${r.category}`).join('\n\n')}
+${(result.recommendations || []).map(r => `• [${r.priority?.toUpperCase() || 'ORTA'}] ${r.title || 'Öneri'}
+  ${r.description || ''}
+  Kategori: ${r.category || 'Genel'}`).join('\n\n') || 'Öneri bilgisi mevcut değil.'}
 
 ═══════════════════════════════════════════════════════════════
 NOT: Bu rapor ${result.company_name} firması için hazırlanmış dijital analiz raporudur.
@@ -1282,81 +1558,18 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
     `.trim();
   };
 
-  // Handle chat message - Streaming AI ile
+  // Handle chat message - using shared context
   const handleSendMessage = async () => {
     if (!chatInput.trim() || isChatLoading) return;
 
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: chatInput.trim(),
-      timestamp: new Date()
-    };
-
-    setChatMessages(prev => [...prev, userMessage]);
-    const question = chatInput;
+    const question = chatInput.trim();
     setChatInput('');
-    setIsChatLoading(true);
-
-    // Streaming mesaj için placeholder ekle
-    const assistantMessageId = crypto.randomUUID();
-    setChatMessages(prev => [...prev, {
-      id: assistantMessageId,
-      role: 'assistant',
-      content: '',
-      timestamp: new Date()
-    }]);
-
-    try {
-      const reportContext = buildReportContext(analysisResult);
-      console.log('[DigiBot] Report context being sent:', reportContext?.substring(0, 500) + '...');
-      const reportId = analysisResult?.id || 'demo-report';
-
-      // Streaming API çağrısı
-      await sendDigiBotMessageStream(
-        reportId,
-        chatSessionId,
-        question,
-        reportContext,
-        // onChunk - her karakter geldiğinde
-        (chunk: string) => {
-          setChatMessages(prev => prev.map(msg => 
-            msg.id === assistantMessageId 
-              ? { ...msg, content: msg.content + chunk }
-              : msg
-          ));
-        },
-        // onComplete
-        () => {
-          setIsChatLoading(false);
-        },
-        // onError - hata durumunda fallback
-        (error: string) => {
-          console.error('Streaming error:', error);
-          // Fallback kullan
-          const fallbackResponse = generateDigiBotResponse(question, analysisResult);
-          setChatMessages(prev => prev.map(msg => 
-            msg.id === assistantMessageId 
-              ? { ...msg, content: fallbackResponse }
-              : msg
-          ));
-          setIsChatLoading(false);
-        }
-      );
-    } catch (error) {
-      console.error('Chat error:', error);
-      const fallbackResponse = generateDigiBotResponse(question, analysisResult);
-      setChatMessages(prev => {
-        const filtered = prev.filter(msg => msg.id !== assistantMessageId);
-        return [...filtered, {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: fallbackResponse,
-          timestamp: new Date()
-        }];
-      });
-      setIsChatLoading(false);
-    }
+    
+    // Use context's sendMessage which handles everything
+    const reportContext = buildReportContext(analysisResult);
+    const reportId = currentReportId || analysisResult?.id || 'demo-report';
+    
+    await sendChatMessage(question, reportId, reportContext || '');
   };
 
   // Score helpers
@@ -1407,77 +1620,81 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
     }
   };
 
-  // Circular Score Gauge Component
-  const CircularGauge = ({ score, size = 160 }: { score: number; size?: number }) => {
-    const strokeWidth = 10;
-    const radius = (size - strokeWidth) / 2;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (score / 100) * circumference;
+  // Circular Score Gauge Component - memoized
+  const CircularGauge = useMemo(() => {
+    return ({ score, size = 160 }: { score: number; size?: number }) => {
+      const strokeWidth = 10;
+      const radius = (size - strokeWidth) / 2;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (score / 100) * circumference;
 
-    return (
-      <div className="relative inline-flex items-center justify-center">
-        <svg width={size} height={size} className="-rotate-90">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            className="stroke-slate-200 dark:stroke-slate-700"
-            strokeWidth={strokeWidth}
-          />
-          <motion.circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            className={getScoreStroke(score)}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            initial={{ strokeDasharray: `0 ${circumference}` }}
-            animate={{ strokeDasharray: `${circumference - offset} ${circumference}` }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <motion.span 
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className={`text-4xl font-bold ${getScoreColor(score)}`}
-          >
+      return (
+        <div className="relative inline-flex items-center justify-center">
+          <svg width={size} height={size} className="-rotate-90">
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              className="stroke-slate-200 dark:stroke-slate-700"
+              strokeWidth={strokeWidth}
+            />
+            <motion.circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              className={getScoreStroke(score)}
+              strokeWidth={strokeWidth}
+              strokeLinecap="round"
+              initial={hasAnimated ? false : { strokeDasharray: `0 ${circumference}` }}
+              animate={{ strokeDasharray: `${circumference - offset} ${circumference}` }}
+              transition={{ duration: hasAnimated ? 0 : 1.5, ease: "easeOut" }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <motion.span 
+              initial={hasAnimated ? false : { opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: hasAnimated ? 0 : 0.5, duration: hasAnimated ? 0 : 0.5 }}
+              className={`text-4xl font-bold ${getScoreColor(score)}`}
+            >
+              {score}
+            </motion.span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">/ 100</span>
+          </div>
+        </div>
+      );
+    };
+  }, [hasAnimated]);
+
+  // Score Card Component - memoized
+  const ScoreCard = useMemo(() => {
+    return ({ label, score, icon: Icon }: { label: string; score: number; icon: React.ElementType }) => (
+      <motion.div 
+        whileHover={{ y: -2 }}
+        className={`p-4 rounded-xl border ${getScoreBgLight(score)} transition-all`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className={`p-1.5 rounded-lg ${score >= 80 ? 'bg-emerald-100 dark:bg-emerald-800/30' : score >= 60 ? 'bg-amber-100 dark:bg-amber-800/30' : 'bg-red-100 dark:bg-red-800/30'}`}>
+            <Icon className={`w-4 h-4 ${getScoreColor(score)}`} />
+          </div>
+          <span className={`text-xl font-bold tabular-nums ${getScoreColor(score)}`}>
             {score}
-          </motion.span>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">/ 100</span>
+          </span>
         </div>
-      </div>
+        <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">{label}</p>
+        <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <motion.div 
+            initial={hasAnimated ? false : { width: 0 }}
+            animate={{ width: `${score}%` }}
+            transition={{ duration: hasAnimated ? 0 : 1, delay: hasAnimated ? 0 : 0.3 }}
+            className={`h-full rounded-full ${getProgressColor(score)}`}
+          />
+        </div>
+      </motion.div>
     );
-  };
-
-  // Score Card Component
-  const ScoreCard = ({ label, score, icon: Icon }: { label: string; score: number; icon: React.ElementType }) => (
-    <motion.div 
-      whileHover={{ y: -2 }}
-      className={`p-4 rounded-xl border ${getScoreBgLight(score)} transition-all`}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <div className={`p-1.5 rounded-lg ${score >= 80 ? 'bg-emerald-100 dark:bg-emerald-800/30' : score >= 60 ? 'bg-amber-100 dark:bg-amber-800/30' : 'bg-red-100 dark:bg-red-800/30'}`}>
-          <Icon className={`w-4 h-4 ${getScoreColor(score)}`} />
-        </div>
-        <span className={`text-xl font-bold tabular-nums ${getScoreColor(score)}`}>
-          {score}
-        </span>
-      </div>
-      <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">{label}</p>
-      <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-        <motion.div 
-          initial={{ width: 0 }}
-          animate={{ width: `${score}%` }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className={`h-full rounded-full ${getProgressColor(score)}`}
-        />
-      </div>
-    </motion.div>
-  );
+  }, [hasAnimated]);
 
   return (
     <>
@@ -1488,17 +1705,42 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
       
       <div className="min-h-screen bg-slate-50 dark:bg-dark transition-colors duration-300">
         {/* Header */}
-        <header className="sticky top-0 z-50 bg-white dark:bg-dark-light border-b border-slate-200 dark:border-slate-800">
+        <header className="sticky top-0 z-50 bg-white dark:bg-dark-light border-b border-slate-200 dark:border-slate-800 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-14">
+            <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                  <Brain className="w-4 h-4 text-white" />
+                <img 
+                  src={DIGIBOT_LOGO} 
+                  alt="DigiBot" 
+                  className="w-10 h-10 rounded-xl object-cover"
+                />
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-slate-900 dark:text-white">DigiBot Dijital Analiz</span>
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-primary/10 text-primary rounded-full">BETA</span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">AI Destekli İşletme Analizi</span>
                 </div>
-                <span className="text-sm font-semibold text-slate-900 dark:text-white">Dijital Analiz</span>
               </div>
 
               <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentStep('history')}
+                  className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    currentStep === 'history' 
+                      ? 'text-primary bg-primary/10' 
+                      : 'text-slate-600 dark:text-slate-300 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <History className="w-4 h-4" />
+                  <span className="hidden sm:inline">Geçmiş Raporlar</span>
+                  {savedReports.length > 0 && (
+                    <span className="hidden sm:inline px-1.5 py-0.5 text-[10px] font-bold bg-primary/10 text-primary rounded-full">
+                      {savedReports.length}
+                    </span>
+                  )}
+                </button>
+
                 <button
                   onClick={() => navigate('/admin')}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 dark:text-slate-300 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
@@ -1533,23 +1775,23 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="min-h-[calc(100vh-56px)] flex items-center justify-center p-4"
+              className="min-h-[calc(100vh-64px)] flex items-center justify-center p-4 sm:p-6"
             >
-              <div className="w-full max-w-sm">
-                <div className="text-center mb-6">
-                  <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-primary flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-white" />
+              <div className="w-full max-w-md">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg">
+                    <img src={DIGIBOT_LOGO} alt="DigiBot" className="w-full h-full object-cover" />
                   </div>
-                  <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                     Dijital Varlık Analizi
                   </h1>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    İşletmenizin dijital performansını analiz edin
+                  <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                    İşletmenizin dijital performansını AI destekli analiz ile değerlendirin
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-dark-card rounded-xl border border-slate-200 dark:border-slate-700 p-5 shadow-lg">
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-xl">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                       <label className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                         <Building2 className="w-3.5 h-3.5 text-primary" />
@@ -1639,64 +1881,251 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="min-h-[calc(100vh-56px)] flex items-center justify-center p-4"
+              className="min-h-[calc(100vh-64px)] flex items-center justify-center p-4 sm:p-6"
             >
-              <div className="w-full max-w-xs text-center">
-                <div className="relative w-24 h-24 mx-auto mb-6">
+              <div className="w-full max-w-sm">
+                {/* DigiBot Logo with pulse animation */}
+                <div className="relative w-28 h-28 mx-auto mb-8">
                   <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
-                  <div className="relative w-full h-full bg-primary rounded-full flex items-center justify-center">
-                    <Brain className="w-12 h-12 text-white animate-pulse" />
+                  <div className="absolute inset-2 bg-primary/30 rounded-full animate-pulse" />
+                  <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl">
+                    <img src={DIGIBOT_LOGO} alt="DigiBot" className="w-full h-full object-cover" />
                   </div>
                 </div>
                 
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                  Analiz Ediliyor
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
-                  {formData.website_url}
-                </p>
-                
-                {/* Real-time status message */}
-                {analysisStatus && (
-                  <motion.p 
-                    key={analysisStatus}
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-xs font-medium text-primary mb-3"
-                  >
-                    {analysisStatus}
-                  </motion.p>
-                )}
-
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-5 overflow-hidden">
-                  <motion.div 
-                    className="h-full rounded-full bg-primary"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${analysisProgress}%` }}
-                  />
+                <div className="text-center mb-8">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    DigiBot Analiz Ediyor
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {formData.website_url}
+                  </p>
                 </div>
                 
-                <div className="space-y-2">
-                  {[
-                    { text: 'Web sitesi taranıyor', threshold: 0 },
-                    { text: 'Sosyal medya analizi', threshold: 25 },
-                    { text: 'Marka değerlendirmesi', threshold: 50 },
-                    { text: 'Rapor hazırlanıyor', threshold: 75 }
-                  ].map((step) => (
-                    <motion.div
-                      key={step.text}
-                      animate={{ opacity: analysisProgress > step.threshold ? 1 : 0.4 }}
-                      className="flex items-center justify-center gap-2 text-xs text-slate-600 dark:text-slate-400"
+                {/* Analysis card */}
+                <div className="bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-xl">
+                  {/* Real-time status message */}
+                  {analysisStatus && (
+                    <motion.div 
+                      key={analysisStatus}
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center mb-4"
                     >
-                      {analysisProgress > step.threshold + 25 ? (
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                      ) : (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                      )}
-                      {step.text}
+                      <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-full">
+                        <Sparkles className="w-3 h-3" />
+                        {analysisStatus}
+                      </span>
                     </motion.div>
-                  ))}
+                  )}
+
+                  {/* Progress bar - 3 minute animation */}
+                  <div className="mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400">İlerleme</span>
+                      <span className="text-xs font-bold text-primary">{Math.round(analysisProgress)}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                      <motion.div 
+                        className="h-full rounded-full bg-primary"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${analysisProgress}%` }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5 text-center">
+                      Tahmini süre: ~3 dakika
+                    </p>
+                  </div>
+                  
+                  {/* Analysis steps */}
+                  <div className="space-y-3">
+                    {[
+                      { text: 'Web sitesi taranıyor', icon: Globe, threshold: 0 },
+                      { text: 'Sosyal medya analizi', icon: MessageCircle, threshold: 25 },
+                      { text: 'SEO ve performans kontrolü', icon: Zap, threshold: 50 },
+                      { text: 'Marka değerlendirmesi', icon: Building2, threshold: 65 },
+                      { text: 'AI raporu hazırlanıyor', icon: Sparkles, threshold: 80 }
+                    ].map((step) => {
+                      const isActive = analysisProgress >= step.threshold && analysisProgress < step.threshold + 20;
+                      const isComplete = analysisProgress > step.threshold + 20;
+                      return (
+                        <motion.div
+                          key={step.text}
+                          animate={{ 
+                            opacity: analysisProgress >= step.threshold ? 1 : 0.4,
+                            scale: isActive ? 1.02 : 1
+                          }}
+                          className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                            isActive 
+                              ? 'bg-primary/5 border border-primary/20' 
+                              : isComplete 
+                                ? 'bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/30'
+                                : 'bg-slate-50 dark:bg-slate-800/50 border border-transparent'
+                          }`}
+                        >
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            isComplete 
+                              ? 'bg-emerald-500 text-white' 
+                              : isActive 
+                                ? 'bg-primary text-white' 
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
+                          }`}>
+                            {isComplete ? (
+                              <CheckCircle className="w-4 h-4" />
+                            ) : isActive ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <step.icon className="w-4 h-4" />
+                            )}
+                          </div>
+                          <span className={`text-sm font-medium ${
+                            isComplete 
+                              ? 'text-emerald-700 dark:text-emerald-400' 
+                              : isActive 
+                                ? 'text-primary' 
+                                : 'text-slate-500 dark:text-slate-400'
+                          }`}>
+                            {step.text}
+                          </span>
+                          {isComplete && (
+                            <span className="ml-auto text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Tamamlandı</span>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
+                
+                {/* Info note */}
+                <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
+                  Lütfen bu sayfadan ayrılmayın, analiz devam ediyor...
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* History Step - Full Page Report History */}
+          {currentStep === 'history' && (
+            <motion.div
+              key="history"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="min-h-[calc(100vh-64px)]"
+            >
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <History className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h1 className="text-xl font-bold text-slate-900 dark:text-white">Geçmiş Raporlar</h1>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Tamamlanan {savedReports.length} analiz raporu
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {/* Return to last active report button */}
+                    {lastActiveReport && (
+                      <button
+                        onClick={() => {
+                          setAnalysisResult(lastActiveReport.result);
+                          setCurrentReportId(lastActiveReport.reportId);
+                          setCurrentStep('results');
+                          toast.success('Son raporunuza geri döndünüz');
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-lg transition-colors"
+                      >
+                        <ArrowRight className="w-4 h-4 rotate-180" />
+                        Son Rapora Dön
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setCurrentStep('form')}
+                      className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Yeni Analiz
+                    </button>
+                  </div>
+                </div>
+
+                {/* Reports Grid */}
+                {savedReports.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                      <FileText className="w-10 h-10 text-slate-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Henüz rapor yok</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                      Dijital analiz yaptığınızda raporlarınız burada görünecek
+                    </p>
+                    <button
+                      onClick={() => setCurrentStep('form')}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      İlk Analizinizi Başlatın
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {savedReports.map((report) => (
+                      <motion.div
+                        key={report.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => loadSavedReport(report)}
+                        className="bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 p-5 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all group"
+                      >
+                        {/* Score Badge */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className={`px-3 py-1.5 rounded-xl text-lg font-bold ${
+                            report.digital_score >= 70 
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' 
+                              : report.digital_score >= 40 
+                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' 
+                                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                          }`}>
+                            {report.digital_score}/100
+                          </div>
+                          <div className="flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg">
+                            <CheckCircle className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-[10px] font-medium text-emerald-700 dark:text-emerald-400">Tamamlandı</span>
+                          </div>
+                        </div>
+
+                        {/* Company Info */}
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors truncate">
+                          {report.company_name}
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 truncate mb-4">
+                          {report.website_url}
+                        </p>
+
+                        {/* Meta Info */}
+                        <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                            <Clock className="w-3.5 h-3.5" />
+                            {new Date(report.created_at).toLocaleDateString('tr-TR', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                            Raporu Aç
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -1828,7 +2257,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                               onClick={() => setIsChatOpen(true)}
                               className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-colors shadow-md shadow-primary/20"
                             >
-                              <span className="w-6 h-6 bg-white rounded-md flex items-center justify-center"><img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="digiBot" className="w-5 h-5 object-contain" /></span>
+                              <span className="w-6 h-6 bg-white rounded-md flex items-center justify-center"><img src={DIGIBOT_LOGO} alt="digiBot" className="w-5 h-5 object-contain" /></span>
                               digiBot'a Sor
                               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                             </button>
@@ -1879,6 +2308,89 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                         </p>
                       </div>
 
+                      {/* Firma Tanıtımı - n8n'den gelen detaylı açıklama */}
+                      {analysisResult.detailed_report && analysisResult.detailed_report !== analysisResult.summary && (
+                        <div className="bg-white dark:bg-dark-card rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+                          <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                            <Building2 className="w-4 h-4 text-primary" />
+                            Firma Tanıtımı
+                          </h3>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            {analysisResult.detailed_report}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Güçlü ve Zayıf Yönler - Yan Yana */}
+                      {(analysisResult.strengths?.length > 0 || analysisResult.weaknesses?.length > 0) && (
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {/* Güçlü Yönler */}
+                          {analysisResult.strengths?.length > 0 && (
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800 p-5">
+                              <h3 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-3 flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4" />
+                                Güçlü Yönler
+                              </h3>
+                              <ul className="space-y-2">
+                                {analysisResult.strengths.map((strength: string, idx: number) => (
+                                  <li key={idx} className="flex items-start gap-2 text-sm text-emerald-700 dark:text-emerald-400">
+                                    <span className="text-emerald-500 mt-1">✓</span>
+                                    <span>{strength}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Zayıf Yönler */}
+                          {analysisResult.weaknesses?.length > 0 && (
+                            <div className="bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 p-5">
+                              <h3 className="text-sm font-semibold text-red-800 dark:text-red-300 mb-3 flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4" />
+                                Geliştirilmesi Gereken Alanlar
+                              </h3>
+                              <ul className="space-y-2">
+                                {analysisResult.weaknesses.map((weakness: string, idx: number) => (
+                                  <li key={idx} className="flex items-start gap-2 text-sm text-red-700 dark:text-red-400">
+                                    <span className="text-red-500 mt-1">✗</span>
+                                    <span>{weakness}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Önemli Tespitler */}
+                      {analysisResult.onemli_tespitler && analysisResult.onemli_tespitler.length > 0 && (
+                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 p-5">
+                          <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-3 flex items-center gap-2">
+                            <Lightbulb className="w-4 h-4" />
+                            Önemli Tespitler
+                          </h3>
+                          <div className="grid gap-3">
+                            {(analysisResult.onemli_tespitler || []).map((tespit: any, idx: number) => (
+                              <div key={idx} className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-amber-200 dark:border-amber-800">
+                                <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-800 flex items-center justify-center flex-shrink-0">
+                                  <span className="text-xs font-bold text-amber-700 dark:text-amber-300">{idx + 1}</span>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                    {typeof tespit === 'string' ? tespit : tespit.tespit || tespit.baslik || ''}
+                                  </p>
+                                  {tespit.oneri && (
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                      💡 {tespit.oneri}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Technical Status Section */}
                       {analysisResult.technical_status && (
                         <div className="bg-white dark:bg-dark-card rounded-xl border border-slate-200 dark:border-slate-700 p-5">
@@ -1886,19 +2398,27 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                             <Gauge className="w-4 h-4 text-primary" />
                             Teknik Durum
                           </h3>
+                          
+                          {/* Teknik Özet */}
+                          {analysisResult.technical_status.teknik_ozet && (
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                              {analysisResult.technical_status.teknik_ozet}
+                            </p>
+                          )}
+                          
                           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                             {/* SSL Status */}
-                            <div className={`p-4 rounded-xl border ${analysisResult.technical_status.ssl_status ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800' : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'}`}>
+                            <div className={`p-4 rounded-xl border ${analysisResult.technical_status.ssl_status || analysisResult.technical_status.ssl_enabled ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800' : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'}`}>
                               <div className="flex items-center gap-2 mb-2">
-                                {analysisResult.technical_status.ssl_status ? (
+                                {analysisResult.technical_status.ssl_status || analysisResult.technical_status.ssl_enabled ? (
                                   <Lock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                 ) : (
                                   <Unlock className="w-5 h-5 text-red-600 dark:text-red-400" />
                                 )}
                                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">SSL Sertifikası</span>
                               </div>
-                              <p className={`text-lg font-bold ${analysisResult.technical_status.ssl_status ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
-                                {analysisResult.technical_status.ssl_status ? 'Aktif ✓' : 'Yok ✗'}
+                              <p className={`text-lg font-bold ${analysisResult.technical_status.ssl_status || analysisResult.technical_status.ssl_enabled ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
+                                {analysisResult.technical_status.ssl_status || analysisResult.technical_status.ssl_enabled ? 'Aktif ✓' : 'Yok ✗'}
                               </p>
                               {analysisResult.technical_status.ssl_note && (
                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
@@ -1914,15 +2434,15 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Mobil Performans</span>
                               </div>
                               <div className="flex items-baseline gap-1">
-                                <p className={`text-2xl font-bold ${analysisResult.technical_status.mobile_score >= 70 ? 'text-emerald-600' : analysisResult.technical_status.mobile_score >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
-                                  {analysisResult.technical_status.mobile_score}
+                                <p className={`text-2xl font-bold ${(analysisResult.technical_status.mobile_score ?? 0) >= 70 ? 'text-emerald-600' : (analysisResult.technical_status.mobile_score ?? 0) >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
+                                  {analysisResult.technical_status.mobile_score ?? '-'}
                                 </p>
                                 <span className="text-xs text-slate-400">/100</span>
                               </div>
                               <div className="mt-2 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div 
-                                  className={`h-full rounded-full transition-all ${analysisResult.technical_status.mobile_score >= 70 ? 'bg-emerald-500' : analysisResult.technical_status.mobile_score >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                  style={{ width: `${analysisResult.technical_status.mobile_score}%` }}
+                                  className={`h-full rounded-full transition-all ${(analysisResult.technical_status.mobile_score ?? 0) >= 70 ? 'bg-emerald-500' : (analysisResult.technical_status.mobile_score ?? 0) >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                  style={{ width: `${analysisResult.technical_status.mobile_score ?? 0}%` }}
                                 />
                               </div>
                             </div>
@@ -1934,35 +2454,45 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Masaüstü Performans</span>
                               </div>
                               <div className="flex items-baseline gap-1">
-                                <p className={`text-2xl font-bold ${analysisResult.technical_status.desktop_score >= 70 ? 'text-emerald-600' : analysisResult.technical_status.desktop_score >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
-                                  {analysisResult.technical_status.desktop_score}
+                                <p className={`text-2xl font-bold ${(analysisResult.technical_status.desktop_score ?? 0) >= 70 ? 'text-emerald-600' : (analysisResult.technical_status.desktop_score ?? 0) >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
+                                  {analysisResult.technical_status.desktop_score ?? '-'}
                                 </p>
                                 <span className="text-xs text-slate-400">/100</span>
                               </div>
                               <div className="mt-2 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div 
-                                  className={`h-full rounded-full transition-all ${analysisResult.technical_status.desktop_score >= 70 ? 'bg-emerald-500' : analysisResult.technical_status.desktop_score >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                  style={{ width: `${analysisResult.technical_status.desktop_score}%` }}
+                                  className={`h-full rounded-full transition-all ${(analysisResult.technical_status.desktop_score ?? 0) >= 70 ? 'bg-emerald-500' : (analysisResult.technical_status.desktop_score ?? 0) >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                  style={{ width: `${analysisResult.technical_status.desktop_score ?? 0}%` }}
                                 />
                               </div>
                             </div>
 
                             {/* LCP - Core Web Vital */}
-                            <div className="p-4 rounded-xl border bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Zap className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">LCP (Yüklenme)</span>
-                              </div>
-                              <div className="flex items-baseline gap-1">
-                                <p className={`text-xl font-bold ${analysisResult.technical_status.lcp_mobile <= 2.5 ? 'text-emerald-600' : analysisResult.technical_status.lcp_mobile <= 4 ? 'text-amber-600' : 'text-red-600'}`}>
-                                  {analysisResult.technical_status.lcp_mobile}s
-                                </p>
-                                <span className="text-[10px] text-slate-400">mobil</span>
-                              </div>
-                              <p className={`text-[10px] mt-1 ${analysisResult.technical_status.lcp_mobile <= 2.5 ? 'text-emerald-600' : analysisResult.technical_status.lcp_mobile <= 4 ? 'text-amber-600' : 'text-red-600'}`}>
-                                {analysisResult.technical_status.lcp_mobile <= 2.5 ? '✓ İyi' : analysisResult.technical_status.lcp_mobile <= 4 ? '⚠ Orta' : '✗ Kritik - İyileştirme Gerekli'}
-                              </p>
-                            </div>
+                            {(() => {
+                              const lcpValue = typeof analysisResult.technical_status.lcp_mobile === 'string' 
+                                ? parseFloat(analysisResult.technical_status.lcp_mobile.replace(/[^\d.]/g, '')) 
+                                : (analysisResult.technical_status.lcp_mobile ?? 0);
+                              const lcpDisplay = analysisResult.technical_status.lcp_mobile 
+                                ? (typeof analysisResult.technical_status.lcp_mobile === 'string' ? analysisResult.technical_status.lcp_mobile : `${analysisResult.technical_status.lcp_mobile}s`)
+                                : '-';
+                              return (
+                                <div className="p-4 rounded-xl border bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Zap className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-400">LCP (Yüklenme)</span>
+                                  </div>
+                                  <div className="flex items-baseline gap-1">
+                                    <p className={`text-xl font-bold ${lcpValue <= 2.5 ? 'text-emerald-600' : lcpValue <= 4 ? 'text-amber-600' : 'text-red-600'}`}>
+                                      {lcpDisplay}
+                                    </p>
+                                    <span className="text-[10px] text-slate-400">mobil</span>
+                                  </div>
+                                  <p className={`text-[10px] mt-1 ${lcpValue <= 2.5 ? 'text-emerald-600' : lcpValue <= 4 ? 'text-amber-600' : 'text-red-600'}`}>
+                                    {lcpValue <= 2.5 ? '✓ İyi' : lcpValue <= 4 ? '⚠ Orta' : '✗ Kritik - İyileştirme Gerekli'}
+                                  </p>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       )}
@@ -2061,30 +2591,30 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                             </div>
 
                             {/* LinkedIn */}
-                            <div className={`p-3 rounded-xl border ${analysisResult.social_media.linkedin && !analysisResult.social_media.linkedin.includes('bulunamadı') ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700'}`}>
+                            <div className={`p-3 rounded-xl border ${getSocialMediaString(analysisResult.social_media.linkedin) && !socialMediaIncludes(analysisResult.social_media.linkedin, 'bulunamadı') ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700'}`}>
                               <div className="flex items-center gap-2 mb-2">
                                 <svg className="w-4 h-4 text-blue-700" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">LinkedIn</span>
                               </div>
-                              <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2">{analysisResult.social_media.linkedin || 'Bulunamadı'}</p>
+                              <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2">{getSocialMediaString(analysisResult.social_media.linkedin) || 'Bulunamadı'}</p>
                             </div>
 
                             {/* Instagram */}
-                            <div className={`p-3 rounded-xl border ${analysisResult.social_media.instagram && !analysisResult.social_media.instagram.includes('Geçersiz') ? 'bg-pink-50 border-pink-200 dark:bg-pink-900/20 dark:border-pink-800' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700'}`}>
+                            <div className={`p-3 rounded-xl border ${getSocialMediaString(analysisResult.social_media.instagram) && !socialMediaIncludes(analysisResult.social_media.instagram, 'Geçersiz') ? 'bg-pink-50 border-pink-200 dark:bg-pink-900/20 dark:border-pink-800' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700'}`}>
                               <div className="flex items-center gap-2 mb-2">
                                 <svg className="w-4 h-4 text-pink-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Instagram</span>
                               </div>
-                              <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2">{analysisResult.social_media.instagram || 'Bulunamadı'}</p>
+                              <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2">{getSocialMediaString(analysisResult.social_media.instagram) || 'Bulunamadı'}</p>
                             </div>
 
                             {/* Facebook */}
-                            <div className={`p-3 rounded-xl border ${analysisResult.social_media.facebook && !analysisResult.social_media.facebook.includes('bulunamadı') ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700'}`}>
+                            <div className={`p-3 rounded-xl border ${getSocialMediaString(analysisResult.social_media.facebook) && !socialMediaIncludes(analysisResult.social_media.facebook, 'bulunamadı') ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700'}`}>
                               <div className="flex items-center gap-2 mb-2">
                                 <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Facebook</span>
                               </div>
-                              <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2">{analysisResult.social_media.facebook || 'Bulunamadı'}</p>
+                              <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2">{getSocialMediaString(analysisResult.social_media.facebook) || 'Bulunamadı'}</p>
                             </div>
                           </div>
 
@@ -2231,16 +2761,20 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                           {/* Quick Info Bar */}
                           <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                             <div className="flex items-center gap-1.5">
-                              <div className={`w-2 h-2 rounded-full ${analysisResult.technical_status?.ssl_status ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                              <span>SSL {analysisResult.technical_status?.ssl_status ? 'Aktif' : 'Yok'}</span>
+                              <div className={`w-2 h-2 rounded-full ${analysisResult.technical_status?.ssl_status || analysisResult.technical_status?.ssl_enabled ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                              <span>SSL {analysisResult.technical_status?.ssl_status || analysisResult.technical_status?.ssl_enabled ? 'Aktif' : 'Yok'}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <Clock className="w-3 h-3" />
-                              <span>LCP: {analysisResult.technical_status?.lcp_mobile?.toFixed(1) || '?'}s</span>
+                              <span>LCP: {typeof analysisResult.technical_status?.lcp_mobile === 'number' 
+                                ? analysisResult.technical_status.lcp_mobile.toFixed(1) + 's'
+                                : analysisResult.technical_status?.lcp_mobile || '?'}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <Gauge className="w-3 h-3" />
-                              <span>Tasarım: {analysisResult.technical_status?.design_score?.toFixed(1) || '?'}/10</span>
+                              <span>Tasarım: {typeof analysisResult.technical_status?.design_score === 'number'
+                                ? analysisResult.technical_status.design_score.toFixed(1)
+                                : analysisResult.technical_status?.design_score || '?'}/10</span>
                             </div>
                           </div>
                         </div>
@@ -2522,6 +3056,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
 
                       {/* Strengths & Weaknesses */}
                       <div className="grid md:grid-cols-2 gap-5">
+                        {analysisResult.strengths && analysisResult.strengths.length > 0 && (
                         <div className="bg-white dark:bg-dark-card rounded-xl border border-emerald-200 dark:border-emerald-800/50 p-5">
                           <h3 className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-2">
                             <ThumbsUp className="w-4 h-4" />
@@ -2536,7 +3071,9 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                             ))}
                           </ul>
                         </div>
+                        )}
 
+                        {analysisResult.weaknesses && analysisResult.weaknesses.length > 0 && (
                         <div className="bg-white dark:bg-dark-card rounded-xl border border-red-200 dark:border-red-800/50 p-5">
                           <h3 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
                             <ThumbsDown className="w-4 h-4" />
@@ -2551,6 +3088,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                             ))}
                           </ul>
                         </div>
+                        )}
                       </div>
 
                       {/* CTA */}
@@ -2838,7 +3376,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                     </div>
                   )}
 
-                  {activeTab === 'recommendations' && (
+                  {activeTab === 'recommendations' && analysisResult.recommendations && (
                     <div
                       key="recommendations"
                       className="space-y-4"
@@ -2901,17 +3439,17 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
 
                           {/* Results Count */}
                           <div className="ml-auto text-xs text-slate-500 dark:text-slate-400">
-                            {analysisResult.recommendations.filter(rec => 
+                            {(analysisResult.recommendations || []).filter(rec => 
                               (recFilter.priority === 'all' || rec.priority === recFilter.priority) &&
                               (recFilter.category === 'all' || rec.category === recFilter.category)
-                            ).length} / {analysisResult.recommendations.length} öneri
+                            ).length} / {(analysisResult.recommendations || []).length} öneri
                           </div>
                         </div>
                       </div>
 
                       {/* Filtered Recommendations */}
                       <div className="space-y-3">
-                        {analysisResult.recommendations
+                        {(analysisResult.recommendations || [])
                           .filter(rec => 
                             (recFilter.priority === 'all' || rec.priority === recFilter.priority) &&
                             (recFilter.category === 'all' || rec.category === recFilter.category)
@@ -2979,102 +3517,29 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                     </div>
                   )}
 
-                  {/* Chat Tab - Sohbet Sekmesi - Modern Minimal Design */}
-                  {activeTab === 'chat' && (
-                    <div
-                      key="chat"
-                      className="space-y-6"
-                    >
-                      {/* Messages Area */}
-                      <div className="space-y-6 py-4">
-                        {/* Welcome Message */}
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                            <span className="text-white text-lg">🤖</span>
-                          </div>
-                          <div className="flex-1 max-w-[80%]">
-                            <div className="inline-block px-5 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white">
-                              <p className="leading-relaxed">
-                                Merhaba! 👋 Ben <strong>DigiBot</strong>, dijital analiz asistanınız. Raporunuz hakkında her türlü soruyu yanıtlayabilirim.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Recent Chat Messages Preview */}
-                        {chatMessages.slice(-3).map((msg) => (
-                          <div key={msg.id} className={`flex items-start gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                            {msg.role === 'assistant' ? (
-                              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                                <span className="text-white text-lg">🤖</span>
-                              </div>
-                            ) : (
-                              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                                <User className="w-5 h-5 text-white" />
-                              </div>
-                            )}
-                            <div className={`flex-1 max-w-[80%] ${msg.role === 'user' ? 'text-right' : ''}`}>
-                              <div className={`inline-block px-5 py-3.5 rounded-2xl ${
-                                msg.role === 'user'
-                                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
-                                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-white'
-                              }`}>
-                                <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Quick Questions - Minimal pills */}
-                      <div className="pb-4">
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Hızlı sorular:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            'Bu raporun özeti nedir?',
-                            'En kritik sorun hangisi?',
-                            'SEO skorumu nasıl artırabilirim?',
-                            'Site hızımı nasıl iyileştirebilirim?',
-                            'Rakiplerimden nasıl öne çıkarım?',
-                            'Öncelikli yapılması gerekenler neler?',
-                          ].map((question) => (
-                            <button
-                              key={question}
-                              onClick={() => {
-                                setIsChatOpen(true);
-                                setChatMessages(prev => [
-                                  ...prev,
-                                  {
-                                    id: crypto.randomUUID(),
-                                    role: 'user',
-                                    content: question,
-                                    timestamp: new Date()
-                                  }
-                                ]);
-                              }}
-                              className="px-4 py-2.5 text-sm bg-white dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 rounded-full border border-slate-200 dark:border-slate-700/50 hover:border-primary hover:text-primary dark:hover:text-primary transition-all hover:shadow-md"
-                            >
-                              {question}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Open Full Chat Button */}
-                      <div className="border-t border-slate-100 dark:border-slate-800 pt-5">
-                        <button
-                          onClick={() => setIsChatOpen(true)}
-                          className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:shadow-lg hover:shadow-emerald-500/25 text-white rounded-2xl font-medium transition-all"
-                        >
-                          <MessageCircle className="w-5 h-5" />
-                          Sohbete Başla
-                          <span className="w-2 h-2 bg-white/80 rounded-full animate-pulse" />
-                        </button>
-                        <p className="text-[11px] text-slate-400 text-center mt-3">
-                          DigiBot raporunuzdaki tüm verilere erişebilir
-                        </p>
-                      </div>
-                    </div>
+                  {/* Chat Tab - Sohbet Sekmesi - Full InlineChatPanel */}
+                  {activeTab === 'chat' && analysisResult && (
+                    <InlineChatPanel
+                      reportId={currentReportId || analysisResult.id || ''}
+                      reportContext={generateReportContext({
+                        company_name: analysisResult.company_name,
+                        digital_score: analysisResult.digital_score,
+                        analysis_result: {
+                          scores: analysisResult.scores,
+                          strengths: analysisResult.strengths,
+                          weaknesses: analysisResult.weaknesses,
+                          recommendations: analysisResult.recommendations.map(r => ({
+                            id: r.title,
+                            category: r.category,
+                            priority: r.priority,
+                            title: r.title,
+                            description: r.description,
+                            impact: r.description,
+                            effort: r.priority === 'high' ? 'low' : r.priority === 'medium' ? 'medium' : 'high' as const,
+                          })),
+                        },
+                      })}
+                    />
                   )}
                 </AnimatePresence>
               </div>
@@ -3210,11 +3675,8 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                               key={report.id}
                               className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-primary/50 transition-colors cursor-pointer group"
                               onClick={() => {
-                                setAnalysisResult(report.analysis_result);
-                                setCurrentReportId(report.id);
-                                setCurrentStep('results');
                                 setShowHistory(false);
-                                toast.success(`${report.company_name} raporu yüklendi`);
+                                loadSavedReport(report);
                               }}
                             >
                               <div className="flex items-start justify-between">
@@ -3266,7 +3728,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                     className="fixed bottom-6 right-6 w-16 h-16 bg-white dark:bg-slate-800 rounded-full shadow-xl shadow-slate-900/20 flex items-center justify-center z-50 group ring-2 ring-slate-200 dark:ring-slate-700"
                   >
                     <img 
-                      src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" 
+                      src={DIGIBOT_LOGO} 
                       alt="digiBot" 
                       className="w-10 h-10 object-contain group-hover:scale-110 transition-transform" 
                     />
@@ -3286,33 +3748,86 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                 {isChatOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0, 
+                      scale: 1,
+                      height: isChatMinimized ? 'auto' : 'auto'
+                    }}
                     exit={{ opacity: 0, y: 20, scale: 0.95 }}
                     transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    className="fixed bottom-6 right-6 z-50 bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 overflow-hidden w-[420px] sm:w-[500px]"
+                    className={`fixed bottom-6 right-6 z-50 bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 overflow-hidden ${isChatMinimized ? 'w-[280px]' : 'w-[420px] sm:w-[500px]'}`}
                   >
-                    {/* Chat Header - Clean White Design with Centered Logo */}
-                    <div className="px-3 py-1 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                      {/* Empty space for balance */}
-                      <div className="w-10"></div>
+                    {/* Chat Header - With Controls */}
+                    <div className="px-3 py-2 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                      {/* Left Controls - Pin & Share */}
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => setIsChatPinned(!isChatPinned)}
+                          className={`p-1.5 rounded-lg transition-colors ${isChatPinned ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400'}`}
+                          title={isChatPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle'}
+                        >
+                          <Pin className={`w-4 h-4 ${isChatPinned ? 'fill-current' : ''}`} />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            const shareText = `DigiBot ile ${analysisResult?.company_name || 'şirket'} analizi hakkında sohbet ediyorum!`;
+                            if (navigator.share) {
+                              navigator.share({ title: 'DigiBot Sohbet', text: shareText, url: window.location.href });
+                            } else {
+                              navigator.clipboard.writeText(window.location.href);
+                              toast.success('Link kopyalandı!');
+                            }
+                          }}
+                          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                          title="Paylaş"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                      </div>
                       
                       {/* Centered Logo */}
                       <img 
                         src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotkucuk.webp" 
                         alt="digiBot" 
-                        className="w-24 h-16 object-contain"
+                        className={`object-contain ${isChatMinimized ? 'w-16 h-10' : 'w-24 h-14'}`}
                       />
                       
-                      {/* Close button */}
-                      <button 
-                        onClick={() => setIsChatOpen(false)}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                      >
-                        <X className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                      </button>
+                      {/* Right Controls - Minimize & Close */}
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => setIsChatMinimized(!isChatMinimized)}
+                          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                          title={isChatMinimized ? 'Genişlet' : 'Küçült'}
+                        >
+                          <Minimize2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (!isChatPinned) {
+                              setIsChatOpen(false);
+                              setIsChatMinimized(false);
+                            } else {
+                              toast.info('Önce sabitlemeyi kaldırın');
+                            }
+                          }}
+                          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                          title="Kapat"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Messages */}
+                    {/* Messages - Collapsible */}
+                    <AnimatePresence>
+                      {!isChatMinimized && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
                     <div className="h-[400px] overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-900/80">
                       {chatMessages.map((msg) => (
                         <motion.div
@@ -3331,7 +3846,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                                   <User className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                 ) : (
                                   <img 
-                                    src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" 
+                                    src={DIGIBOT_LOGO} 
                                     alt="digiBot" 
                                     className="w-6 h-6 object-contain" 
                                   />
@@ -3392,7 +3907,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                             >
                               <div className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center">
                                 <img 
-                                  src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" 
+                                  src={DIGIBOT_LOGO} 
                                   alt="DigiBot" 
                                   className="w-6 h-6 object-contain animate-pulse" 
                                 />
@@ -3459,6 +3974,9 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                             </p>
                           </div>
                         </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -3470,4 +3988,11 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
   );
 };
 
-export default Demo;
+// Wrap Demo with ChatProvider
+const DemoWithChat = () => (
+  <ChatProvider>
+    <Demo />
+  </ChatProvider>
+);
+
+export default DemoWithChat;
