@@ -1,4 +1,5 @@
 // DigiBot Streaming Chat - SSE (Server-Sent Events) ile streaming yanıtlar
+// Token Optimizasyonlu + Rate Limiting + Maliyet Takibi
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -20,6 +21,22 @@ interface ChatRequest {
   reportContext?: string;
   viewerId?: string;
 }
+
+// ============================================================
+// TOKEN FİYATLANDIRMA ($ per 1M tokens) - Aralık 2024
+// ============================================================
+const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  'gpt-4o': { input: 2.50, output: 10.00 },
+  'gpt-4o-mini': { input: 0.15, output: 0.60 },
+  'gpt-4-turbo': { input: 10.00, output: 30.00 },
+  'gpt-3.5-turbo': { input: 0.50, output: 1.50 },
+};
+
+// ============================================================
+// RATE LIMITING - Session başına dakikada max istek
+// ============================================================
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = { maxRequests: 20, windowMs: 60000 }; // 20 istek/dakika
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -43,6 +60,32 @@ serve(async (req) => {
       throw new Error('Missing required fields');
     }
 
+    // ==========================================
+    // RATE LIMITING - Kötüye kullanımı önle
+    // ==========================================
+    const now = Date.now();
+    const rateKey = `${sessionId}`;
+    const rateData = rateLimitMap.get(rateKey);
+    
+    if (rateData) {
+      if (now < rateData.resetTime) {
+        if (rateData.count >= RATE_LIMIT.maxRequests) {
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: 'Çok fazla istek gönderdiniz. Lütfen bir dakika bekleyin.' 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 }
+          );
+        }
+        rateData.count++;
+      } else {
+        rateLimitMap.set(rateKey, { count: 1, resetTime: now + RATE_LIMIT.windowMs });
+      }
+    } else {
+      rateLimitMap.set(rateKey, { count: 1, resetTime: now + RATE_LIMIT.windowMs });
+    }
+
     // Get AI config from database (if exists)
     const { data: aiConfig } = await supabase
       .from('digibot_config')
@@ -53,39 +96,49 @@ serve(async (req) => {
     const config = {
       model: aiConfig?.model || Deno.env.get('OPENAI_MODEL') || 'gpt-4o-mini',
       temperature: aiConfig?.temperature || 0.6,
-      maxTokens: aiConfig?.max_tokens || 1000,
+      maxTokens: aiConfig?.max_tokens || 800, // Optimizasyon: 1000 -> 800
       systemPrompt: aiConfig?.system_prompt || null,
     };
 
-    // Get conversation history
+    // ==========================================
+    // CONVERSATION HISTORY - Token Optimizasyonu
+    // ==========================================
+    // Sadece son 6 mesaj al (15 yerine) - token tasarrufu
     const { data: history } = await supabase
       .from('report_chat_conversations')
       .select('role, content')
       .eq('session_id', sessionId)
-      .order('created_at', { ascending: true })
-      .limit(15);
+      .order('created_at', { ascending: false }) // En yeniden eskiye
+      .limit(6);
+
+    // İlk mesaj mı kontrol et (context optimizasyonu için)
+    const isFirstMessage = !history || history.length === 0;
 
     // Build messages array
     const messages: ChatMessage[] = [];
 
-    // System prompt - Token tasarruflu yapı:
-    // Admin JSON = Bilgi Tabanı (şirket, hizmetler, fiyatlar)
-    // Kod = Davranış Kuralları (nasıl cevap verecek) + Rapor Context
+    // ==========================================
+    // SYSTEM PROMPT - İlk mesaj vs Devam mesajı
+    // ==========================================
     let systemPrompt: string;
     if (config.systemPrompt) {
-      // Admin'de prompt varsa: Bilgi tabanı + Davranış kuralları
       const knowledgeBase = parseKnowledgeBase(config.systemPrompt);
-      const behaviorRules = buildBehaviorPrompt(reportContext);
+      // İlk mesajda full context, sonrakilerde compact
+      const behaviorRules = isFirstMessage 
+        ? buildBehaviorPrompt(reportContext)
+        : buildCompactBehaviorPrompt(reportContext);
       systemPrompt = knowledgeBase + '\n\n' + behaviorRules;
     } else {
-      // Admin'de prompt yoksa: Full default prompt
-      systemPrompt = buildFullDefaultPrompt(reportContext);
+      systemPrompt = isFirstMessage 
+        ? buildFullDefaultPrompt(reportContext)
+        : buildCompactDefaultPrompt(reportContext);
     }
     messages.push({ role: 'system', content: systemPrompt });
 
-    // Add history
+    // Add history (tersine çevir - en eski mesaj önce olmalı)
     if (history && history.length > 0) {
-      for (const msg of history) {
+      const reversedHistory = [...history].reverse();
+      for (const msg of reversedHistory) {
         if (msg.role !== 'system') {
           messages.push({ role: msg.role, content: msg.content });
         }
@@ -95,6 +148,11 @@ serve(async (req) => {
     // Add current message
     messages.push({ role: 'user', content: message });
 
+    // ==========================================
+    // TOKEN SAYIMI - Input tokens tahmini
+    // ==========================================
+    const estimatedInputTokens = estimateTokens(messages);
+
     // Save user message
     await supabase.from('report_chat_conversations').insert({
       report_id: reportId,
@@ -102,7 +160,7 @@ serve(async (req) => {
       viewer_id: viewerId || null,
       role: 'user',
       content: message,
-      tokens_used: 0,
+      tokens_used: Math.ceil(message.length / 4), // Yaklaşık token
     });
 
     // Call OpenAI with streaming
@@ -148,15 +206,42 @@ serve(async (req) => {
               if (line.startsWith('data: ')) {
                 const data = line.slice(6);
                 if (data === '[DONE]') {
-                  // Save complete response to database
+                  // ==========================================
+                  // TOKEN SAYIMI & MALİYET HESAPLAMA
+                  // ==========================================
+                  const estimatedOutputTokens = Math.ceil(fullResponse.length / 4);
+                  const totalTokens = estimatedInputTokens + estimatedOutputTokens;
+                  
+                  // Maliyet hesapla
+                  const pricing = MODEL_PRICING[config.model] || MODEL_PRICING['gpt-4o-mini'];
+                  const costUsd = (estimatedInputTokens * pricing.input + estimatedOutputTokens * pricing.output) / 1_000_000;
+
+                  // Save complete response with token info
                   await supabase.from('report_chat_conversations').insert({
                     report_id: reportId,
                     session_id: sessionId,
                     viewer_id: viewerId || null,
                     role: 'assistant',
                     content: fullResponse,
-                    tokens_used: 0,
+                    tokens_used: totalTokens,
                   });
+
+                  // Analytics'e maliyet kaydet
+                  await supabase.from('report_analytics').insert({
+                    report_id: reportId,
+                    viewer_id: viewerId || null,
+                    event_type: 'chat_completion',
+                    event_data: {
+                      session_id: sessionId,
+                      input_tokens: estimatedInputTokens,
+                      output_tokens: estimatedOutputTokens,
+                      total_tokens: totalTokens,
+                      estimated_cost_usd: costUsd,
+                      model: config.model,
+                      is_first_message: isFirstMessage,
+                    },
+                  }).catch(() => {}); // Analytics hatası chat'i durdurmasın
+
                   controller.enqueue(encoder.encode('data: [DONE]\n\n'));
                   controller.close();
                   return;
@@ -399,4 +484,39 @@ function buildFullDefaultPrompt(reportContext?: string): string {
 
 ## RAPOR BAĞLAMI
 ${reportContext || 'Rapor bilgisi henüz yüklenmedi.'}`;
+}
+
+/**
+ * COMPACT DAVRANIŞ - Devam mesajları için (çok kısa, token tasarrufu)
+ */
+function buildCompactBehaviorPrompt(reportContext?: string): string {
+  return `## KURALLAR
+DigiBot - Unilancer Labs. Türkçe, kısa, aksiyon öner. Fiyat aralığı ver, kesin fiyat yok.
+📞 +90 506 152 32 55 | 📧 sales@unilancerlabs.com
+
+## RAPOR
+${reportContext || 'Rapor yok.'}`;
+}
+
+/**
+ * COMPACT DEFAULT - Admin'de prompt yoksa, devam mesajları için
+ */
+function buildCompactDefaultPrompt(reportContext?: string): string {
+  return `DigiBot - Unilancer Labs asistanı. Türkçe, kısa yanıt. Aksiyon öner.
+📞 +90 506 152 32 55 | 📧 sales@unilancerlabs.com
+
+## RAPOR
+${reportContext || 'Rapor yok.'}`;
+}
+
+/**
+ * Token sayısını tahmin et (yaklaşık 4 karakter = 1 token)
+ */
+function estimateTokens(messages: ChatMessage[]): number {
+  let total = 0;
+  for (const msg of messages) {
+    total += Math.ceil(msg.content.length / 4);
+    total += 4; // role ve format overhead
+  }
+  return total;
 }
