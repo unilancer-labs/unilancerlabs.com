@@ -1,8 +1,39 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { sendChatMessage, getChatHistory } from '../api/reportApi';
+import { DIGIBOT_LOGO } from '../../../lib/config/constants';
 
-// DigiBot Logo URL - Consistent across all components
-export const DIGIBOT_LOGO = 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp';
+// Re-export DIGIBOT_LOGO for backward compatibility
+export { DIGIBOT_LOGO };
+
+// Safe localStorage helpers
+const safeGetItem = (key: string): string | null => {
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    console.warn('Failed to read from localStorage:', error);
+    return null;
+  }
+};
+
+const safeSetItem = (key: string, value: string): boolean => {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (error) {
+    console.warn('Failed to write to localStorage:', error);
+    return false;
+  }
+};
+
+const safeRemoveItem = (key: string): boolean => {
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch (error) {
+    console.warn('Failed to remove from localStorage:', error);
+    return false;
+  }
+};
 
 // LocalStorage key prefix for chat history (per-report)
 const getChatHistoryKey = (reportId: string) => `digibot_chat_${reportId}`;
@@ -32,7 +63,7 @@ const ChatContext = createContext<ChatContextValue | null>(null);
 const WELCOME_MESSAGE: ChatMessage = {
   id: 'welcome',
   role: 'assistant',
-  content: `Merhaba! Ben **DigiBot**, Unilancer Labs asistanı. Raporunuz hakkında sorularınızı yanıtlayabilirim.`,
+  content: `Merhaba! Ben **digiBot**, Unilancer Labs asistanı. Raporunuz hakkında sorularınızı yanıtlayabilirim.`,
   timestamp: new Date(),
 };
 
@@ -48,10 +79,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, initialRep
   const [sessionId, setSessionId] = useState<string>(() => {
     const reportId = initialReportId || 'guest';
     const sessionKey = getSessionIdKey(reportId);
-    const stored = localStorage.getItem(sessionKey);
+    const stored = safeGetItem(sessionKey);
     if (stored) return stored;
     const newId = crypto.randomUUID();
-    localStorage.setItem(sessionKey, newId);
+    safeSetItem(sessionKey, newId);
     return newId;
   });
 
@@ -63,10 +94,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, initialRep
     
     // Get or create session for this report
     const sessionKey = getSessionIdKey(reportId);
-    let newSessionId = localStorage.getItem(sessionKey);
+    let newSessionId = safeGetItem(sessionKey);
     if (!newSessionId) {
       newSessionId = crypto.randomUUID();
-      localStorage.setItem(sessionKey, newSessionId);
+      safeSetItem(sessionKey, newSessionId);
     }
     setSessionId(newSessionId);
   }, [currentReportId]);
@@ -78,7 +109,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, initialRep
       
       // First try localStorage
       try {
-        const saved = localStorage.getItem(historyKey);
+        const saved = safeGetItem(historyKey);
         if (saved) {
           const parsed = JSON.parse(saved);
           const loadedMessages: ChatMessage[] = parsed.map((msg: any) => ({
@@ -112,7 +143,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, initialRep
             }));
             setMessages([WELCOME_MESSAGE, ...loadedMessages]);
             // Save to localStorage for faster future loads
-            localStorage.setItem(historyKey, JSON.stringify([WELCOME_MESSAGE, ...loadedMessages]));
+            safeSetItem(historyKey, JSON.stringify([WELCOME_MESSAGE, ...loadedMessages]));
           } else {
             // No history, start fresh
             setMessages([WELCOME_MESSAGE]);
@@ -132,14 +163,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, initialRep
   // Save chat history to localStorage when messages change
   useEffect(() => {
     if (messages.length > 0 && currentReportId) {
-      try {
-        const historyKey = getChatHistoryKey(currentReportId);
-        // Filter out loading messages before saving
-        const toSave = messages.filter(m => !m.isLoading);
-        localStorage.setItem(historyKey, JSON.stringify(toSave));
-      } catch (error) {
-        console.error('Failed to save chat history:', error);
-      }
+      const historyKey = getChatHistoryKey(currentReportId);
+      // Filter out loading messages before saving
+      const toSave = messages.filter(m => !m.isLoading);
+      safeSetItem(historyKey, JSON.stringify(toSave));
     }
   }, [messages, currentReportId]);
 
@@ -224,7 +251,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, initialRep
     setMessages([WELCOME_MESSAGE]);
     if (currentReportId) {
       const historyKey = getChatHistoryKey(currentReportId);
-      localStorage.removeItem(historyKey);
+      safeRemoveItem(historyKey);
     }
   }, [currentReportId]);
 

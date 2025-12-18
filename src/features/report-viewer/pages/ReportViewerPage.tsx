@@ -3,9 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import type { DigitalAnalysisReport } from '../types';
 import { getPublicReport } from '../api/reportApi';
-import ReportDashboard from '../components/ReportDashboard';
+import ReportDashboardV2 from '../components/ReportDashboardV2';
 
-const DIGIBOT_LOGO = 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/digibot-logo-02%20(1).webp';
+const DIGIBOT_LOGO = 'https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp';
 
 const ReportViewerPage: React.FC = () => {
   const { publicId } = useParams<{ publicId: string }>();
@@ -49,7 +49,7 @@ const ReportViewerPage: React.FC = () => {
         >
           <motion.img
             src={DIGIBOT_LOGO}
-            alt="DigiBot"
+            alt="digiBot"
             className="w-20 h-20 mx-auto mb-6 rounded-2xl"
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
@@ -104,7 +104,7 @@ const ReportViewerPage: React.FC = () => {
     return null;
   }
 
-  return <ReportDashboard report={report} />;
+  return <ReportDashboardV2 report={report} />;
 };
 
 export default ReportViewerPage;

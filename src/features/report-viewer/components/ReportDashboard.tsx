@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import type { DigitalAnalysisReport, GucluYon, GelistirmeAlani, OnemliTespit, HizmetPaketi, SektorOneri } from '../types';
+import type { 
+  DigitalAnalysisReport, 
+  GucluYon, 
+  GelistirmeAlani, 
+  GelistirmeAlaniYeni,
+  OnemliTespit, 
+  HizmetPaketi, 
+  HizmetOnerisi,
+  SektorOneri,
+  Tespit,
+  YolHaritasiAdimYeni
+} from '../types';
 import { sendReportEmail, logAnalyticsEvent } from '../api/reportApi';
 import { generateReportContext } from '../utils/reportParser';
 import OverallScore from './OverallScore';
@@ -218,7 +229,7 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img
-              src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/digibot-logo-02%20(1).webp"
+              src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp"
               alt="DigiBot"
               className="w-10 h-10 rounded-lg"
             />
@@ -337,7 +348,7 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
 
             {/* Strengths & Weaknesses - Hem eski hem yeni format için */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Güçlü Yönler - n8n formatı */}
+              {/* Güçlü Yönler - n8n formatı (v2 - kategori ve istatistik dahil) */}
               {analysisResult?.guclu_yonler && analysisResult.guclu_yonler.length > 0 ? (
                 <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800">
                   <h3 
@@ -353,10 +364,20 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
                     <div className="space-y-4">
                       {analysisResult.guclu_yonler.map((item: GucluYon, index: number) => (
                         <div key={index} className="border-l-4 border-green-400 pl-4 py-2">
-                          <h4 className="font-medium text-green-900 dark:text-green-200">{item.baslik}</h4>
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h4 className="font-medium text-green-900 dark:text-green-200">{item.baslik}</h4>
+                            {item.kategori && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200">
+                                {item.kategori}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-green-700 dark:text-green-300 mt-1">{item.aciklama}</p>
+                          {item.istatistik && (
+                            <p className="text-sm text-green-600 dark:text-green-400 mt-2">📊 {item.istatistik}</p>
+                          )}
                           {item.oneri && (
-                            <p className="text-sm text-green-600 dark:text-green-400 mt-2 italic">💡 {item.oneri}</p>
+                            <p className="text-sm text-green-600 dark:text-green-400 mt-1 italic">💡 {item.oneri}</p>
                           )}
                         </div>
                       ))}
@@ -379,8 +400,41 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
                 </div>
               ) : null}
 
-              {/* Geliştirilmesi Gerekenler - n8n formatı */}
-              {analysisResult?.gelistirilmesi_gereken_alanlar && analysisResult.gelistirilmesi_gereken_alanlar.length > 0 ? (
+              {/* Geliştirilmesi Gerekenler - v2 format önce, sonra eski format */}
+              {analysisResult?.gelistirilmesi_gereken && analysisResult.gelistirilmesi_gereken.length > 0 ? (
+                <div className="bg-orange-50 dark:bg-orange-900/20 rounded-2xl p-6 border border-orange-200 dark:border-orange-800">
+                  <h3 
+                    className="text-lg font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center justify-between cursor-pointer"
+                    onClick={() => toggleSection('gelistirme')}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>🔧</span> Geliştirilmesi Gerekenler ({analysisResult.gelistirilmesi_gereken.length})
+                    </span>
+                    <span className="text-sm">{expandedSections.gelistirme ? '▼' : '▶'}</span>
+                  </h3>
+                  {expandedSections.gelistirme && (
+                    <div className="space-y-4">
+                      {analysisResult.gelistirilmesi_gereken.map((item: GelistirmeAlaniYeni, index: number) => (
+                        <div key={index} className="border-l-4 border-orange-400 pl-4 py-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium text-orange-900 dark:text-orange-200">{item.baslik}</h4>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${PRIORITY_COLORS[item.oncelik] || PRIORITY_COLORS.orta}`}>
+                              {item.oncelik}
+                            </span>
+                          </div>
+                          {item.mevcut && <p className="text-sm text-orange-700 dark:text-orange-300">Mevcut: {item.mevcut}</p>}
+                          {item.sorun && <p className="text-sm text-red-600 dark:text-red-400 mt-1">⚠️ Sorun: {item.sorun}</p>}
+                          {item.cozum && <p className="text-sm text-green-600 dark:text-green-400 mt-1">✅ Çözüm: {item.cozum}</p>}
+                          <div className="flex items-center gap-4 text-xs text-orange-600 dark:text-orange-400 mt-2">
+                            {item.sure && <span>⏱️ {item.sure}</span>}
+                            {item.maliyet && <span>💰 {item.maliyet}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : analysisResult?.gelistirilmesi_gereken_alanlar && analysisResult.gelistirilmesi_gereken_alanlar.length > 0 ? (
                 <div className="bg-orange-50 dark:bg-orange-900/20 rounded-2xl p-6 border border-orange-200 dark:border-orange-800">
                   <h3 
                     className="text-lg font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center justify-between cursor-pointer"
@@ -507,7 +561,346 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Firma Tanıtımı */}
+            {/* Firma Kartı - v2 format */}
+            {analysisResult?.firma_karti && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
+                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-4 flex items-center gap-2">
+                  <span>🏢</span> Firma Kartı
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Firma Adı</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{analysisResult.firma_karti.firma_adi}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Website</p>
+                    <a href={analysisResult.firma_karti.website} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                      {analysisResult.firma_karti.website}
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Sektör</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{analysisResult.firma_karti.sektor}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">İş Modeli</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{analysisResult.firma_karti.is_modeli}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Hedef Kitle</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{analysisResult.firma_karti.hedef_kitle}</p>
+                  </div>
+                </div>
+                {analysisResult.firma_karti.firma_tanitimi && (
+                  <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Firma Tanıtımı</p>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{analysisResult.firma_karti.firma_tanitimi}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Performans Analizi - v2 format */}
+            {analysisResult?.performans && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>⚡</span> Performans Analizi
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Mobil */}
+                  <div className={`p-5 rounded-xl border-2 ${
+                    analysisResult.performans.mobil?.durum === 'iyi' 
+                      ? 'border-green-300 bg-green-50 dark:bg-green-900/20' 
+                      : analysisResult.performans.mobil?.durum === 'orta'
+                      ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20'
+                      : 'border-red-300 bg-red-50 dark:bg-red-900/20'
+                  }`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-medium text-gray-900 dark:text-white">📱 Mobil</span>
+                      <span className={`text-3xl font-bold ${
+                        analysisResult.performans.mobil?.skor >= 70 ? 'text-green-600' :
+                        analysisResult.performans.mobil?.skor >= 40 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>{analysisResult.performans.mobil?.skor || 0}/100</span>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      analysisResult.performans.mobil?.durum === 'iyi' ? 'bg-green-200 text-green-800' :
+                      analysisResult.performans.mobil?.durum === 'orta' ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800'
+                    }`}>{analysisResult.performans.mobil?.durum}</span>
+                    {analysisResult.performans.mobil?.yorum && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">{analysisResult.performans.mobil.yorum}</p>
+                    )}
+                  </div>
+                  {/* Desktop */}
+                  <div className={`p-5 rounded-xl border-2 ${
+                    analysisResult.performans.desktop?.durum === 'iyi' 
+                      ? 'border-green-300 bg-green-50 dark:bg-green-900/20' 
+                      : analysisResult.performans.desktop?.durum === 'orta'
+                      ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20'
+                      : 'border-red-300 bg-red-50 dark:bg-red-900/20'
+                  }`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-medium text-gray-900 dark:text-white">🖥️ Masaüstü</span>
+                      <span className={`text-3xl font-bold ${
+                        analysisResult.performans.desktop?.skor >= 70 ? 'text-green-600' :
+                        analysisResult.performans.desktop?.skor >= 40 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>{analysisResult.performans.desktop?.skor || 0}/100</span>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      analysisResult.performans.desktop?.durum === 'iyi' ? 'bg-green-200 text-green-800' :
+                      analysisResult.performans.desktop?.durum === 'orta' ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800'
+                    }`}>{analysisResult.performans.desktop?.durum}</span>
+                    {analysisResult.performans.desktop?.yorum && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">{analysisResult.performans.desktop.yorum}</p>
+                    )}
+                  </div>
+                </div>
+                {/* LCP ve Etki */}
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">{analysisResult.performans.lcp_mobil || 'N/A'}</div>
+                    <div className="text-xs text-gray-500">LCP Mobil</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">{analysisResult.performans.lcp_desktop || 'N/A'}</div>
+                    <div className="text-xs text-gray-500">LCP Masaüstü</div>
+                  </div>
+                </div>
+                {analysisResult.performans.etki && (
+                  <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+                    <p className="text-sm text-amber-800 dark:text-amber-300">⚠️ <strong>Etki:</strong> {analysisResult.performans.etki}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SEO Analizi - v2 format */}
+            {analysisResult?.seo && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>🔍</span> SEO Analizi
+                </h3>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={`text-4xl font-bold ${
+                    analysisResult.seo.puan >= 70 ? 'text-green-600' :
+                    analysisResult.seo.puan >= 40 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>{analysisResult.seo.puan}/100</div>
+                  <span className={`px-3 py-1 rounded-full text-sm ${
+                    analysisResult.seo.durum === 'iyi' ? 'bg-green-100 text-green-800' :
+                    analysisResult.seo.durum === 'orta' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                  }`}>{analysisResult.seo.durum}</span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Başarılar */}
+                  {analysisResult.seo.basarilar?.length > 0 && (
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                      <h4 className="font-medium text-green-800 dark:text-green-300 mb-2">✅ Başarılar</h4>
+                      <ul className="space-y-1">
+                        {analysisResult.seo.basarilar.map((item: string, i: number) => (
+                          <li key={i} className="text-sm text-green-700 dark:text-green-300">• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {/* Eksikler */}
+                  {analysisResult.seo.eksikler?.length > 0 && (
+                    <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                      <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">❌ Eksikler</h4>
+                      <ul className="space-y-1">
+                        {analysisResult.seo.eksikler.map((item: string, i: number) => (
+                          <li key={i} className="text-sm text-red-700 dark:text-red-300">• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Aksiyonlar */}
+                {analysisResult.seo.aksiyonlar?.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-3">📋 Önerilen Aksiyonlar</h4>
+                    <div className="space-y-2">
+                      {analysisResult.seo.aksiyonlar.map((aksiyon: { is: string; etki: string; sure: string }, i: number) => (
+                        <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{aksiyon.is}</span>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs px-2 py-0.5 rounded ${
+                              aksiyon.etki === 'yüksek' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                            }`}>Etki: {aksiyon.etki}</span>
+                            <span className="text-xs text-gray-500">⏱️ {aksiyon.sure}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* UI/UX Analizi - v2 format */}
+            {analysisResult?.ui_ux && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>🎨</span> UI/UX Analizi
+                </h3>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`text-4xl font-bold ${
+                    analysisResult.ui_ux.puan >= 70 ? 'text-green-600' :
+                    analysisResult.ui_ux.puan >= 40 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>{analysisResult.ui_ux.puan}/100</div>
+                  {analysisResult.ui_ux.tasarim && (
+                    <span className="px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                      {analysisResult.ui_ux.tasarim}
+                    </span>
+                  )}
+                </div>
+                {analysisResult.ui_ux.izlenim && (
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{analysisResult.ui_ux.izlenim}</p>
+                )}
+                {analysisResult.ui_ux.oneriler?.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">💡 Öneriler</h4>
+                    <ul className="space-y-2">
+                      {analysisResult.ui_ux.oneriler.map((oneri: string, i: number) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                          <span className="text-purple-500 mt-0.5">→</span> {oneri}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Sektör Analizi - v2 format */}
+            {analysisResult?.sektor_analiz && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>📊</span> Sektör Analizi
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p className="text-sm text-gray-500">Sektör</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{analysisResult.sektor_analiz.ana}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <p className="text-sm text-gray-500">İş Modeli</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{analysisResult.sektor_analiz.is_modeli}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl md:col-span-1">
+                    <p className="text-sm text-gray-500">Pazar</p>
+                    <p className="font-medium text-gray-900 dark:text-white text-sm">{analysisResult.sektor_analiz.pazar}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {analysisResult.sektor_analiz.firsatlar?.length > 0 && (
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                      <h4 className="font-medium text-green-800 dark:text-green-300 mb-2">💡 Fırsatlar</h4>
+                      <ul className="space-y-1">
+                        {analysisResult.sektor_analiz.firsatlar.map((item: string, i: number) => (
+                          <li key={i} className="text-sm text-green-700 dark:text-green-300">• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {analysisResult.sektor_analiz.tehditler?.length > 0 && (
+                    <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                      <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">⚠️ Tehditler</h4>
+                      <ul className="space-y-1">
+                        {analysisResult.sektor_analiz.tehditler.map((item: string, i: number) => (
+                          <li key={i} className="text-sm text-red-700 dark:text-red-300">• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Tespitler - v2 format (baslik alanı) */}
+            {analysisResult?.tespitler && analysisResult.tespitler.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>🔍</span> Önemli Tespitler
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {analysisResult.tespitler.map((tespit: Tespit, index: number) => (
+                    <div key={index} className={`p-4 rounded-xl border ${TESPIT_STYLES[tespit.tip]?.color || 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span>{TESPIT_STYLES[tespit.tip]?.icon || '📌'}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{tespit.baslik}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{tespit.detay}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sosyal Medya - v2 format (genişletilmiş) */}
+            {analysisResult?.social_media_yeni && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>🔗</span> Sosyal Medya Durumu
+                  {analysisResult.social_media_yeni.aktif_sayisi && (
+                    <span className="text-sm font-normal text-gray-500">({analysisResult.social_media_yeni.aktif_sayisi} aktif platform)</span>
+                  )}
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+                  {analysisResult.social_media_yeni.facebook && analysisResult.social_media_yeni.facebook !== 'null' && (
+                    <a href={analysisResult.social_media_yeni.facebook} target="_blank" rel="noopener noreferrer" className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-center hover:bg-blue-100 transition-colors">
+                      <span className="text-2xl">📘</span>
+                      <p className="text-xs mt-1 text-gray-600">Facebook</p>
+                    </a>
+                  )}
+                  {analysisResult.social_media_yeni.instagram && analysisResult.social_media_yeni.instagram !== 'null' && (
+                    <a href={analysisResult.social_media_yeni.instagram} target="_blank" rel="noopener noreferrer" className="p-3 bg-pink-50 dark:bg-pink-900/20 rounded-xl text-center hover:bg-pink-100 transition-colors">
+                      <span className="text-2xl">📷</span>
+                      <p className="text-xs mt-1 text-gray-600">Instagram</p>
+                    </a>
+                  )}
+                  {analysisResult.social_media_yeni.linkedin && analysisResult.social_media_yeni.linkedin !== 'null' && (
+                    <a href={analysisResult.social_media_yeni.linkedin} target="_blank" rel="noopener noreferrer" className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-center hover:bg-blue-100 transition-colors">
+                      <span className="text-2xl">💼</span>
+                      <p className="text-xs mt-1 text-gray-600">LinkedIn</p>
+                    </a>
+                  )}
+                  {analysisResult.social_media_yeni.twitter && analysisResult.social_media_yeni.twitter !== 'null' && (
+                    <a href={analysisResult.social_media_yeni.twitter} target="_blank" rel="noopener noreferrer" className="p-3 bg-sky-50 dark:bg-sky-900/20 rounded-xl text-center hover:bg-sky-100 transition-colors">
+                      <span className="text-2xl">🐦</span>
+                      <p className="text-xs mt-1 text-gray-600">Twitter</p>
+                    </a>
+                  )}
+                  {analysisResult.social_media_yeni.youtube && analysisResult.social_media_yeni.youtube !== 'null' && (
+                    <a href={analysisResult.social_media_yeni.youtube} target="_blank" rel="noopener noreferrer" className="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl text-center hover:bg-red-100 transition-colors">
+                      <span className="text-2xl">▶️</span>
+                      <p className="text-xs mt-1 text-gray-600">YouTube</p>
+                    </a>
+                  )}
+                  {analysisResult.social_media_yeni.tiktok && analysisResult.social_media_yeni.tiktok !== 'null' && (
+                    <a href={analysisResult.social_media_yeni.tiktok} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center hover:bg-gray-100 transition-colors">
+                      <span className="text-2xl">🎵</span>
+                      <p className="text-xs mt-1 text-gray-600">TikTok</p>
+                    </a>
+                  )}
+                </div>
+                {analysisResult.social_media_yeni.degerlendirme && (
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{analysisResult.social_media_yeni.degerlendirme}</p>
+                )}
+                {analysisResult.social_media_yeni.oneriler?.length > 0 && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                    <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">💡 Öneriler</h4>
+                    <ul className="space-y-1">
+                      {analysisResult.social_media_yeni.oneriler.map((oneri: string, i: number) => (
+                        <li key={i} className="text-sm text-blue-700 dark:text-blue-300">• {oneri}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Firma Tanıtımı - eski format */}
             {analysisResult?.firma_tanitimi && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -707,7 +1100,170 @@ const ReportDashboard: React.FC<ReportDashboardProps> = ({ report }) => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Stratejik Yol Haritası */}
+            {/* Sonuç Kartı - v2 format */}
+            {analysisResult?.sonuc && (
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl p-6 border border-emerald-200 dark:border-emerald-800">
+                <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-300 mb-4 flex items-center gap-2">
+                  <span>🎯</span> Genel Değerlendirme
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">{analysisResult.sonuc.degerlendirme}</p>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="px-4 py-2 bg-white dark:bg-gray-800 rounded-xl border border-emerald-200">
+                    <span className="text-sm text-gray-500">Olgunluk Seviyesi:</span>
+                    <span className="ml-2 font-bold text-emerald-600">{analysisResult.sonuc.olgunluk}</span>
+                  </div>
+                </div>
+                {analysisResult.sonuc.oncelikli_3?.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="font-medium text-emerald-800 dark:text-emerald-300 mb-2">🚀 Öncelikli 3 Adım</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {analysisResult.sonuc.oncelikli_3.map((adim: string, i: number) => (
+                        <div key={i} className="flex items-center gap-2 p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200">
+                          <span className="w-6 h-6 flex items-center justify-center bg-emerald-500 text-white rounded-full text-sm font-bold">{i + 1}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{adim}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {analysisResult.sonuc.cta && (
+                  <div className="mt-6 p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white">
+                    <p className="font-medium">{analysisResult.sonuc.cta}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Yol Haritası - v2 format (7/30/90/1yıl) */}
+            {analysisResult?.yol_haritasi && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <span>🗺️</span> Stratejik Yol Haritası
+                </h3>
+                <div className="space-y-6">
+                  {/* Acil - 7 Gün */}
+                  {analysisResult.yol_haritasi.acil_7gun?.length > 0 && (
+                    <div className="border-l-4 border-red-500 pl-4">
+                      <h4 className="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+                        <span>🔴</span> Acil (7 Gün)
+                      </h4>
+                      <div className="space-y-3">
+                        {analysisResult.yol_haritasi.acil_7gun.map((adim: YolHaritasiAdimYeni, i: number) => (
+                          <div key={i} className="bg-red-50 dark:bg-red-900/10 rounded-lg p-4">
+                            <p className="font-medium text-gray-800 dark:text-gray-200">{adim.is}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{adim.neden}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs">
+                              <span className={`px-2 py-0.5 rounded ${adim.etki === 'yüksek' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                                Etki: {adim.etki}
+                              </span>
+                              <span className="text-gray-500">⏱️ {adim.sure}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Kısa Vade - 30 Gün */}
+                  {analysisResult.yol_haritasi.kisa_30gun?.length > 0 && (
+                    <div className="border-l-4 border-orange-400 pl-4">
+                      <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-3 flex items-center gap-2">
+                        <span>🟠</span> Kısa Vade (30 Gün)
+                      </h4>
+                      <div className="space-y-3">
+                        {analysisResult.yol_haritasi.kisa_30gun.map((adim: YolHaritasiAdimYeni, i: number) => (
+                          <div key={i} className="bg-orange-50 dark:bg-orange-900/10 rounded-lg p-4">
+                            <p className="font-medium text-gray-800 dark:text-gray-200">{adim.is}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{adim.neden}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs">
+                              <span className={`px-2 py-0.5 rounded ${adim.etki === 'yüksek' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                                Etki: {adim.etki}
+                              </span>
+                              <span className="text-gray-500">⏱️ {adim.sure}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Orta Vade - 90 Gün */}
+                  {analysisResult.yol_haritasi.orta_90gun?.length > 0 && (
+                    <div className="border-l-4 border-yellow-400 pl-4">
+                      <h4 className="font-semibold text-yellow-700 dark:text-yellow-400 mb-3 flex items-center gap-2">
+                        <span>🟡</span> Orta Vade (90 Gün)
+                      </h4>
+                      <div className="space-y-3">
+                        {analysisResult.yol_haritasi.orta_90gun.map((adim: YolHaritasiAdimYeni, i: number) => (
+                          <div key={i} className="bg-yellow-50 dark:bg-yellow-900/10 rounded-lg p-4">
+                            <p className="font-medium text-gray-800 dark:text-gray-200">{adim.is}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{adim.neden}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs">
+                              <span className={`px-2 py-0.5 rounded ${adim.etki === 'yüksek' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                                Etki: {adim.etki}
+                              </span>
+                              <span className="text-gray-500">⏱️ {adim.sure}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Uzun Vade - 1 Yıl */}
+                  {analysisResult.yol_haritasi.uzun_1yil?.length > 0 && (
+                    <div className="border-l-4 border-green-400 pl-4">
+                      <h4 className="font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2">
+                        <span>🟢</span> Uzun Vade (1 Yıl)
+                      </h4>
+                      <div className="space-y-3">
+                        {analysisResult.yol_haritasi.uzun_1yil.map((adim: YolHaritasiAdimYeni, i: number) => (
+                          <div key={i} className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4">
+                            <p className="font-medium text-gray-800 dark:text-gray-200">{adim.is}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{adim.neden}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs">
+                              <span className={`px-2 py-0.5 rounded ${adim.etki === 'yüksek' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                                Etki: {adim.etki}
+                              </span>
+                              <span className="text-gray-500">⏱️ {adim.sure}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Hizmet Önerileri - v2 format */}
+            {analysisResult?.hizmet_onerileri && analysisResult.hizmet_onerileri.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span>💼</span> Hizmet Önerileri
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {analysisResult.hizmet_onerileri.map((hizmet: HizmetOnerisi, index: number) => (
+                    <div key={index} className={`p-5 rounded-xl border-2 transition-all hover:shadow-lg ${index === 0 ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}>
+                      {index === 0 && (
+                        <span className="text-xs bg-emerald-500 text-white px-2 py-1 rounded-full">⭐ Öncelikli</span>
+                      )}
+                      <h4 className="font-bold text-gray-900 dark:text-white mt-2 text-lg">{hizmet.paket}</h4>
+                      <ul className="mt-3 space-y-2">
+                        {hizmet.kapsam?.map((item: string, i: number) => (
+                          <li key={i} className="text-sm text-gray-600 dark:text-gray-300 flex items-start gap-2">
+                            <span className="text-emerald-500 mt-0.5">✓</span> {item}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                        {hizmet.sure && <p className="text-xs text-gray-500">⏱️ {hizmet.sure}</p>}
+                        {hizmet.sonuc && <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">📈 {hizmet.sonuc}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Stratejik Yol Haritası - eski format */}
             {analysisResult?.stratejik_yol_haritasi && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">

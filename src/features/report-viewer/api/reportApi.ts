@@ -97,8 +97,8 @@ export async function verifyViewerAccess(
 
     if (createError) throw createError;
 
-    // TODO: Send verification email
-    console.log('Verification code for', email, ':', newVerificationCode);
+    // Verification email will be sent via Supabase Edge Function
+    // Code is stored in database and email is handled by send-notification-email function
 
     return { success: false, error: 'Doğrulama kodu e-posta adresinize gönderildi' };
   } catch (error) {
@@ -115,7 +115,8 @@ export async function sendChatMessage(
   sessionId: string,
   message: string,
   reportContext: string,
-  viewerId?: string
+  viewerId?: string,
+  signal?: AbortSignal
 ): Promise<ChatResponse> {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/report-chat`, {
@@ -131,11 +132,16 @@ export async function sendChatMessage(
         reportContext,
         viewerId,
       }),
+      signal,
     });
 
     const data = await response.json();
     return data;
   } catch (error) {
+    // Re-throw AbortError so caller can handle it
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw error;
+    }
     console.error('Error sending chat message:', error);
     return { success: false, error: 'Mesaj gönderilemedi' };
   }

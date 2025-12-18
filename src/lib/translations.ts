@@ -3680,6 +3680,84 @@ export const staticTranslations: Record<string, Record<Language, string>> = {
   'terms.section9.content': {
     tr: 'Kullanım koşullarımız hakkında sorularınız için bize ulaşın:',
     en: 'For questions about our terms of use, contact us:'
+  },
+  // DigiBot Chat Translations
+  'digibot.greeting': {
+    tr: 'Merhaba! Ben **digiBot**, Unilancer Labs asistanı. Raporunuz hakkında sorularınızı yanıtlayabilirim.',
+    en: 'Hello! I am **digiBot**, Unilancer Labs assistant. I can answer your questions about your report.'
+  },
+  'digibot.error.generic': {
+    tr: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.',
+    en: 'Sorry, an error occurred. Please try again.'
+  },
+  'digibot.error.connection': {
+    tr: 'Bağlantı hatası. Lütfen tekrar deneyin.',
+    en: 'Connection error. Please try again.'
+  },
+  'digibot.placeholder': {
+    tr: 'Mesajınızı yazın...',
+    en: 'Type your message...'
+  },
+  'digibot.quickQuestions': {
+    tr: 'Hızlı Sorular',
+    en: 'Quick Questions'
+  },
+  'digibot.send': {
+    tr: 'Mesaj gönder',
+    en: 'Send message'
+  },
+  'digibot.poweredBy': {
+    tr: 'Powered by Unilancer Labs A.Ş.',
+    en: 'Powered by Unilancer Labs Inc.'
+  },
+  'digibot.question.explainScore': {
+    tr: 'skorumu açıkla',
+    en: 'explain my score'
+  },
+  'digibot.question.improveScore': {
+    tr: 'skorumu nasıl artırırım?',
+    en: 'how can I improve my score?'
+  },
+  'digibot.question.digitalMarketing': {
+    tr: 'Dijital Pazarlama nasıl artırılır?',
+    en: 'How to increase Digital Marketing?'
+  },
+  'digibot.question.ssl': {
+    tr: 'Acil: SSL Sertifikası',
+    en: 'Urgent: SSL Certificate'
+  },
+  'digibot.question.summary': {
+    tr: 'Bu raporun özeti nedir?',
+    en: 'What is the summary of this report?'
+  },
+  'digibot.question.criticalIssue': {
+    tr: 'En kritik sorun hangisi?',
+    en: 'What is the most critical issue?'
+  },
+  // DigiBot Waitlist Page
+  'digibot.waitlist.title': {
+    tr: 'digiBot | Yapay Zeka Asistanı - Unilancer',
+    en: 'digiBot | AI Assistant - Unilancer'
+  },
+  'digibot.waitlist.description': {
+    tr: 'digiBot, işletmelerin ve freelancerların hayatını kolaylaştıran yapay zeka destekli dijital asistan. İş süreçlerinizi otomatize edin, verimliliğinizi artırın.',
+    en: 'digiBot is an AI-powered digital assistant that makes life easier for businesses and freelancers. Automate your workflows, increase your productivity.'
+  },
+  'digibot.waitlist.emailPlaceholder': {
+    tr: 'E-posta adresiniz',
+    en: 'Your email address'
+  },
+  'digibot.waitlist.getNotified': {
+    tr: 'Haberdar Ol',
+    en: 'Get Notified'
+  },
+  'digibot.waitlist.success': {
+    tr: 'Kaydınız alındı! Yakında görüşmek üzere.',
+    en: 'Registration successful! See you soon.'
+  },
+  'digibot.waitlist.waitingCount': {
+    tr: 'kişi bekleme listesinde',
+    en: 'people on the waiting list'
   }
 };
 

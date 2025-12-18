@@ -45,7 +45,12 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '' // Use service role for server-side updates
     )
 
-    const payload = await req.json()
+    let rawPayload = await req.json()
+    
+    // n8n bazen array olarak gönderebilir, ilk elemanı al
+    const payload = Array.isArray(rawPayload) ? rawPayload[0] : rawPayload
+    
+    console.log('Is array:', Array.isArray(rawPayload))
     console.log('Received payload keys:', Object.keys(payload))
     console.log('Received payload:', JSON.stringify(payload, null, 2).substring(0, 2000))
 
@@ -122,7 +127,165 @@ serve(async (req) => {
     const hasNewFormat = payload.scores || payload.website_analysis || payload.seo_analysis || 
                          payload.guclu_yonler || payload.hizmet_paketleri || payload.stratejik_yol_haritasi
     
-    if (hasNewFormat) {
+    // ==========================================
+    // YENİ JSON FORMATI DESTEĞİ (2024 v2)
+    // ==========================================
+    const hasNewFormatV2 = payload.firma_karti || payload.performans || payload.yol_haritasi || 
+                           payload.hizmet_onerileri || payload.tespitler || payload.sonuc ||
+                           payload.analysis_result?.firma_karti || payload.analysis_result?.yol_haritasi
+    
+    if (hasNewFormatV2) {
+      console.log('Detected NEW v2 format with firma_karti, performans, yol_haritasi...')
+      
+      // Önce analysis_result içinden veya doğrudan payload'dan al
+      const src = payload.analysis_result || payload
+      
+      analysis_result = {
+        // ==========================================
+        // YENİ ALANLAR
+        // ==========================================
+        firma_karti: src.firma_karti || {
+          firma_adi: payload.firma_adi || payload.company_name,
+          website: payload.website,
+          sektor: payload.sektor,
+          is_modeli: payload.is_modeli,
+          hedef_kitle: payload.hedef_kitle,
+          firma_tanitimi: payload.firma_tanitimi
+        },
+        performans: src.performans,
+        seo: src.seo,
+        ui_ux: src.ui_ux,
+        sektor_analiz: src.sektor || src.sektor_bilgi,
+        yol_haritasi: src.yol_haritasi,
+        hizmet_onerileri: src.hizmet_onerileri || payload.hizmet_onerileri,
+        sonuc: src.sonuc,
+        tespitler: src.tespitler || payload.tespitler,
+        social_media_yeni: src.social_media,
+        
+        // Yeni format güçlü yönler ve geliştirilmesi gerekenler
+        guclu_yonler: src.guclu_yonler || payload.guclu_yonler || [],
+        gelistirilmesi_gereken: src.gelistirilmesi_gereken || payload.gelistirilmesi_gereken || [],
+        
+        // Skorlar
+        scores: src.scores || payload.scores,
+        digital_score: src.digital_score || payload.digital_score || payload.dijital_skor,
+        
+        // Özet alanları
+        executive_summary: src.executive_summary || payload.executive_summary,
+        analysis_summary: src.analysis_summary || payload.analysis_summary,
+        plain_text_report: src.plain_text_report || payload.plain_text_report || payload.text,
+        text: payload.text,
+        
+        // Flatten edilmiş skorlar (kolay erişim)
+        overall_score: payload.overall_score || src.scores?.overall,
+        website_score: payload.website_score || src.scores?.website,
+        seo_score: payload.seo_score || src.scores?.seo,
+        social_media_score: payload.social_media_score || src.scores?.social_media,
+        performance_score: payload.performance_score || src.scores?.performance,
+        mobile_score: payload.mobile_score || src.scores?.mobile,
+        security_score: payload.security_score || src.scores?.security,
+        ux_score: payload.ux_score || src.scores?.user_experience,
+        
+        // Flatten yol haritası
+        vizyon: src.yol_haritasi?.vizyon || payload.vizyon,
+        acil_7gun: src.yol_haritasi?.acil_7gun || payload.acil_7gun,
+        kisa_30gun: src.yol_haritasi?.kisa_30gun || payload.kisa_30gun,
+        orta_90gun: src.yol_haritasi?.orta_90gun || payload.orta_90gun,
+        uzun_1yil: src.yol_haritasi?.uzun_1yil || payload.uzun_1yil,
+        
+        // Ağrı noktaları ve güçlü yön başlıkları
+        agri_1: payload.agri_1,
+        agri_2: payload.agri_2,
+        agri_3: payload.agri_3,
+        guclu_yon_1: payload.guclu_yon_1,
+        guclu_yon_2: payload.guclu_yon_2,
+        guclu_yon_3: payload.guclu_yon_3,
+        
+        // İstatistikler
+        istatistikler: src.istatistikler || payload.istatistikler,
+        
+        // Technical status (performans'tan türetilebilir)
+        technical_status: src.technical_status || payload.technical_status || {
+          ssl_status: payload.technical_status?.ssl_status,
+          mobile_score: src.performans?.mobil?.skor || src.scores?.mobile || 0,
+          desktop_score: src.performans?.desktop?.skor || src.scores?.performance || 0,
+          lcp_mobile: src.performans?.lcp_mobil,
+          lcp_desktop: src.performans?.lcp_desktop
+        },
+        
+        // ==========================================
+        // ESKİ FORMAT ALANLARI (Geriye dönük uyumluluk)
+        // ==========================================
+        firma_adi: payload.firma_adi || src.firma_karti?.firma_adi,
+        sektor: payload.sektor || src.firma_karti?.sektor || src.sektor_analiz?.ana,
+        musteri_kitlesi: payload.hedef_kitle || src.firma_karti?.hedef_kitle,
+        firma_tanitimi: payload.firma_tanitimi || src.firma_karti?.firma_tanitimi,
+        ui_ux_degerlendirmesi: src.ui_ux?.izlenim,
+        
+        // Eski format için dönüştürülmüş alanlar
+        gelistirilmesi_gereken_alanlar: (src.gelistirilmesi_gereken || payload.gelistirilmesi_gereken || []).map((item: any) => ({
+          baslik: item.baslik,
+          mevcut_durum: item.mevcut,
+          neden_onemli: item.sorun,
+          cozum_onerisi: item.cozum,
+          beklenen_etki: item.maliyet ? `Maliyet: ${item.maliyet}` : '',
+          oncelik: item.oncelik,
+          tahmini_sure: item.sure
+        })),
+        
+        stratejik_yol_haritasi: src.yol_haritasi ? {
+          vizyon: src.yol_haritasi.vizyon,
+          ilk_30_gun: [
+            ...(src.yol_haritasi.acil_7gun || []).map((a: any) => ({ aksiyon: a.is, neden: a.neden, nasil: a.sorumlu || '' })),
+            ...(src.yol_haritasi.kisa_30gun || []).map((a: any) => ({ aksiyon: a.is, neden: a.neden, nasil: a.sorumlu || '' }))
+          ],
+          '30_90_gun': (src.yol_haritasi.orta_90gun || []).map((a: any) => ({ aksiyon: a.is, neden: a.neden, nasil: a.sorumlu || '' })),
+          '90_365_gun': (src.yol_haritasi.uzun_1yil || []).map((a: any) => ({ aksiyon: a.is, neden: a.neden, nasil: a.sorumlu || '' }))
+        } : undefined,
+        
+        hizmet_paketleri: (src.hizmet_onerileri || payload.hizmet_onerileri || []).map((h: any) => ({
+          paket_adi: h.paket,
+          aciklama: '',
+          kapsam: h.kapsam || [],
+          oncelik: '',
+          tahmini_sure: h.sure,
+          beklenen_sonuc: h.sonuc
+        })),
+        
+        onemli_tespitler: (src.tespitler || payload.tespitler || []).map((t: any) => ({
+          tip: t.tip,
+          tespit: t.baslik,
+          detay: t.detay
+        })),
+        
+        sonraki_adim: src.sonuc ? {
+          cta_mesaji: src.sonuc.cta,
+          iletisim_onerisi: src.sonuc.degerlendirme
+        } : undefined,
+        
+        // Boş arrayler için default
+        strengths: payload.strengths || [],
+        weaknesses: payload.weaknesses || [],
+        recommendations: payload.recommendations || []
+      }
+      
+      digital_score = src.digital_score || src.scores?.overall || payload.digital_score || payload.dijital_skor || 0
+      analysis_summary = src.analysis_summary || payload.analysis_summary || src.executive_summary
+      status = 'completed'
+      
+      console.log('New v2 format captured:', {
+        firma_karti: !!analysis_result.firma_karti,
+        performans: !!analysis_result.performans,
+        seo: !!analysis_result.seo,
+        ui_ux: !!analysis_result.ui_ux,
+        yol_haritasi: !!analysis_result.yol_haritasi,
+        hizmet_onerileri: (analysis_result.hizmet_onerileri || []).length,
+        tespitler: (analysis_result.tespitler || []).length,
+        guclu_yonler: (analysis_result.guclu_yonler || []).length,
+        gelistirilmesi_gereken: (analysis_result.gelistirilmesi_gereken || []).length,
+        digital_score
+      })
+    } else if (hasNewFormat) {
       console.log('Detected new structured format with Turkish fields...')
       analysis_result = {
         // English fields
@@ -263,7 +426,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

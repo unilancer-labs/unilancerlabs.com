@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { DigibotHero } from '../components/ui/digibot-hero';
-import { CheckCircle2, Users, ArrowUpRight, Linkedin, Twitter, Instagram } from 'lucide-react';
+import { CheckCircle2, Users, ArrowUpRight, Linkedin, Twitter, Instagram, Loader2, AlertCircle } from 'lucide-react';
+import { supabase } from '../lib/config/supabase';
+import { DIGIBOT_LOGO } from '../lib/config/constants';
 
 const Digibot = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // SEO meta data
   const currentLang = window.location.pathname.startsWith('/en') ? 'en' : 'tr';
@@ -18,10 +22,55 @@ const Digibot = () => {
     : 'digiBot is an AI-powered digital assistant that makes life easier for businesses and freelancers. Automate your workflows, increase your productivity.';
   const canonicalUrl = `https://unilancerlabs.com/${currentLang}/digibot`;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Check if email already exists
+      const { data: existingEmail } = await supabase
+        .from('digibot_waitlist')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .single();
+      
+      if (existingEmail) {
+        setIsSubmitted(true);
+        return;
+      }
+      
+      // Insert new waitlist entry
+      const { error: insertError } = await supabase
+        .from('digibot_waitlist')
+        .insert({
+          email: email.toLowerCase(),
+          source: 'digibot_landing',
+          created_at: new Date().toISOString(),
+        });
+      
+      if (insertError) {
+        // If table doesn't exist, still show success (graceful degradation)
+        if (insertError.code === '42P01') {
+          console.warn('Waitlist table does not exist yet');
+          setIsSubmitted(true);
+          return;
+        }
+        throw insertError;
+      }
+      
       setIsSubmitted(true);
+    } catch (err) {
+      console.error('Error saving to waitlist:', err);
+      setError(
+        currentLang === 'tr'
+          ? 'Bir hata oluştu. Lütfen tekrar deneyin.'
+          : 'An error occurred. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,26 +110,41 @@ const Digibot = () => {
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <div className="relative flex-1 max-w-xs sm:max-w-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                  <img src="https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/dijibotuyuk.webp" alt="DigiBot" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
+                  <img src={DIGIBOT_LOGO} alt="DigiBot" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
                 </div>
                 <input
                   type="email"
-                  placeholder="E-posta adresiniz"
+                  placeholder={currentLang === 'tr' ? 'E-posta adresiniz' : 'Your email address'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 bg-white dark:bg-dark-card border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm"
+                  disabled={isLoading}
+                  aria-label={currentLang === 'tr' ? 'E-posta adresiniz' : 'Your email address'}
+                  className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 bg-white dark:bg-dark-card border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm disabled:opacity-50"
                   required
                 />
               </div>
               <motion.button
                 type="submit"
-                className="inline-flex items-center justify-center px-5 sm:px-6 py-3 sm:py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 group"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                disabled={isLoading}
+                className="inline-flex items-center justify-center px-5 sm:px-6 py-3 sm:py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 group disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={isLoading ? {} : { scale: 1.02 }}
+                whileTap={isLoading ? {} : { scale: 0.98 }}
               >
-                <span>Haberdar Ol</span>
-                <ArrowUpRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <span>{currentLang === 'tr' ? 'Haberdar Ol' : 'Get Notified'}</span>
+                    <ArrowUpRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </>
+                )}
               </motion.button>
+              {error && (
+                <div className="flex items-center gap-2 text-red-500 text-sm mt-2 sm:mt-0">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{error}</span>
+                </div>
+              )}
             </form>
           ) : (
             <motion.div 

@@ -20,7 +20,7 @@ export function exportToCSV<T extends Record<string, any>>(
   // Create data rows
   const rows = data.map(item => {
     return columns.map(col => {
-      let value = item[col.key];
+      let value: unknown = item[col.key];
       
       // Handle arrays
       if (Array.isArray(value)) {
@@ -102,7 +102,7 @@ export function exportToExcel<T extends Record<string, any>>(
   data.forEach(item => {
     html += '<tr>';
     columns.forEach(col => {
-      let value = item[col.key];
+      let value: unknown = item[col.key];
       
       if (Array.isArray(value)) {
         value = value.join(', ');
@@ -131,7 +131,7 @@ export function exportToExcel<T extends Record<string, any>>(
 // PDF Export (Using browser's print functionality with styled content)
 export function exportToPDF<T extends Record<string, any>>(
   data: T[],
-  filename: string,
+  _filename: string,
   columns: { key: keyof T; header: string }[],
   title: string
 ): void {
@@ -159,7 +159,7 @@ export function exportToPDF<T extends Record<string, any>>(
   data.forEach((item, index) => {
     tableRows += `<tr class="${index % 2 === 0 ? 'even' : 'odd'}">`;
     columns.forEach(col => {
-      let value = item[col.key];
+      let value: unknown = item[col.key];
       
       if (Array.isArray(value)) {
         value = value.join(', ');
@@ -326,7 +326,7 @@ export function exportToPDF<T extends Record<string, any>>(
 // Single record PDF export (for detail pages)
 export function exportDetailToPDF<T extends Record<string, any>>(
   data: T,
-  filename: string,
+  _filename: string,
   sections: {
     title: string;
     fields: { key: keyof T; label: string; format?: (value: any) => string }[];
@@ -355,7 +355,7 @@ export function exportDetailToPDF<T extends Record<string, any>>(
         <div class="fields">
     `;
     section.fields.forEach(field => {
-      let value = data[field.key];
+      let value: unknown = data[field.key];
       if (field.format) {
         value = field.format(value);
       } else if (Array.isArray(value)) {
