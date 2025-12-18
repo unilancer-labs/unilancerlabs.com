@@ -111,7 +111,7 @@ const SECTIONS = [
   { id: 'findings', label: 'Tespitler' },
 ];
 
-// API Flash ile screenshot URL oluştur
+// API Flash ile screenshot URL oluştur - Cache kullanarak API harcamasını azalt
 const getScreenshotUrl = (websiteUrl: string, isMobile: boolean = false) => {
   const accessKey = '0017d562849644b28d1d7741d0ceab4b';
   const width = isMobile ? 375 : 1280;
@@ -123,9 +123,11 @@ const getScreenshotUrl = (websiteUrl: string, isMobile: boolean = false) => {
     width: width.toString(),
     height: height.toString(),
     full_page: 'false',
-    quality: '90',
+    quality: '85',
     format: 'webp',
-    fresh: 'true',
+    // fresh: 'true' kaldırıldı - APIFlash kendi cache'ini kullanacak (30 gün)
+    // Bu sayede aynı URL için tekrar API kredisi harcanmaz
+    ttl: '2592000', // 30 gün cache (saniye cinsinden)
   });
   
   return `https://api.apiflash.com/v1/urltoimage?${params.toString()}`;
@@ -138,8 +140,13 @@ const WebsiteScreenshot: React.FC<{ websiteUrl: string; isMobile?: boolean }> = 
   
   const screenshotUrl = getScreenshotUrl(websiteUrl, isMobile);
   
+  // Mobil: uzun telefon oranı, Masaüstü: daha büyük
+  const containerClass = isMobile 
+    ? 'w-[180px] h-[360px]' 
+    : 'w-[580px] h-[360px]';
+  
   return (
-    <div className={`relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 ${isMobile ? 'w-[180px] h-[390px]' : 'flex-1 h-[280px]'}`}>
+    <div className={`relative rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-md ${containerClass}`}>
       {isLoading && !hasError && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
@@ -159,7 +166,7 @@ const WebsiteScreenshot: React.FC<{ websiteUrl: string; isMobile?: boolean }> = 
         <img 
           src={screenshotUrl}
           alt={`${isMobile ? 'Mobil' : 'Masaüstü'} görünüm`}
-          className="w-full h-full object-cover object-top"
+          className="w-full h-full object-contain object-top"
           onLoad={() => setIsLoading(false)}
           onError={() => { setIsLoading(false); setHasError(true); }}
         />
@@ -529,29 +536,37 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           
           {/* Website Screenshots */}
           {websiteUrl && (
-            <div className="mb-6">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <Camera className="w-4 h-4 text-gray-500" /> Sayfa Görünümü
+            <div className="mb-8">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-5 flex items-center gap-2 text-base">
+                <Camera className="w-5 h-5 text-primary" /> Sayfa Görünümü
               </h4>
-              <div className="flex gap-4 items-start">
+              <div className="flex gap-10 items-end justify-center">
                 <WebsiteScreenshot websiteUrl={websiteUrl} isMobile={false} />
                 <WebsiteScreenshot websiteUrl={websiteUrl} isMobile={true} />
               </div>
             </div>
           )}
           
+          {/* Tasarım Stili Badge */}
           {uiUx?.tasarim && (
-            <div className="mb-4">
-              <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300">
+            <div className="mb-5">
+              <span className="inline-flex items-center gap-2 text-sm bg-primary/10 dark:bg-primary/20 px-4 py-2 rounded-full text-primary dark:text-primary-light font-semibold">
+                <Palette className="w-4 h-4" />
                 {uiUx.tasarim}
               </span>
             </div>
           )}
           
+          {/* UI/UX Genel Değerlendirme - Büyük ve belirgin */}
           {uiUx?.izlenim && (
-            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              {uiUx.izlenim}
-            </p>
+            <div className="mb-8 p-6 bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-gray-700/60 dark:via-gray-700/40 dark:to-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-600 shadow-sm">
+              <h4 className="text-base font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary" /> Genel Değerlendirme
+              </h4>
+              <p className="text-lg text-gray-800 dark:text-gray-100 leading-relaxed font-medium">
+                {uiUx.izlenim}
+              </p>
+            </div>
           )}
           
           {/* Performans Değerlendirmesi */}

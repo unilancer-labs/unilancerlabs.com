@@ -147,31 +147,10 @@ function App() {
                     {/* Admin routes - language independent */}
                     <Route path="/login" element={<Login />} />
                     
-                    {/* Protected Demo/Digital Analysis Routes */}
-                    <Route
-                      path="/demo"
-                      element={
-                        <PrivateRoute>
-                          <Demo />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/dijital-analiz"
-                      element={
-                        <PrivateRoute>
-                          <Demo />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/digital-analysis"
-                      element={
-                        <PrivateRoute>
-                          <Demo />
-                        </PrivateRoute>
-                      }
-                    />
+                    {/* Demo/Digital Analysis Routes - Public */}
+                    <Route path="/demo" element={<Demo />} />
+                    <Route path="/dijital-analiz" element={<Demo />} />
+                    <Route path="/digital-analysis" element={<Demo />} />
                     
                     <Route
                       path="/admin/*"

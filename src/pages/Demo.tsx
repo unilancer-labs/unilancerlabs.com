@@ -2653,7 +2653,7 @@ digiBot bu rapora tam erişime sahiptir ve tüm detayları bilmektedir.
                     reportId={currentReportId || 'demo'}
                     companyName={formData.company_name || 'Demo'}
                     analysisResult={analysisResult || undefined}
-                    digitalScore={analysisResult?.skor}
+                    digitalScore={analysisResult?.digital_score}
                     isFloating={true}
                     onClose={() => setIsChatOpen(false)}
                   />

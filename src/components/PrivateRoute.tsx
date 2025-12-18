@@ -1,32 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getCurrentUser } from '../lib/auth';
+import { supabase } from '../lib/config/supabase';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    const checkUser = async () => {
+    let isMounted = true;
+    
+    const checkAuth = async () => {
       try {
-        // Timeout to prevent infinite loading
-        const timeoutPromise = new Promise<null>((resolve) => 
-          setTimeout(() => resolve(null), 8000)
-        );
-        
-        const userPromise = getCurrentUser();
-        
-        const currentUser = await Promise.race([userPromise, timeoutPromise]);
-        setUser(currentUser);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (isMounted) {
+          setIsAuthenticated(!!session?.user);
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Auth check error:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setIsAuthenticated(false);
+          setLoading(false);
+        }
       }
     };
-    checkUser();
+    
+    // Set timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (isMounted && loading) {
+        setIsAuthenticated(false);
+        setLoading(false);
+      }
+    }, 5000);
+    
+    checkAuth();
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeout);
+    };
   }, []);
 
   if (loading) {
@@ -37,7 +50,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
