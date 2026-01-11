@@ -532,18 +532,8 @@ const Navbar = () => {
               </AnimatePresence>
             </motion.button>
             
-            {/* Auth Buttons - Desktop - Replaced with Join Us and Get Quote */}
+            {/* Auth Buttons - Desktop - Join Us and Get Quote */}
             <div className="flex items-center space-x-3">
-              <motion.a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSf0H_feXOCBXOyNKhXTFEBmYvqlSamTVkSRHByfjfl1dGqhJg/viewform"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nextgen-button relative flex items-center px-4 py-2 rounded-lg text-base font-medium bg-slate-200 dark:bg-[#121212] text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-[#1a1a1a] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                NEXTGEN
-              </motion.a>
               <ActionButton href={getRouteForLanguage('/basvuru', language as 'tr' | 'en')} icon={Users} onNavigate={handleNavigation}>
                 {t('nav.joinUs')}
               </ActionButton>
@@ -599,35 +589,6 @@ const Navbar = () => {
         >
           <div className="px-4 py-6 pb-32">
             <div className="space-y-4 max-w-lg mx-auto">
-              
-              {/* NEXTGEN BAŞVURU Button - Mobile */}
-              <motion.a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSf0H_feXOCBXOyNKhXTFEBmYvqlSamTVkSRHByfjfl1dGqhJg/viewform"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center px-4 py-3.5 min-h-[52px] bg-primary text-white rounded-xl active:scale-[0.98] transition-all font-semibold mb-3"
-                onClick={closeAllMenus}
-                style={{
-                  boxShadow: '0 0 20px rgba(95, 200, 218, 0.6), 0 0 40px rgba(95, 200, 218, 0.4)'
-                }}
-                animate={{
-                  boxShadow: [
-                    '0 0 20px rgba(95, 200, 218, 0.6), 0 0 40px rgba(95, 200, 218, 0.4)',
-                    '0 0 25px rgba(95, 200, 218, 0.8), 0 0 50px rgba(95, 200, 218, 0.5)',
-                    '0 0 20px rgba(95, 200, 218, 0.6), 0 0 40px rgba(95, 200, 218, 0.4)'
-                  ]
-                }}
-                transition={{
-                  boxShadow: {
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: 'easeInOut'
-                  }
-                }}
-              >
-                NEXTGEN BAŞVURU
-              </motion.a>
-
               {/* Join Us and Get Quote Buttons - Mobile */}
               <div className="grid grid-cols-2 gap-3">
                 <button
