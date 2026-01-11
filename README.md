@@ -1,520 +1,673 @@
-# 🚀 Unilancer
+# 🚀 Unilancer Labs - Dijital Ajans Platformu
 
 <div align="center">
 
+![Unilancer Logo](https://ctncspdgguclpeijikfp.supabase.co/storage/v1/object/public/Landing%20Page/Unilancer%20logo%202.webp)
+
+**Modern, Hızlı ve Ölçeklenebilir Dijital Ajans Web Sitesi**
+
+[🌐 Canlı Site](https://unilancer.co) • [📖 Dokümantasyon](#-dokümantasyon)
+
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)
-
-**Modern Digital Agency Platform**
-
-[🌐 Live Demo](https://unilancer.co) · [📖 Documentation](./docs/) · [🐛 Report Bug](https://github.com/pegwakeup/yeni/issues)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## 📋 İçindekiler
 
-- [About](#-about)
-- [Quick Start](#-quick-start)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Routing & Internationalization](#-routing--internationalization)
-- [Development Guide](#-development-guide)
-- [Available Scripts](#-available-scripts)
-- [Environment Variables](#-environment-variables)
-- [Documentation](#-documentation)
-- [Deployment](#-deployment)
-- [Contributing](#-contributing)
-
----
-
-## 🎯 About
-
-Unilancer is a modern digital agency platform offering web design, 3D/AR experiences, e-commerce solutions, AI-powered tools, and more. Built with cutting-edge technologies for optimal performance and SEO.
-
-### Key Features
-
-- 🌍 **Bilingual Support** - Turkish & English with automatic language detection
-- 🌙 **Dark/Light Mode** - Theme switching with system preference detection
-- 📱 **Fully Responsive** - Mobile-first design approach
-- 🔍 **SEO Optimized** - Meta tags, JSON-LD schemas, sitemap, robots.txt
-- ⚡ **Performance First** - Lazy loading, code splitting, optimized assets
-- 🎨 **3D/AR Features** - Three.js powered interactive experiences
-- 📝 **Blog System** - Full CMS with admin panel
-- 🤖 **Digibot** - AI-powered chatbot integration
+1. [Proje Nedir?](#-proje-nedir)
+2. [Özellikler](#-özellikler)
+3. [Teknolojiler](#️-teknolojiler)
+4. [Başlamadan Önce](#-başlamadan-önce)
+5. [Kurulum Adımları](#-kurulum-adımları)
+6. [Proje Yapısı](#-proje-yapısı)
+7. [Sayfa ve URL Yapısı](#-sayfa-ve-url-yapısı)
+8. [Admin Paneli](#-admin-paneli)
+9. [Veritabanı](#-veritabanı)
+10. [Çeviri Sistemi](#-çeviri-sistemi)
+11. [Yeni Sayfa Ekleme](#-yeni-sayfa-ekleme)
+12. [Sık Karşılaşılan Sorunlar](#-sık-karşılaşılan-sorunlar)
+13. [Yayınlama (Deploy)](#-yayınlama-deploy)
+14. [Faydalı Kaynaklar](#-faydalı-kaynaklar)
 
 ---
 
-## ⚡ Quick Start
+## 📖 Proje Nedir?
 
-### Prerequisites
+**Unilancer**, profesyonel dijital hizmetler sunan bir ajans platformudur. Bu web sitesi şunları içerir:
 
-- **Node.js** 18.x or higher
-- **npm** 9.x+ or **pnpm** 8.x+
-- **Git**
+| Bölüm | Açıklama |
+|-------|----------|
+| 🏠 **Kurumsal Site** | Şirket tanıtımı, hizmetler, portfolyo, blog |
+| 👥 **Freelancer Sistemi** | Freelancer başvuru ve yönetim sistemi |
+| 📋 **Proje Talep** | Müşterilerin proje talebi göndermesi |
+| 🔐 **Admin Paneli** | Blog, portfolyo, freelancer ve proje yönetimi |
+| 🤖 **DigiBot** | Yapay zeka destekli chatbot |
+| 📊 **Dijital Analiz** | Web sitesi analiz aracı |
 
-### Installation
+---
+
+## ✨ Özellikler
+
+### Kullanıcı Özellikleri
+- 🌍 **Çift Dil**: Türkçe ve İngilizce (otomatik algılama)
+- 🌙 **Karanlık/Aydınlık Tema**: Sistem tercihine göre değişir
+- 📱 **Responsive**: Telefon, tablet, bilgisayar uyumlu
+- 🔍 **SEO Optimizasyonu**: Google'da iyi sıralama için
+- ⚡ **Hızlı Yükleme**: Lazy loading ile performans
+- 🎨 **3D Deneyimler**: Three.js ile interaktif modeller
+
+### Admin Özellikleri
+- ✅ Blog yazısı ekleme/düzenleme/silme
+- ✅ Portfolyo projesi yönetimi
+- ✅ Freelancer başvuru onay/red
+- ✅ Proje talepleri takibi
+- ✅ Otomatik çeviri (DeepL ile)
+
+---
+
+## 🛠️ Teknolojiler
+
+### Bu Projede Ne Kullanılıyor?
+
+#### Frontend (Görünen Kısım)
+
+| Teknoloji | Ne İşe Yarıyor? | Öğrenmek İçin |
+|-----------|-----------------|---------------|
+| **React** | Kullanıcı arayüzü oluşturma | [react.dev](https://react.dev) |
+| **TypeScript** | JavaScript + tip güvenliği | [typescriptlang.org](https://www.typescriptlang.org/) |
+| **Vite** | Hızlı geliştirme sunucusu | [vitejs.dev](https://vitejs.dev/) |
+| **Tailwind CSS** | Hızlı stil yazma | [tailwindcss.com](https://tailwindcss.com/) |
+| **React Router** | Sayfa yönlendirme | [reactrouter.com](https://reactrouter.com/) |
+| **Framer Motion** | Animasyonlar | [framer.com/motion](https://www.framer.com/motion/) |
+
+#### Backend (Arka Plan)
+
+| Teknoloji | Ne İşe Yarıyor? |
+|-----------|-----------------|
+| **Supabase** | Veritabanı + Kimlik doğrulama + Dosya depolama |
+| **PostgreSQL** | İlişkisel veritabanı (Supabase içinde) |
+| **Edge Functions** | Sunucusuz API fonksiyonları |
+
+#### Harici Servisler
+
+| Servis | Ne İşe Yarıyor? |
+|--------|-----------------|
+| **DeepL API** | Otomatik çeviri |
+| **Google Analytics** | Site istatistikleri |
+| **Vercel** | Web sitesi barındırma |
+
+---
+
+## 📋 Başlamadan Önce
+
+### Bilgisayarınızda Olması Gerekenler
+
+1. **Node.js** (v18 veya üzeri)
+   - İndir: https://nodejs.org/
+   - Kurulumu kontrol et: `node --version`
+
+2. **Git**
+   - İndir: https://git-scm.com/
+   - Kurulumu kontrol et: `git --version`
+
+3. **VS Code** (Önerilen editör)
+   - İndir: https://code.visualstudio.com/
+
+### VS Code Eklentileri (Önerilen)
+
+| Eklenti | Ne İşe Yarar? |
+|---------|---------------|
+| **ES7+ React Snippets** | React kod parçacıkları |
+| **Tailwind CSS IntelliSense** | Tailwind otomatik tamamlama |
+| **Prettier** | Kod formatlama |
+| **ESLint** | Kod kalitesi kontrolü |
+| **Turkish Language Pack** | VS Code Türkçe |
+
+---
+
+## 🚀 Kurulum Adımları
+
+### Adım 1: Projeyi İndir
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/pegwakeup/yeni.git
-cd yeni
+# Terminal/PowerShell aç ve şunu yaz:
+git clone https://github.com/unilancer-labs/unilancerlabs.com.git
 
-# 2. Install dependencies
+# Proje klasörüne gir
+cd unilancerlabs.com
+```
+
+### Adım 2: Bağımlılıkları Yükle
+
+```bash
 npm install
+```
 
-# 3. Create environment file
-cp .env.example .env
-# Edit .env with your Supabase credentials
+> ⏳ Bu işlem 1-2 dakika sürebilir. `node_modules` klasörü oluşacak.
 
-# 4. Start development server
+### Adım 3: Ortam Değişkenlerini Ayarla
+
+Proje klasöründe `.env` dosyası oluştur:
+
+```env
+# Supabase Bağlantı Bilgileri
+VITE_SUPABASE_URL=https://ctncspdgguclpeijikfp.supabase.co
+VITE_SUPABASE_ANON_KEY=buraya_anahtar_gelecek
+```
+
+> ⚠️ **Önemli**: `.env` dosyası gizlidir ve GitHub'a yüklenmez. Gerçek anahtarı ekip liderinizden isteyin.
+
+### Adım 4: Geliştirme Sunucusunu Başlat
+
+```bash
 npm run dev
 ```
 
-🎉 Open [http://localhost:5173](http://localhost:5173) in your browser!
+### Adım 5: Tarayıcıda Aç
+
+Tarayıcıda şu adresi aç: **http://localhost:5173**
+
+🎉 **Tebrikler!** Proje çalışıyor!
 
 ---
 
-## 🛠 Tech Stack
+## 📁 Proje Yapısı
 
-### Frontend
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| [React](https://react.dev/) | 18.3 | UI Framework |
-| [TypeScript](https://www.typescriptlang.org/) | 5.6 | Type Safety |
-| [Vite](https://vitejs.dev/) | 6.0 | Build Tool & Dev Server |
-| [React Router](https://reactrouter.com/) | 7.0 | Client-side Routing |
-| [Tailwind CSS](https://tailwindcss.com/) | 3.4 | Utility-first CSS |
-| [Framer Motion](https://www.framer.com/motion/) | 11.x | Animations |
-| [Three.js](https://threejs.org/) / React Three Fiber | - | 3D Graphics |
-| [Lucide React](https://lucide.dev/) | - | Icons |
-| [react-helmet-async](https://github.com/staylor/react-helmet-async) | - | SEO Meta Tags |
-
-### Backend (Supabase)
-| Service | Purpose |
-|---------|---------|
-| **PostgreSQL** | Database |
-| **Auth** | User Authentication |
-| **Storage** | File/Image Storage |
-| **Edge Functions** | Serverless API (Deno) |
-| **Realtime** | Live Updates |
-
-### Design System
 ```
-Primary Color:    #5FC8DA (Cyan)
-Dark Background:  #121212
-Font Family:      Inter (sans-serif)
+📦 unilancerlabs.com/
+│
+├── 📂 public/                  # Statik dosyalar
+│   ├── robots.txt             # SEO ayarları
+│   ├── sitemap.xml            # Site haritası
+│   └── 📂 images/             # Görseller
+│
+├── 📂 src/                     # 🔥 ANA KAYNAK KODLARI
+│   │
+│   ├── 📄 App.tsx              # ⭐ Ana uygulama (tüm routing burada)
+│   ├── 📄 main.tsx             # Giriş noktası
+│   ├── 📄 index.css            # Global stiller
+│   │
+│   ├── 📂 components/          # 🧩 Tekrar kullanılan parçalar
+│   │   ├── Navbar.tsx         # Üst menü
+│   │   ├── Footer.tsx         # Alt bilgi
+│   │   ├── PrivateRoute.tsx   # Admin koruma
+│   │   ├── 📂 ui/             # Buton, badge, modal vb.
+│   │   ├── 📂 3d/             # 3D bileşenler
+│   │   └── 📂 modals/         # Pop-up diyaloglar
+│   │
+│   ├── 📂 pages/               # 📄 Sayfalar
+│   │   ├── Home.tsx           # Ana sayfa
+│   │   ├── About.tsx          # Hakkımızda
+│   │   ├── Services.tsx       # Hizmetler
+│   │   ├── Portfolio.tsx      # Portfolyo
+│   │   ├── Blog.tsx           # Blog listesi
+│   │   ├── BlogDetail.tsx     # Blog detay
+│   │   ├── Contact.tsx        # İletişim
+│   │   ├── Team.tsx           # Ekibimiz
+│   │   ├── JoinUs.tsx         # Freelancer başvuru
+│   │   ├── ProjectRequest.tsx # Proje talebi
+│   │   ├── Login.tsx          # Admin giriş
+│   │   └── 📂 services/       # Hizmet detay sayfaları
+│   │
+│   ├── 📂 features/            # 🔧 Özellik modülleri
+│   │   └── 📂 admin/          # Admin paneli
+│   │       ├── routes.tsx     # Admin yönlendirme
+│   │       ├── 📂 blog/       # Blog yönetimi
+│   │       ├── 📂 portfolio/  # Portfolyo yönetimi
+│   │       ├── 📂 freelancers/# Freelancer yönetimi
+│   │       └── 📂 translations/ # Çeviri yönetimi
+│   │
+│   ├── 📂 contexts/            # 🌐 Global state
+│   │   ├── LanguageContext.tsx # Dil (TR/EN)
+│   │   └── ThemeContext.tsx    # Tema (karanlık/aydınlık)
+│   │
+│   ├── 📂 hooks/               # 🪝 Özel hook'lar
+│   │   └── useTranslation.ts  # Çeviri hook'u
+│   │
+│   ├── 📂 lib/                 # 🔧 Yardımcı fonksiyonlar
+│   │   ├── translations.ts    # Çeviri verileri
+│   │   ├── utils.ts           # Yardımcı fonksiyonlar
+│   │   ├── auth.ts            # Kimlik doğrulama
+│   │   ├── 📂 api/            # API çağrıları
+│   │   └── 📂 config/
+│   │       └── supabase.ts    # Supabase bağlantısı
+│   │
+│   └── 📂 types/               # TypeScript tipleri
+│
+├── 📂 supabase/                # Supabase ayarları
+│   ├── 📂 migrations/         # Veritabanı değişiklikleri
+│   └── 📂 functions/          # Edge fonksiyonları
+│
+├── 📂 docs/                    # 📚 Dokümantasyon
+│
+├── 📄 package.json             # Bağımlılıklar ve scriptler
+├── 📄 tailwind.config.js       # Tailwind ayarları
+├── 📄 vite.config.ts           # Vite ayarları
+└── 📄 vercel.json              # Vercel deploy ayarları
 ```
+
+### En Önemli Dosyalar
+
+| Dosya | Ne Yapar? |
+|-------|-----------|
+| `src/App.tsx` | Tüm sayfa yönlendirmeleri burada |
+| `src/lib/translations.ts` | Tüm çeviriler burada |
+| `src/lib/config/supabase.ts` | Veritabanı bağlantısı |
+| `src/components/Navbar.tsx` | Üst menü |
+| `src/contexts/LanguageContext.tsx` | Dil değiştirme mantığı |
+| `src/contexts/ThemeContext.tsx` | Tema değiştirme mantığı |
 
 ---
 
-## 📁 Project Structure
+## 🗺 Sayfa ve URL Yapısı
 
-```
-yeni/
-├── 📂 public/                  # Static assets
-│   ├── robots.txt             # SEO crawl rules
-│   ├── sitemap.xml            # SEO sitemap
-│   └── images/                # Static images
-│
-├── 📂 src/
-│   ├── 📄 App.tsx             # Root component & routing
-│   ├── 📄 main.tsx            # Entry point
-│   ├── 📄 index.css           # Global styles & Tailwind
-│   │
-│   ├── 📂 components/         # Reusable UI components
-│   │   ├── Navbar.tsx        # Main navigation
-│   │   ├── Footer.tsx        # Site footer
-│   │   ├── PrivateRoute.tsx  # Auth guard
-│   │   ├── 📂 ui/            # UI primitives (Button, Badge, etc.)
-│   │   ├── 📂 layout/        # Layout components (SiteLayout)
-│   │   ├── 📂 3d/            # Three.js 3D components
-│   │   ├── 📂 modals/        # Modal dialogs
-│   │   ├── 📂 animations/    # Animation components
-│   │   └── 📂 seo/           # SEO components
-│   │
-│   ├── 📂 pages/              # Route pages
-│   │   ├── Home.tsx          # Landing page
-│   │   ├── About.tsx         # About us
-│   │   ├── Services.tsx      # Services overview
-│   │   ├── Portfolio.tsx     # Portfolio gallery
-│   │   ├── Blog.tsx          # Blog listing
-│   │   ├── BlogDetail.tsx    # Blog post detail
-│   │   ├── Contact.tsx       # Contact form
-│   │   ├── Team.tsx          # Team members
-│   │   ├── JoinUs.tsx        # Freelancer application
-│   │   ├── ProjectRequest.tsx # Project request form
-│   │   ├── Digibot.tsx       # AI chatbot page
-│   │   └── 📂 services/      # Individual service pages
-│   │       ├── WebDesign.tsx
-│   │       ├── ThreeDAR.tsx
-│   │       ├── Ecommerce.tsx
-│   │       ├── Marketing.tsx
-│   │       ├── Digibot.tsx
-│   │       ├── SoftwareDevelopment.tsx
-│   │       ├── Branding.tsx
-│   │       └── GraphicDesign.tsx
-│   │
-│   ├── 📂 contexts/           # React Context providers
-│   │   ├── LanguageContext.tsx  # i18n (TR/EN)
-│   │   └── ThemeContext.tsx     # Dark/Light mode
-│   │
-│   ├── 📂 hooks/              # Custom React hooks
-│   │   └── useTranslation.ts # Translation hook
-│   │
-│   ├── 📂 lib/                # Core utilities
-│   │   ├── utils.ts          # Helper functions (cn, etc.)
-│   │   ├── translations.ts   # Static translations
-│   │   ├── auth.ts           # Auth helpers
-│   │   ├── 📂 api/           # API clients
-│   │   │   ├── freelancers.ts
-│   │   │   ├── portfolio.ts
-│   │   │   └── projectRequests.ts
-│   │   ├── 📂 config/        # Configuration
-│   │   │   └── supabase.ts   # Supabase client
-│   │   └── 📂 services/      # External services
-│   │       └── geolocation.ts
-│   │
-│   ├── 📂 features/           # Feature modules
-│   │   └── 📂 admin/         # Admin panel
-│   │       ├── routes.tsx
-│   │       ├── 📂 blog/
-│   │       ├── 📂 portfolio/
-│   │       ├── 📂 freelancers/
-│   │       └── 📂 translations/
-│   │
-│   ├── 📂 data/               # Static data
-│   │   ├── 📂 location/      # Location data
-│   │   └── 📂 static/        # Static content
-│   │
-│   └── 📂 types/              # TypeScript types
-│       └── freelancer.ts
-│
-├── 📂 supabase/               # Supabase configuration
-│   ├── 📂 migrations/        # Database migrations
-│   └── 📂 functions/         # Edge functions
-│       ├── send-notification/
-│       ├── sync-translations/
-│       └── translate-content/
-│
-├── 📂 docs/                   # Documentation
-│   ├── ARCHITECTURE.md       # System architecture
-│   ├── DEVELOPER_GUIDE.md    # Development guide
-│   ├── FEATURES.md           # Feature documentation
-│   ├── TRANSLATION_SYSTEM.md # i18n system
-│   └── MARQUEE_COMPONENT.md  # Marquee component
-│
-├── 📄 package.json
-├── 📄 tailwind.config.js      # Tailwind configuration
-├── 📄 vite.config.ts          # Vite configuration
-├── 📄 tsconfig.json           # TypeScript config
-└── 📄 vercel.json             # Vercel deployment config
-```
+Site **iki dilli** olduğu için her sayfa `/tr` veya `/en` ile başlar.
 
----
+### Genel Sayfalar
 
-## 🌍 Routing & Internationalization
-
-### Bilingual URL Structure
-
-All routes are prefixed with language code (`/tr` or `/en`):
-
-| Page | Turkish URL | English URL |
-|------|-------------|-------------|
-| Home | `/tr` | `/en` |
-| Portfolio | `/tr/portfolyo` | `/en/portfolio` |
-| Services | `/tr/hizmetler` | `/en/services` |
-| About | `/tr/hakkimizda` | `/en/about` |
+| Sayfa | Türkçe URL | İngilizce URL |
+|-------|------------|---------------|
+| Ana Sayfa | `/tr` | `/en` |
+| Portfolyo | `/tr/portfolyo` | `/en/portfolio` |
+| Hizmetler | `/tr/hizmetler` | `/en/services` |
+| Hakkımızda | `/tr/hakkimizda` | `/en/about` |
 | Blog | `/tr/blog` | `/en/blog` |
-| Contact | `/tr/iletisim` | `/en/contact` |
-| Team | `/tr/ekibimiz` | `/en/team` |
-| Join Us | `/tr/basvuru` | `/en/join` |
-| Project Request | `/tr/proje-talebi` | `/en/project-request` |
+| İletişim | `/tr/iletisim` | `/en/contact` |
+| Ekibimiz | `/tr/ekibimiz` | `/en/team` |
+| Başvuru | `/tr/basvuru` | `/en/join` |
+| Proje Talebi | `/tr/proje-talebi` | `/en/project-request` |
 
-### Service Detail Pages
+### Hizmet Detay Sayfaları
 
-| Service | Turkish URL | English URL |
-|---------|-------------|-------------|
-| Web Design | `/tr/hizmetler/web-tasarim` | `/en/services/web-design` |
-| 3D/AR | `/tr/hizmetler/3d-ar` | `/en/services/3d-ar` |
-| E-Commerce | `/tr/hizmetler/e-ticaret-cozumleri` | `/en/services/ecommerce` |
-| Marketing | `/tr/hizmetler/pazarlama-reklam` | `/en/services/marketing` |
-| AI Digibot | `/tr/hizmetler/yapay-zeka-digibot` | `/en/services/ai-digibot` |
-| Software Dev | `/tr/hizmetler/yazilim-gelistirme` | `/en/services/software-development` |
-| Branding | `/tr/hizmetler/kurumsal-kimlik-marka` | `/en/services/branding` |
-| Graphic Design | `/tr/hizmetler/grafik-tasarim` | `/en/services/graphic-design` |
+| Hizmet | URL |
+|--------|-----|
+| Web Tasarım | `/tr/hizmetler/web-tasarim` |
+| 3D & AR | `/tr/hizmetler/3d-ar` |
+| E-Ticaret | `/tr/hizmetler/e-ticaret-cozumleri` |
+| Pazarlama | `/tr/hizmetler/pazarlama-reklam` |
+| Yapay Zeka | `/tr/hizmetler/yapay-zeka-digibot` |
+| Yazılım | `/tr/hizmetler/yazilim-gelistirme` |
+| Kurumsal Kimlik | `/tr/hizmetler/kurumsal-kimlik-marka` |
+| Grafik Tasarım | `/tr/hizmetler/grafik-tasarim` |
 
-### Using Translations
+### Admin Sayfaları
+
+| Sayfa | URL |
+|-------|-----|
+| Giriş | `/login` |
+| Dashboard | `/admin/dashboard` |
+| Blog Yönetimi | `/admin/blog` |
+| Portfolyo | `/admin/portfolio` |
+| Freelancerlar | `/admin/freelancers` |
+| Proje Talepleri | `/admin/project-requests` |
+| Çeviriler | `/admin/translations` |
+| DigiBot AI | `/admin/ai-dashboard` |
+
+> 💡 Ana URL (`/`) otomatik olarak `/tr`'ye yönlendirir.
+
+---
+
+## 🔐 Admin Paneli
+
+### Giriş Yapma
+
+1. Tarayıcıda `/login` adresine git
+2. E-posta ve şifre ile giriş yap
+3. Başarılı girişte `/admin/dashboard`'a yönlendirilirsin
+
+### Admin Modülleri
+
+#### 📝 Blog Yönetimi
+- **URL**: `/admin/blog`
+- **Özellikler**:
+  - Yeni blog yazısı oluştur
+  - Mevcut yazıları düzenle/sil
+  - Yayınla veya taslak olarak kaydet
+  - Kategori ve etiket ekle
+  - Görsel yükle
+
+#### 🖼️ Portfolyo Yönetimi
+- **URL**: `/admin/portfolio`
+- **Özellikler**:
+  - Proje ekle/düzenle/sil
+  - Görsel galeri yönetimi
+  - Teknoloji etiketleri
+  - Öne çıkan proje işaretleme
+
+#### 👥 Freelancer Yönetimi
+- **URL**: `/admin/freelancers`
+- **Özellikler**:
+  - Başvuruları görüntüle
+  - Onayla / Reddet
+  - Durum değiştir
+
+#### 📋 Proje Talepleri
+- **URL**: `/admin/project-requests`
+- **Özellikler**:
+  - Müşteri taleplerini görüntüle
+  - Durum güncelle
+
+#### 🌐 Çeviri Yönetimi
+- **URL**: `/admin/translations`
+- **Özellikler**:
+  - Eksik çevirileri senkronize et
+  - Otomatik çeviri (DeepL)
+
+---
+
+## 🗄 Veritabanı
+
+Proje **Supabase PostgreSQL** kullanır.
+
+### Ana Tablolar
+
+| Tablo | Açıklama |
+|-------|----------|
+| `blog_posts` | Blog yazıları |
+| `blog_authors` | Blog yazarları |
+| `portfolio_items` | Portfolyo projeleri |
+| `freelancers` | Freelancer profilleri |
+| `project_requests` | Müşteri proje talepleri |
+| `translations` | Çeviri key-value çiftleri |
+
+### Supabase'e Erişim
+
+1. https://supabase.com/dashboard adresine git
+2. "Unilancer" projesini seç
+3. Sol menüden "Table Editor" seç
+4. Tabloları görüntüle ve düzenle
+
+---
+
+## 🌍 Çeviri Sistemi
+
+### Nasıl Çalışıyor?
+
+1. Çeviriler `src/lib/translations.ts` dosyasında saklanır
+2. Sayfalarda `t('anahtar')` fonksiyonu ile kullanılır
+3. Dil değiştiğinde tüm metinler otomatik güncellenir
+
+### Çeviri Kullanımı
 
 ```tsx
-import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslation } from '../hooks/useTranslation';
 
-const MyComponent = () => {
-  const { t, language, toggleLanguage } = useLanguage();
-
+function MyComponent() {
+  const { t, language } = useTranslation();
+  
   return (
     <div>
-      <h1>{t('home.hero.title')}</h1>
-      <p>Current: {language}</p>
-      <button onClick={toggleLanguage}>Switch Language</button>
+      <h1>{t('home.title')}</h1>
+      <p>Şu anki dil: {language}</p>
+    </div>
+  );
+}
+```
+
+### Yeni Çeviri Ekleme
+
+`src/lib/translations.ts` dosyasını aç:
+
+```typescript
+export const translations = {
+  tr: {
+    // ... mevcut çeviriler
+    'yeni.anahtar': 'Türkçe metin',
+  },
+  en: {
+    // ... mevcut çeviriler
+    'yeni.anahtar': 'English text',
+  }
+};
+```
+
+---
+
+## ➕ Yeni Sayfa Ekleme
+
+### Adım 1: Sayfa Dosyası Oluştur
+
+`src/pages/YeniSayfa.tsx` dosyası oluştur:
+
+```tsx
+import { useTranslation } from '../hooks/useTranslation';
+
+const YeniSayfa = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-dark">
+      <div className="container mx-auto px-4 py-16">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+          Yeni Sayfa
+        </h1>
+        <p className="mt-4 text-gray-600 dark:text-gray-300">
+          Sayfa içeriği buraya gelecek.
+        </p>
+      </div>
     </div>
   );
 };
+
+export default YeniSayfa;
 ```
 
-### Language Detection
+### Adım 2: Route Ekle
 
-The system automatically:
-1. Checks `localStorage` for saved preference
-2. Detects user's country via IP geolocation
-3. Defaults to Turkish (`tr`) for Turkey, English (`en`) otherwise
+`src/App.tsx` dosyasını aç:
+
+```tsx
+// 1. Import ekle (dosyanın üstüne)
+const YeniSayfa = lazy(() => import('./pages/YeniSayfa'));
+
+// 2. Route ekle (Routes içine)
+<Route path="/tr/yeni-sayfa" element={<YeniSayfa />} />
+<Route path="/en/new-page" element={<YeniSayfa />} />
+```
+
+### Adım 3: Navbar'a Link Ekle (İsteğe Bağlı)
+
+`src/components/Navbar.tsx` dosyasında ilgili yere link ekle.
 
 ---
 
-## 💻 Development Guide
+## ❓ Sık Karşılaşılan Sorunlar
 
-### Adding a New Page
+### 🔴 "Supabase bağlantı bilgileri eksik!" hatası
 
-1. **Create the page component:**
+**Sebep**: `.env` dosyası eksik veya yanlış.
 
-```tsx
-// src/pages/NewPage.tsx
-import { Helmet } from 'react-helmet-async';
-import { useLanguage } from '../contexts/LanguageContext';
-
-const NewPage = () => {
-  const { t, language } = useLanguage();
-
-  return (
-    <>
-      <Helmet>
-        <title>New Page | Unilancer</title>
-        <meta name="description" content="Page description" />
-        <link rel="canonical" href={`https://unilancer.co/${language}/new-page`} />
-      </Helmet>
-
-      <main className="min-h-screen bg-white dark:bg-dark">
-        <div className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-            {t('newpage.title')}
-          </h1>
-        </div>
-      </main>
-    </>
-  );
-};
-
-export default NewPage;
-```
-
-2. **Add route in `src/App.tsx`:**
-
-```tsx
-const NewPage = lazy(() => import('./pages/NewPage'));
-
-// Inside Routes, add both language versions:
-<Route path="/tr/yeni-sayfa" element={<NewPage />} />
-<Route path="/en/new-page" element={<NewPage />} />
-```
-
-3. **Add to navigation in `src/components/Navbar.tsx`** (if needed)
-
-### Creating a UI Component
-
-```tsx
-// src/components/ui/MyButton.tsx
-import { cn } from '../../lib/utils';
-
-interface MyButtonProps {
-  variant?: 'primary' | 'secondary';
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}
-
-export const MyButton = ({
-  variant = 'primary',
-  children,
-  className,
-  onClick
-}: MyButtonProps) => {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'px-4 py-2 rounded-lg font-medium transition-colors',
-        variant === 'primary' && 'bg-primary text-white hover:bg-primary/90',
-        variant === 'secondary' && 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300',
-        className
-      )}
-    >
-      {children}
-    </button>
-  );
-};
-```
-
-### Styling Guidelines
-
-```tsx
-// ✅ Always include dark mode variants
-<div className="bg-white dark:bg-dark text-gray-900 dark:text-white">
-
-// ✅ Use primary color for brand elements
-<button className="bg-primary hover:bg-primary/90">
-
-// ✅ Use cn() for conditional classes
-<div className={cn('base-class', isActive && 'active-class')}>
-
-// ✅ Mobile-first responsive design
-<div className="w-full md:w-1/2 lg:w-1/3">
-
-// ✅ Touch-friendly tap targets (min 44px)
-<button className="min-h-[44px] min-w-[44px]">
-```
-
-### Theme Colors (tailwind.config.js)
-
-```javascript
-colors: {
-  primary: '#5FC8DA',    // Main brand color
-  dark: '#121212',       // Dark mode background
-  'dark-card': '#1E1E1E' // Dark mode card
-}
-```
-
----
-
-## 📜 Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server (port 5173) |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build locally |
-| `npm run lint` | Run ESLint |
-
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file in the project root:
-
+**Çözüm**:
+1. Proje kök dizininde `.env` dosyası oluştur
+2. Supabase bilgilerini ekle:
 ```env
-# Supabase Configuration (Required)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-
-# Optional: DeepL API (for translations - configured in Edge Functions)
-# DEEPL_API_KEY=your-deepl-key
+VITE_SUPABASE_URL=https://ctncspdgguclpeijikfp.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
 ```
 
-### Getting Supabase Credentials
-
-1. Go to [Supabase Dashboard](https://app.supabase.com)
-2. Select the Unilancer project
-3. Navigate to **Settings → API**
-4. Copy:
-   - **Project URL** → `VITE_SUPABASE_URL`
-   - **anon/public key** → `VITE_SUPABASE_ANON_KEY`
-
 ---
 
-## 📚 Documentation
+### 🔴 "npm install" hata veriyor
 
-| Document | Description |
-|----------|-------------|
-| [📐 Architecture](./docs/ARCHITECTURE.md) | System architecture, database schema, data flow |
-| [👨‍💻 Developer Guide](./docs/DEVELOPER_GUIDE.md) | Detailed development guide, common tasks, onboarding |
-| [🌐 Translation System](./docs/TRANSLATION_SYSTEM.md) | i18n implementation, adding translations |
-| [✨ Features](./docs/FEATURES.md) | Feature documentation and usage |
-| [🎠 Marquee Component](./docs/MARQUEE_COMPONENT.md) | Marquee animation component guide |
-
----
-
-## 🚀 Deployment
-
-### Vercel (Current Production)
-
-The site is deployed on **Vercel** at [unilancer.co](https://unilancer.co).
-
-**Automatic Deployment:**
-- Push to `main` branch triggers production deploy
-- Pull requests get preview deployments
-
-**Manual Deployment:**
+**Çözüm**:
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# node_modules ve lock dosyasını sil
+rm -rf node_modules
+rm package-lock.json
 
-# Deploy
-vercel --prod
+# Tekrar yükle
+npm install
 ```
 
-### Build Configuration
-
-```json
-// vercel.json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
-}
+Windows için:
+```powershell
+Remove-Item -Recurse -Force node_modules
+Remove-Item package-lock.json
+npm install
 ```
 
 ---
 
-## 🤝 Contributing
+### 🔴 Sayfa yenilenince 404 hatası
+
+**Sebep**: SPA routing sorunu.
+
+**Çözüm**: Bu Vercel'de otomatik çözülüyor. Yerel geliştirmede sorun olmaz.
+
+---
+
+### 🔴 Stiller çalışmıyor
+
+**Çözüm**:
+```bash
+# Sunucuyu durdur (Ctrl+C) ve yeniden başlat
+npm run dev
+```
+
+---
+
+### 🔴 Admin paneline giremiyorum
+
+**Çözüm**:
+1. `/login` adresine git
+2. Doğru e-posta ve şifre kullan
+3. Supabase'de kullanıcının `app_metadata`'sında `role: "admin"` olmalı
+
+---
+
+### 🔴 TypeScript hatası alıyorum
+
+**Çözüm**:
+```bash
+# Tip kontrolü yap
+npm run lint
+```
+
+Hata mesajını okuyup ilgili dosyayı düzelt.
+
+---
+
+## 🚀 Yayınlama (Deploy)
+
+### Otomatik Deploy (Önerilen)
+
+1. Değişiklikleri commit et:
+```bash
+git add .
+git commit -m "feat: yeni özellik"
+```
+
+2. GitHub'a push et:
+```bash
+git push origin main
+```
+
+3. **Vercel otomatik olarak deploy eder** (~2 dakika)
+
+4. Canlı site: https://unilancer.co
+
+### Manuel Build
+
+```bash
+# Prodüksiyon build al
+npm run build
+
+# dist/ klasöründe çıktılar oluşur
+```
+
+---
+
+## 📜 Komutlar
+
+| Komut | Ne Yapar? |
+|-------|-----------|
+| `npm run dev` | Geliştirme sunucusu başlat |
+| `npm run build` | Prodüksiyon için derle |
+| `npm run preview` | Build'i önizle |
+| `npm run lint` | Kod kontrolü |
+
+---
+
+## 📚 Faydalı Kaynaklar
+
+### Öğrenmek İçin
+
+| Konu | Kaynak |
+|------|--------|
+| React | [React Dokümantasyonu](https://react.dev/learn) |
+| TypeScript | [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/) |
+| Tailwind CSS | [Tailwind Docs](https://tailwindcss.com/docs) |
+| Supabase | [Supabase Docs](https://supabase.com/docs) |
+
+### Proje Dokümantasyonu
+
+| Dosya | İçerik |
+|-------|--------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Sistem mimarisi |
+| [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Geliştirici rehberi |
+| [docs/FEATURES.md](docs/FEATURES.md) | Özellik listesi |
+| [docs/TRANSLATION_SYSTEM.md](docs/TRANSLATION_SYSTEM.md) | Çeviri sistemi |
+
+---
+
+## 🤝 Katkıda Bulunma
 
 ### Git Workflow
 
+1. Yeni branch oluştur:
 ```bash
-# 1. Create feature branch
-git checkout -b feature/my-feature
-
-# 2. Make changes and commit
-git add .
-git commit -m "feat: add new feature"
-
-# 3. Push and create PR
-git push origin feature/my-feature
+git checkout -b feature/yeni-ozellik
 ```
 
-### Commit Convention
+2. Değişiklik yap ve commit et:
+```bash
+git add .
+git commit -m "feat: yeni özellik açıklaması"
+```
 
-| Prefix | Description |
-|--------|-------------|
-| `feat:` | New feature |
-| `fix:` | Bug fix |
-| `docs:` | Documentation |
-| `style:` | Code style (formatting) |
-| `refactor:` | Code refactoring |
-| `perf:` | Performance improvement |
-| `chore:` | Maintenance tasks |
+3. Push et:
+```bash
+git push origin feature/yeni-ozellik
+```
 
-### Pre-commit Checklist
+4. GitHub'da Pull Request aç
 
-- [ ] `npm run lint` passes
-- [ ] `npm run build` succeeds
-- [ ] Dark mode works correctly
-- [ ] Mobile responsive (test 375px, 768px, 1440px)
-- [ ] Both TR and EN versions work
-- [ ] No console errors
+### Commit Mesaj Formatı
+
+| Prefix | Kullanım |
+|--------|----------|
+| `feat:` | Yeni özellik |
+| `fix:` | Hata düzeltme |
+| `docs:` | Dokümantasyon |
+| `style:` | Stil değişiklikleri |
+| `refactor:` | Kod düzenleme |
+| `chore:` | Genel bakım |
+
+**Örnek**: `feat: kullanıcı profil sayfası eklendi`
 
 ---
 
-## 📄 License
+## 📞 Yardım
 
-This project is proprietary software. All rights reserved.
+Sorun yaşarsan:
+
+1. Bu README'yi tekrar oku
+2. `docs/` klasöründeki belgelere bak
+3. Ekip liderine sor
 
 ---
 
 <div align="center">
 
-**Built with ❤️ by the Unilancer Team**
+**Unilancer Labs** ❤️
 
-[🌐 unilancer.co](https://unilancer.co) · [📧 Contact](https://unilancer.co/tr/iletisim)
+[🌐 unilancer.co](https://unilancer.co)
+
+*Son güncelleme: Ocak 2026*
 
 </div>
