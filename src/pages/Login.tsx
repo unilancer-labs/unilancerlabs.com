@@ -32,6 +32,7 @@ const Login = () => {
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const authCheckDone = useRef(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   // Load failed attempts from localStorage
   useEffect(() => {
@@ -58,26 +59,36 @@ const Login = () => {
     if (authCheckDone.current) return;
     authCheckDone.current = true;
     
+    let isMounted = true;
+    
     const checkAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Session check error:', error);
+          if (isMounted) setCheckingAuth(false);
           return;
         }
         
-        if (session?.user) {
+        if (session?.user && isMounted) {
           // User is already authenticated, redirect to admin
           const from = location.state?.from?.pathname || '/admin';
           navigate(from, { replace: true });
+        } else if (isMounted) {
+          setCheckingAuth(false);
         }
       } catch (err) {
         console.error('Session check error:', err);
+        if (isMounted) setCheckingAuth(false);
       }
     };
     
     checkAuth();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [navigate, location.state]);
 
   // Countdown timer for lockout
@@ -167,6 +178,15 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // Show loading while checking existing auth
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">

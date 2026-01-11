@@ -4,69 +4,74 @@ import { supabase } from '../lib/config/supabase';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const location = useLocation();
-  const authCheckDone = useRef(false);
+  const initialCheckDone = useRef(false);
 
   useEffect(() => {
-    // Prevent multiple auth checks
-    if (authCheckDone.current) return;
-    
     let isMounted = true;
     
-    const checkAuth = async () => {
+    // Initial session check - only run once
+    const initializeAuth = async () => {
+      if (initialCheckDone.current) return;
+      initialCheckDone.current = true;
+      
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Auth check error:', error);
+          if (isMounted) {
+            setIsAuthenticated(false);
+            setLoading(false);
+          }
+          return;
+        }
+        
         if (isMounted) {
           setIsAuthenticated(!!session?.user);
           setLoading(false);
-          authCheckDone.current = true;
         }
       } catch (error) {
         console.error('Auth check error:', error);
         if (isMounted) {
           setIsAuthenticated(false);
           setLoading(false);
-          authCheckDone.current = true;
         }
       }
     };
     
-    // Listen for auth state changes
+    // Listen for auth state changes (for logout, token refresh etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!isMounted) return;
         
-        // Only handle meaningful events to prevent loops
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          setIsAuthenticated(!!session?.user);
-          setLoading(false);
-        } else if (event === 'SIGNED_OUT') {
+        // Skip INITIAL_SESSION as we handle it separately to avoid race conditions
+        if (event === 'INITIAL_SESSION') return;
+        
+        // Handle sign out
+        if (event === 'SIGNED_OUT') {
           setIsAuthenticated(false);
+          setLoading(false);
+        }
+        // Handle sign in and token refresh
+        else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setIsAuthenticated(!!session?.user);
           setLoading(false);
         }
       }
     );
     
-    // Set timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
-      if (isMounted && loading) {
-        setIsAuthenticated(false);
-        setLoading(false);
-        authCheckDone.current = true;
-      }
-    }, 5000);
-    
-    checkAuth();
+    initializeAuth();
     
     return () => {
       isMounted = false;
-      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, []);
 
-  if (loading) {
+  // Show loading spinner while checking auth
+  if (loading || isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-dark flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -74,6 +79,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
