@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu } from 'lucide-react';
@@ -21,6 +21,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Memoize toggle callback to prevent infinite re-render loops
+  const handleSidebarToggle = useCallback(() => {
+    setSidebarOpen(prev => !prev);
+  }, []);
+
   // Sadece masaüstünde margin-left animasyonu uygulayalım
   const marginLeftValue = isDesktop
     ? (sidebarOpen ? '320px' : '96px') // Masaüstü animasyonu
@@ -33,7 +38,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       {/* Sidebar Bileşeni */}
       <AdminSidebar
         isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onToggle={handleSidebarToggle}
       />
 
       {/* İçerik Alanı */}
@@ -48,7 +53,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="lg:hidden sticky top-0 z-40 bg-white/95 dark:bg-dark-light/95 backdrop-blur-sm border-b border-slate-200 dark:border-white/10">
           <div className="h-16 px-4 flex items-center">
             <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
+              onClick={handleSidebarToggle}
               className="p-3 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors text-slate-600 dark:text-white"
               aria-label="Toggle Menu"
             >

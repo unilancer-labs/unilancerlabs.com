@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { signIn } from '../lib/auth';
@@ -31,6 +31,7 @@ const Login = () => {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const authCheckDone = useRef(false);
 
   // Load failed attempts from localStorage
   useEffect(() => {
@@ -51,34 +52,33 @@ const Login = () => {
     }
   }, []);
 
-  // Check if user is already logged in
+  // Check if user is already logged in - only once
   useEffect(() => {
+    // Prevent multiple checks that cause redirect loops
+    if (authCheckDone.current) return;
+    authCheckDone.current = true;
+    
     const checkAuth = async () => {
       try {
-        // Use a timeout to prevent long loading
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session check timeout')), 5000)
-        );
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        const sessionPromise = supabase.auth.getSession();
+        if (error) {
+          console.error('Session check error:', error);
+          return;
+        }
         
-        const { data: { session }, error } = await Promise.race([
-          sessionPromise,
-          timeoutPromise
-        ]) as Awaited<ReturnType<typeof supabase.auth.getSession>>;
-        
-        if (error) throw error;
-        if (session) {
-          navigate('/admin');
+        if (session?.user) {
+          // User is already authenticated, redirect to admin
+          const from = location.state?.from?.pathname || '/admin';
+          navigate(from, { replace: true });
         }
       } catch (err) {
         console.error('Session check error:', err);
-        // Clear potentially corrupted session
-        localStorage.removeItem('supabase.auth.token');
       }
     };
+    
     checkAuth();
-  }, [navigate]);
+  }, [navigate, location.state]);
 
   // Countdown timer for lockout
   useEffect(() => {

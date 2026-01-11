@@ -123,11 +123,8 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
     return location.pathname === link.href;
   };
 
-  useEffect(() => {
-    if (isHovered && !isOpen) {
-      onToggle();
-    }
-  }, [isHovered, isOpen, onToggle]);
+  // Removed auto-toggle on hover to prevent infinite render loop
+  // Sidebar now expands/collapses only on explicit user interaction
 
   return (
     <>
@@ -139,10 +136,7 @@ const AdminSidebar = ({ isOpen, onToggle }: AdminSidebarProps) => {
           transition: { duration: 0.3, ease: 'easeInOut' }
         }}
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          if (isOpen) onToggle();
-        }}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] opacity-50" />
